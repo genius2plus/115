@@ -1,0 +1,87 @@
+﻿.Title_Cart{/*標題*/
+    background:url('/Images/Title Cart.png') no-repeat left;
+    color:#FB7D04;
+    font-size:18px;
+    font-weight:bold;
+    padding:10px 0 10px 25px;
+    width:100%;
+}
+#Body_Img_Bar{
+    width:100%;
+    border:0;
+    margin:auto;
+}
+/*==========購物車清單==========*/
+.Grid_Cart tr th{/*標題*/
+    text-align:center;
+    border:none;
+    background-color:#e2e2e2;
+}
+.Grid_Cart tr td{
+    border-width:0 0 1px 0;
+    border-bottom-style:solid;
+    border-bottom-color:#cccccc;
+}
+.Grid_Cart tr td img{/*封面*/
+    margin-right:30px;
+    width:100px;
+    cursor:pointer;
+}
+.Grid_Cart tr td:not(:first-child) {
+    text-align: center;
+}
+.Grid_Cart tr td:nth-child(4),#TotalBook,#TotalQty {/*小計*/
+    color:orangered;
+}
+.Grid_Cart tr td select{/*數量*/
+    width:70px;
+    border-top:solid 1px #cccccc;
+    border-bottom:solid 1px #cccccc;
+    border-left:none;
+    border-right:none;
+    text-align:center;
+    margin:0;
+    font-size:18px;
+}
+.Grid_Cart tr td input[value='-']{/*減少數量*/
+    border:solid 1px #cccccc;
+    border-radius:5px 0 0 5px;
+    margin:0;
+    font-size:18px;
+}
+.Grid_Cart tr td input[value='+']{/*增加數量*/
+    border:solid 1px #cccccc;
+    border-radius:0 5px 5px 0;
+    margin:0;
+    font-size:18px;
+}
+.Grid_Cart tr  input[type=submit]{/*取消品項*/
+    background-color:dimgray;
+    border:none;
+    border-radius:5px;
+    padding:5px;
+    color:white;
+    cursor:pointer;    
+}
+.Form_Cart{/*填寫資訊*/
+    width:100%;
+}
+.Form_Cart font{/*必填*/
+    color:orangered;
+}
+.Form_Cart tr:nth-child(odd) {
+    background-color:lightskyblue;
+}
+.Form_Cart tr:nth-child(odd) th {
+    text-align:left;
+}
+.Form_Cart tr:nth-child(even) th {
+    background-color:#e2e2e2;
+}
+.Form_Cart table th{/*標題*/
+    background-color:white;
+    color:#2f70ac;
+}
+.Form_Cart table td{
+    background-color:white;
+}  

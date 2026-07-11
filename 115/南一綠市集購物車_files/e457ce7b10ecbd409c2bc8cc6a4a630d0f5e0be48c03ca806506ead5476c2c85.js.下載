@@ -1,0 +1,131 @@
+(function() {
+(function(){function e(e){throw Error(`Chat Box initialization failed. Reason: `+e)}function t(){let t=``;return window.CYBERBIZ?t=window.CYBERBIZ.initializeSDK.getSetting(`c9d83f0996174fbba86eba041ae898a2`).widget_key:window.ChatBoxConfig&&(t=window.ChatBoxConfig.widgetKey),t||e(`Widget key does not exist.`),t}async function n(t){let n=await fetch(`https://message.cyberbiz.io/api/widgets/${t}/verify`);n.ok||((n.status===403||n.status===422)&&e(`Origin or widget key is invalid or disabled.`),e(`(${n.status}) ${await n.text()||n.statusText}`))}var r=`<svg data-testid="icon-arrow-down" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <path d="M18.7101 8.21C18.6171 8.11627 18.5065 8.04188 18.3846 7.99111C18.2628 7.94034 18.1321 7.9142 18.0001 7.9142C17.868 7.9142 17.7373 7.94034 17.6155 7.99111C17.4936 8.04188 17.383 8.11627 17.2901 8.21L12.7101 12.79C12.6171 12.8837 12.5065 12.9581 12.3846 13.0089C12.2628 13.0597 12.1321 13.0858 12.0001 13.0858C11.868 13.0858 11.7373 13.0597 11.6155 13.0089C11.4936 12.9581 11.383 12.8837 11.2901 12.79L6.71006 8.21C6.6171 8.11627 6.5065 8.04188 6.38464 7.99111C6.26278 7.94034 6.13207 7.9142 6.00006 7.9142C5.86805 7.9142 5.73734 7.94034 5.61548 7.99111C5.49362 8.04188 5.38302 8.11627 5.29006 8.21C5.10381 8.39736 4.99927 8.65081 4.99927 8.915C4.99927 9.17918 5.10381 9.43264 5.29006 9.62L9.88006 14.21C10.4426 14.7718 11.2051 15.0874 12.0001 15.0874C12.7951 15.0874 13.5576 14.7718 14.1201 14.21L18.7101 9.62C18.8963 9.43264 19.0009 9.17918 19.0009 8.915C19.0009 8.65081 18.8963 8.39736 18.7101 8.21Z" />
+</svg>
+`,i=`<svg data-testid="icon-chat" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
+  <path d="M32 14.996C31.8072 11.876 30.7056 8.8807 28.831 6.37925C26.9564 3.8778 24.3907 1.97961 21.4503 0.918679C18.5099 -0.142251 15.3234 -0.319536 12.2835 0.40868C9.24354 1.1369 6.48316 2.73878 4.34264 5.01684C2.20212 7.29491 0.775028 10.1496 0.237296 13.2289C-0.300436 16.3082 0.074702 19.4776 1.31646 22.3463C2.55822 25.215 4.61232 27.6576 7.22552 29.373C9.83872 31.0884 12.8968 32.0016 16.0227 32H25.3334C27.1009 31.9983 28.7956 31.2953 30.0455 30.0455C31.2953 28.7956 31.9983 27.1009 32 25.3334V14.996ZM29.3334 25.3334C29.3334 26.3942 28.9119 27.4116 28.1618 28.1618C27.4117 28.9119 26.3942 29.3334 25.3334 29.3334H16.0227C14.1413 29.3325 12.2812 28.9351 10.5636 28.1671C8.84611 27.3991 7.30974 26.2777 6.05471 24.876C4.79361 23.4751 3.84661 21.8206 3.27723 20.0237C2.70785 18.2268 2.52924 16.3289 2.75337 14.4574C3.10729 11.5053 4.43363 8.75494 6.5233 6.63992C8.61297 4.5249 11.3471 3.1655 14.2947 2.77602C14.8697 2.70395 15.4486 2.66744 16.028 2.66669C19.1353 2.65821 22.1464 3.74389 24.5334 5.73335C25.9274 6.89194 27.0717 8.32156 27.8967 9.93553C28.7218 11.5495 29.2106 13.3142 29.3334 15.1227V25.3334Z" />
+  <path d="M10.6666 12H15.9999C16.3535 12 16.6927 11.8596 16.9427 11.6095C17.1928 11.3595 17.3333 11.0203 17.3333 10.6667C17.3333 10.3131 17.1928 9.97395 16.9427 9.7239C16.6927 9.47385 16.3535 9.33337 15.9999 9.33337H10.6666C10.313 9.33337 9.97383 9.47385 9.72378 9.7239C9.47373 9.97395 9.33325 10.3131 9.33325 10.6667C9.33325 11.0203 9.47373 11.3595 9.72378 11.6095C9.97383 11.8596 10.313 12 10.6666 12Z" />
+  <path d="M21.3333 14.6666H10.6666C10.313 14.6666 9.97383 14.8071 9.72378 15.0572C9.47373 15.3072 9.33325 15.6463 9.33325 16C9.33325 16.3536 9.47373 16.6927 9.72378 16.9428C9.97383 17.1928 10.313 17.3333 10.6666 17.3333H21.3333C21.6869 17.3333 22.026 17.1928 22.2761 16.9428C22.5261 16.6927 22.6666 16.3536 22.6666 16C22.6666 15.6463 22.5261 15.3072 22.2761 15.0572C22.026 14.8071 21.6869 14.6666 21.3333 14.6666Z" />
+  <path d="M21.3333 20H10.6666C10.313 20 9.97383 20.1405 9.72378 20.3905C9.47373 20.6406 9.33325 20.9797 9.33325 21.3333C9.33325 21.687 9.47373 22.0261 9.72378 22.2761C9.97383 22.5262 10.313 22.6667 10.6666 22.6667H21.3333C21.6869 22.6667 22.026 22.5262 22.2761 22.2761C22.5261 22.0261 22.6666 21.687 22.6666 21.3333C22.6666 20.9797 22.5261 20.6406 22.2761 20.3905C22.026 20.1405 21.6869 20 21.3333 20Z" />
+</svg>`,a=`<svg data-testid="icon-close" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <path d="M17.9999 6C17.8124 5.81253 17.5581 5.70721 17.2929 5.70721C17.0278 5.70721 16.7735 5.81253 16.5859 6L11.9999 10.586L7.41394 6C7.22641 5.81253 6.9721 5.70721 6.70694 5.70721C6.44178 5.70721 6.18747 5.81253 5.99994 6C5.81247 6.18753 5.70715 6.44184 5.70715 6.707C5.70715 6.97216 5.81247 7.22647 5.99994 7.414L10.5859 12L5.99994 16.586C5.81247 16.7735 5.70715 17.0278 5.70715 17.293C5.70715 17.5582 5.81247 17.8125 5.99994 18C6.18747 18.1875 6.44178 18.2928 6.70694 18.2928C6.9721 18.2928 7.22641 18.1875 7.41394 18L11.9999 13.414L16.5859 18C16.7735 18.1875 17.0278 18.2928 17.2929 18.2928C17.5581 18.2928 17.8124 18.1875 17.9999 18C18.1874 17.8125 18.2927 17.5582 18.2927 17.293C18.2927 17.0278 18.1874 16.7735 17.9999 16.586L13.4139 12L17.9999 7.414C18.1874 7.22647 18.2927 6.97216 18.2927 6.707C18.2927 6.44184 18.1874 6.18753 17.9999 6Z" />
+</svg>`;function o(){return window.innerWidth<=480}function s({colors:e,position:{desktop:t,mobile:n}}){let r=`chat-box-styles`,i=`left`in t?`left`:`right`,a=`left`in n?`left`:`right`,o=document.getElementById(r)||document.createElement(`style`);o.id=r,o.textContent=`
+      .chat-box-container {
+        position: fixed;
+        bottom: ${t.bottom}px;
+        ${i}: ${`left`in t?t.left:t.right}px;
+        text-align: ${i};
+        z-index: 999999;
+        pointer-events: none;
+      }
+
+      .chat-box-iframe-wrapper {
+        display: none;
+        margin-bottom: 16px;
+        width: 400px;
+        height: var(--iframe-height, 0);
+        max-height: calc(100vh - 100px);
+        max-height: calc(100dvh - 100px);
+        border-radius: 20px;
+        overflow: hidden;
+        background: #ffffff;
+        box-shadow: 0 0 20px 0 rgba(142, 153, 173, 0.20);
+        pointer-events: auto;
+      }
+
+      .chat-box-iframe-wrapper.open {
+        display: block;
+        animation: chat-box-slide-up 0.3s ease-out;
+      }
+      
+      .chat-box-close {
+        display: none;
+        position: absolute;
+        top: 20px;
+        right: 12px;
+        width: fit-content;
+        height: fit-content;
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        color: ${e.title};
+      }
+
+      .chat-box-close svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      .chat-box-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+
+      .chat-box-toggle {
+        background: ${e.brand};
+        color: ${e.title};
+        border: none;
+        cursor: pointer;
+        line-height: 0;
+        padding: 12px;
+        border-radius: 50%;
+        box-shadow: 0 0 20px 0 rgba(142, 153, 173, 0.20);
+        pointer-events: auto;
+      }
+
+      .chat-box-toggle:hover {
+        transform: scale(1.05);
+      }
+
+      .chat-box-toggle:active {
+        transform: scale(0.95);
+      }
+
+      .chat-box-toggle svg {
+        width: 32px;
+        height: 32px;
+      }
+
+      @keyframes chat-box-slide-up {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .chat-box-container {
+          bottom: ${n.bottom}px;
+          ${i}: auto;
+          ${a}: ${`left`in n?n.left:n.right}px;
+          text-align: ${a};
+        }
+
+        .chat-box-iframe-wrapper {
+          width: 100vw;
+          height: 100vh;
+          height: 100dvh;
+          max-height: none;
+          position: fixed;
+          bottom: 0;
+          right: 0;
+          margin-bottom: 0;
+          border-radius: 0;
+        }
+
+        .chat-box-iframe-wrapper .chat-box-close {
+          display: inline-flex;
+        }
+
+        .chat-box-iframe-wrapper.open ~ .chat-box-toggle {
+          display: none;
+        }
+      }`.replace(`      `,``),document.head.appendChild(o)}function c(e){let t=`chat-box-container`,n=`chat-box-iframe-wrapper`,c=document.createElement(`div`);c.className=`chat-box-container`,c.id=t,c.dataset.testid=t,c.style.display=`none`;let l=document.createElement(`div`);l.className=`chat-box-iframe-wrapper`,l.id=n,l.role=`dialog`;let u=new URL(`https://message-widget.cyberbiz.io`);u.searchParams.set(`widgetKey`,e),u.searchParams.set(`language`,document.documentElement.lang);let d=document.createElement(`iframe`);d.className=`chat-box-iframe`,d.title=`訊息通`,d.allow=`clipboard-write`,d.src=u.toString();function f(){l.classList.toggle(`open`)?(p.innerHTML=r,p.ariaExpanded=`true`,p.setAttribute(`aria-controls`,n)):(p.innerHTML=i,p.ariaExpanded=`false`,p.removeAttribute(`aria-controls`))}let p=document.createElement(`button`);p.className=`chat-box-toggle`,p.ariaLabel=`開啟訊息通`,p.ariaHasPopup=`true`,p.ariaExpanded=`false`,p.innerHTML=i,p.addEventListener(`click`,f);let m=document.createElement(`button`);m.className=`chat-box-close`,m.ariaLabel=`關閉訊息通`,m.setAttribute(`aria-controls`,n),m.innerHTML=a,m.addEventListener(`click`,f),l.appendChild(m),l.appendChild(d),c.appendChild(l),c.appendChild(p),document.body.appendChild(c);let h=!1,g=null;function _(){let e=o();if(h&&g!==e){g=e;let t={type:`CHAT_BOX_MOBILE_MODE`,enabled:g};d.contentWindow?.postMessage(t,`*`)}}window.addEventListener(`resize`,_),window.addEventListener(`message`,function(e){if(e.source!==d.contentWindow)return;let{data:t}=e;if(t.type===`CHAT_BOX_WIDGET_SETTINGS`)h=!0,_(),s(t.settings),c.style.display=`block`;else if(t.type===`CHAT_BOX_WINDOW_RESIZE`){if(g)return;l.style.setProperty(`--iframe-height`,`${t.height}px`)}else console.warn(`Unknown Message Event: `,JSON.stringify(e.data))})}(async function(){let e=t();await n(e),document.readyState===`loading`?document.addEventListener(`DOMContentLoaded`,function(){c(e)}):c(e)})().catch(e=>console.error(e.message))})();
+})();

@@ -1,0 +1,1 @@
+(function(){var n=function(){$("#fastEventTag").on("click",(function(){$(this).parent().toggleClass("turn-on")}))};$(document).ready(n)})();

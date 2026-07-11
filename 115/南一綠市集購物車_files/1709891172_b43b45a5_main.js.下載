@@ -1,0 +1,118 @@
+// 捲動消失
+function scrollFade(element, scrollTop){
+  $(window).on('scroll', function (){
+    if ($(this).scrollTop() > scrollTop){
+      element.stop().fadeIn(300);
+    }else{
+      element.stop().fadeOut(300);
+    }
+  })
+}
+
+// money symbol sample in navbar
+function moneySymbol(number, from) {
+  if (number === undefined) {
+    return;
+  }
+
+  var currency = window.liquidHelper.getCurrency()
+  var value = number
+  var result
+
+  if (window.CurrencyConverter) {
+    value = CurrencyConverter.convert(number, { from, to: currency.code });
+  }
+  if(currency.format.indexOf('{{amount_no_decimals}}') !== -1 ) {
+    value = Math.round(value);
+    result = currency.format.replace('{{amount_no_decimals}}',value);
+  } else {
+    value = Math.round(value * 100) / 100;
+    result = currency.format.replace('{{amount}}',value);
+  }
+  return result;
+}
+
+$(document).ready(function(){
+  // 移除resize.drawer 防止手機版閃退
+  $(window).off('resize.drawer');
+  // 重置購物車
+  refreshNavCart()
+  // 關閉搜尋下拉選單
+  $(".close-dropdown").click(function(e){
+    $('.dropdown.open .dropdown-toggle').dropdown('toggle');
+  })
+  // template padding
+  var headerHeight = $("#header").outerHeight()
+  var windowHeight = $(window).height()
+  // 有在圖片attr上寫height,width，所以要改回來
+  $('.img-flex img').css({'height':'auto','width':'auto','opacity':'1'})
+  // gototop
+  scrollFade($('#gototop'), $(window).height())
+  $('#gototop').click(function(){
+    $("html, body").animate({ scrollTop: 0 }, 300);
+  })
+  // datepicker
+  if ($(".datepicker").length){
+    $(".datepicker").datepicker({
+      dateFormat: 'yy/mm/dd'
+    });
+  }
+
+  // account sendConfirmationEmail
+  $('#sendConfirmationEmail').submit(function(e){
+    e.preventDefault();
+    $.ajax({
+      method: $(this).attr('method'),
+      url: $(this).attr('action'),
+      beforeSend: function(xhr){
+        $('#sendConfirmationEmail .alert-link').addClass('d-none');
+        $('#sending').removeClass('d-none');
+      }
+    })
+    .fail(function(jqXHR){
+      console.log(jqXHR);
+      window.msg(language["mail_send_fail"],'error').show();
+      $('#confirmationAlert > span').text(language["mail_send_fail"]);
+    })
+    .done(function(res){
+      $('#confirmationAlert').removeClass('alert-danger');
+      $('#confirmationAlert').addClass('alert-success');
+      $('#confirmationAlert > span').text(language["go_check_email"]);
+      $('#sendConfirmationEmail .alert-link').removeClass('d-none');
+      $('#sending').addClass('d-none');
+    });
+  });
+});
+
+function setPriceWithDiscount() {
+  var productIds = [];
+  $('.product.product_tag').each(function() {
+    productIds.push({ id: $(this).attr('product_id') });
+  });
+
+  var currencyFrom = liquidHelper.defaultCurrency;
+  themeHelper.priceWithDiscount(productIds, liquidHelper.hasPriceWithDiscountPlugin, function(result) {
+    if (!result) {
+      return;
+    }
+    Object.keys(result).forEach(function(id) {
+      $('.product_tag[variant_id=' + id + ']').find('.money_tag').filter(function(){
+        return $(this).parent().is(":not(.compare_at_price)");
+      }).data('amount', result[id]).html(moneySymbol(result[id], currencyFrom));
+    });
+  });
+};
+
+// 結帳頁v3
+$(document).on('checkout_cart:ready', function(event, config) {
+  store.remove('cart')
+  pullNavCart()
+})
+$(document).on('checkout_cart:added', function(event, items) {
+  store.remove('cart')
+  pullNavCart()
+})
+$(document).on('checkout_cart:logined', function(event, customer) {
+  store.remove('customer')
+  pullCustomer()
+})

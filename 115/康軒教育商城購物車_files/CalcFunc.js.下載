@@ -1,0 +1,754 @@
+﻿//計算購物車總額與折扣
+function CalcCartSelectUnitTotalAmt() {
+    //選中的商品金額類別
+
+    //總金額
+    let TotalAmt = 0;
+
+    let TAmt_Magt = 0;//雜誌的總額
+    let TAmt_K9KID = 0;//K9KID
+    let TAmt_APP = 0;//APP
+
+    //總重量
+    let TotalWeight = 0;
+    //總共N項
+    let TotalCount = 0;
+    //總共幾件
+    let TotalItemQty = 0;
+    //折扣總合
+    let TotalDiscount = 0;
+    //商品原本的折扣總合
+    let TotalCommodityDiscount = 0;
+    //一期郵資
+    let OnePostage = 0;
+    //總郵資
+    let TotalPostage = 0;
+
+    //檢查全選
+    let CheckCount = 0, CheckEd = 0;
+    $('.Totalmsg').remove();
+    //選擇的行銷方式
+    let _ChooseActivities = $('#tb_Activities').val();
+    //行銷內容 滿額;滿量;折扣%;折扣$
+    let _ChooseActivitiesContant = $('#tb_ActContant').val();
+
+    //已選擇總額,已選總量,已選項目
+    let SelectTotalAmt = 0;
+    let SelectTotalQty = 0;
+    let SelectItems = 0;
+
+    //原商品折扣
+    let _CommodityDiscounts = 0;
+    //顯示原折扣
+    let showOriginalDiscount = false;
+
+    $('.CartEach').each(function () {
+        if ($(this).prop("checked")) {
+            //取出商品所有的行銷組合
+            let _Activities = $(this).parent().parent().find('.Activities').html();
+            let _ActivitieGrid = _Activities.split('_');
+            //逐個組合判斷
+            for (let i = 0; i < _ActivitieGrid.length; i++) {
+                let _ActivitieParam = _ActivitieGrid[i].split(';');
+                if (_ChooseActivities == _ActivitieParam[0]) {
+                    SelectTotalAmt += parseInt(RemoveComma($(this).parent().parent().find('.m_totle').children('span').html()), 10);
+                    SelectTotalQty += parseInt($(this).parent().parent().find('.ItemQty').val(), 10);
+                    SelectItems++;
+                }
+            }
+            let nowQty = parseInt($(this).parent().parent().find('.ItemQty').val(), 10);
+            TotalCommodityDiscount += (parseInt($(this).parent().parent().find('.ItemPromoDis').html(), 10) * nowQty);
+            //$(this).parent().parent().children('.m_totle').html()
+            let Gallery = $(this).parent().parent().find('.Gallery').html();
+
+        }
+    });
+
+    //行銷折扣拆帳變數
+    let P03ItemCount = 0;
+    let P03DiscountAmt = 0;
+
+    let SplitDiscountAmt = 0;
+
+    //顯示區塊
+    let showMarketingArea = false;
+    let showZoneExpend = false;
+    let ItemGallery = [];
+    //雜誌判斷變數
+
+    //部份清值
+    //$('#lbl_MagPeriodZone').empty();
+    $('#lbl_MagFEEZone').empty();
+
+    //商品折扣
+    let _discounts = '';
+
+    //商品折扣最小量
+    let _discountNum = '';
+    //商品數量
+    let _qty = '';
+    //商品重量
+    let _weight = '';
+
+    //要計算補差
+    let SplitDiscountGAP = false;
+    //折扣數量資訊
+    let DiscountInfo = {
+        V: 0, //VIP
+        E: 0, //員工
+        S: 0,//企業
+    }
+    //使用VIP折扣數量
+    //let DiscountInfo.V = 0;
+    //使用員工價折扣數量
+    //let DiscountInfo.E = 0;
+    //倍數
+    let _multiple = 1;
+    //折N元
+    let ActiveDiscountAMT = 0;
+    //免運費線
+    let ZeroFreightLine = 900;
+    //開始逐項計算與判斷Star
+    $('.CartEach').each(function () {
+
+        _discounts = parseInt($(this).parent().parent().find('.ItemPromoDis').html(), 10);
+        
+        _discountNum = parseInt($(this).parent().parent().find('.ItemPromoNum').html(), 10);
+        
+        _qty = parseInt($(this).parent().parent().find('.ItemQty').val(), 10);
+        
+         _weight = parseFloat($(this).parent().parent().find('.ItemWeight').html());
+
+        //選擇後
+        if ($(this).prop("checked")) {
+
+            //TotalAmt += parseInt($(this).parent().next().next().next().next().children('span').html(), 10);
+            //單價
+            let _prices = parseInt(RemoveComma($(this).parent().parent().find('.m_pices').html()), 10);
+
+            //原商品本身折扣
+            _CommodityDiscounts = parseInt($(this).parent().parent().find('.ItemPromoDis').html(), 10);
+            //滿額度
+            let _discountAmt = 0;
+
+            //最多N元
+            let _MaxAmt = 0;
+            //取出商品所有的行銷組合
+            let _Activities = $(this).parent().parent().find('.Activities').html();
+            //拆分
+            let _ActivitieGrid = _Activities.split('_');
+
+            //預設以商品變價折扣
+            let UsePromo = "Commodity";
+
+            //行銷方式與商品是符合 
+            //商品有行銷(通常有, 防呆)組合 且 選擇了行銷方式
+            if (!(StringFunc.Validation.isEmptyOrNull(_Activities) &&
+                StringFunc.Validation.isEmptyOrNull(_ChooseActivities))) {
+                //逐個組合判斷
+                for (let i = 0; i < _ActivitieGrid.length; i++) {
+                    //拆分 商品變價行銷代碼,折扣,最小量
+                    let _ActivitieParam = _ActivitieGrid[i].split(';');
+                    //行銷代碼不為空 且 選擇行銷代碼=的非[商品變價]行銷方式
+                    if (!StringFunc.Validation.isEmptyOrNull(_ActivitieParam[0]) &&
+                        _ChooseActivities == _ActivitieParam[0]) {
+                        //以行銷方式折扣
+                        UsePromo = "Activitive";
+                        //行銷內容為空與行銷內容為;;;; 以商品變價折扣
+                        if (!(_ChooseActivitiesContant == ';;;;' ||
+                            StringFunc.Validation.isEmptyOrNull(_ChooseActivitiesContant))) {
+                            //拆分 行銷內容 滿額;滿量;折扣%;折扣$;最大金額$
+                            let _ActContant = _ChooseActivitiesContant.split(';');
+                            //折扣% 或折扣$
+                            _discounts = StringFunc.Validation.isEmptyOrNull(_ActContant[2]) ? _ActContant[3] : _ActContant[2];
+                            //滿量
+                            _discountNum = _ActContant[1];
+                            //滿額
+                            _discountAmt = _ActContant[0];
+                            if (_discountAmt != "0" && _discountAmt != "") {
+
+                            }
+                            //最多N元
+                            _MaxAmt = _ActContant[4];
+                        }
+                        else {
+                            //以商品變價折扣
+                            _discounts = _ActivitieParam[1];
+                            _discountNum = _ActivitieParam[2];
+                        }
+                    }
+                }
+
+            }
+            //else {
+            //    _discounts = parseInt($(this).parent().parent().next().next().next().children().eq(2).html(), 10);
+            //    _discountNum = parseInt($(this).parent().parent().next().next().next().children().eq(3).html(), 10);
+            //}
+            //總數
+            TotalItemQty += _qty;
+            //總額
+            TotalAmt += (_prices * _qty);
+
+            let NewDiscount = 0;
+            let Discounted = 0;
+            let HavePxxDisc = false;
+            if (UsePromo == "Commodity") {
+                
+                //折價 商品已算好的額度
+                //檢查是否有VIP 
+                let VIPDiscItem = JSON.parse(sessionStorage.getItem('P06Disc'));
+                if (!StringFunc.Validation.isEmptyOrNull(VIPDiscItem)) {
+                    let Itemcode = $(this).parent().parent().find('.Itemcode').html();
+                    for (let i in VIPDiscItem) {
+                        if (Itemcode == VIPDiscItem[i].Itemcode) {
+                            //NewDiscount = Math.round((_qty * _prices) * (1 - VIPDiscItem[i].DisRatio));
+                            NewDiscount = Math.round(_qty * VIPDiscItem[i].Discount_Amt);
+                            DiscountInfo.V++;
+                            HavePxxDisc = true;
+                            break;
+                        }
+                    }
+                }
+                if (!HavePxxDisc) {
+                    if (_qty >= _discountNum) {
+                        NewDiscount = (_CommodityDiscounts * _qty);
+                        //TotalDiscount += NewDiscount;
+                    }
+                }
+                //檢查是否有員工折扣
+                if (DiscountInfo.V == 0) {
+                    HavePxxDisc = false;
+                    let StaffDiscItem = JSON.parse(sessionStorage.getItem('P07Disc'));
+                    if (!StringFunc.Validation.isEmptyOrNull(StaffDiscItem)) {
+                        let Itemcode = $(this).parent().parent().find('.Itemcode').html();
+                        for (let i in StaffDiscItem) {
+                            if (Itemcode == StaffDiscItem[i].Itemcode) {
+                                //NewDiscount = Math.round((_qty * _prices) * (1 - VIPDiscItem[i].DisRatio));
+                                NewDiscount = Math.round(_qty * StaffDiscItem[i].Discount_Amt);
+                                DiscountInfo.E++;
+                                HavePxxDisc = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!HavePxxDisc) {
+                        if (_qty >= _discountNum) {
+                            NewDiscount = (_CommodityDiscounts * _qty);
+                            //TotalDiscount += NewDiscount;
+                        }
+                    }
+                }
+                //檢查是否有企業團購折扣
+                if (DiscountInfo.V == 0 && DiscountInfo.E == 0) {
+                    HavePxxDisc = false;
+                    let SEDiscItem = JSON.parse(sessionStorage.getItem('P09Disc'));
+                    if (!StringFunc.Validation.isEmptyOrNull(SEDiscItem)) {
+                        let Itemcode = $(this).parent().parent().find('.Itemcode').html();
+                        for (let i in SEDiscItem) {
+                            if (Itemcode == SEDiscItem[i].Itemcode) {
+                                //NewDiscount = Math.round((_qty * _prices) * (1 - VIPDiscItem[i].DisRatio));
+                                NewDiscount = Math.round(_qty * SEDiscItem[i].Discount_Amt);
+                                DiscountInfo.S++;
+                                HavePxxDisc = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!HavePxxDisc) {
+                        if (_qty >= _discountNum) {
+                            NewDiscount = (_CommodityDiscounts * _qty);
+                            //TotalDiscount += NewDiscount;
+                        }
+                    }
+                }
+                TotalDiscount += NewDiscount;
+            }
+            else {
+                //最多N元
+                if (parseInt(_MaxAmt, 10) > 0 || SelectTotalQty >= parseInt(_discountNum, 10)) {
+                    //是否為滿量的倍數
+                    //let _MaxAmtTimes = Math.floor(SelectTotalQty / parseInt(_discountNum, 10));
+                    //_MaxAmt = _MaxAmt * _MaxAmtTimes;
+                    //if (SelectTotalQty >= parseInt(_discountNum, 10)) {
+
+                    //}
+                    P03ItemCount++;
+                    if (SelectTotalAmt >= _MaxAmt) {
+                        TotalDiscount = SelectTotalAmt - _MaxAmt;
+                        //TotalAmt = _MaxAmt;
+                        //拆折扣比率
+                        NewDiscount = Math.floor(TotalDiscount * ((_qty * _prices) / SelectTotalAmt));
+                        P03DiscountAmt += NewDiscount;
+                        //累計數與所選數相同時,檢查
+                        if (P03ItemCount == SelectItems) {
+                            NewDiscount += (TotalDiscount - P03DiscountAmt);
+                            //掃  $('.Cartrow').each(function () {
+                            $('.ItemInActive').each(function () {
+                                //console.log($(this).find('.CartEach').prop("checked"));
+                                if (!$(this).find('.CartEach').prop("checked")) {
+                                    //鎖checkbox
+                                    $(this).find('.CartEach').attr("disabled", true);
+                                }
+                                else {
+                                    //鎖QtyPlus
+                                    $(this).find('.QtyPlus').attr("style", "visibility:hidden");
+                                }
+                            });
+                        }
+                    }
+                    else {
+                        showOriginalDiscount = true;
+                        NewDiscount = _CommodityDiscounts;
+                    }
+                }
+                else if ($('#tb_DiscountTicket').val() == '' && _discountAmt > 0 ) {
+                    //滿額贈 打折 或 扣N元
+                    if (SelectTotalAmt >= _discountAmt) {
+                        //折扣N元 需要攤提
+                        if (_discounts > 1) {
+                            //算倍數
+                            _multiple = Math.floor(SelectTotalAmt / _discountAmt);
+
+                            TotalCommodityDiscount += (+CommoditySelfDiscounts * _qty);
+
+                            //算折扣 最大整數
+                            ActiveDiscountAMT = (_discounts * _multiple);
+                            TotalDiscount = ActiveDiscountAMT;
+                            SplitDiscountGAP = true;
+                            
+                            //拆此項的折扣比率
+                            NewDiscount = Math.floor(TotalDiscount * ((_qty * _prices) / SelectTotalAmt)) + (_CommodityDiscounts * _qty);
+                            SplitDiscountAmt += Math.floor(TotalDiscount * ((_qty * _prices) / SelectTotalAmt));
+                        }
+                        else {
+                            //求出總折扣
+                            Discounted = Math.floor((_qty * _prices) * parseFloat(_discounts));
+                            if (Discounted < 0) {
+                                NewDiscount = _qty * _prices;
+                                TotalDiscount += NewDiscount;
+                            }
+                            else {
+                                NewDiscount = (_qty * _prices) - Discounted;
+                                TotalDiscount += (_qty * _prices) - Discounted;
+                            }
+                        }
+                    }
+                    else {
+                        showOriginalDiscount = true;
+                        NewDiscount = _CommodityDiscounts * _qty;
+                    }
+                }
+                else if (_discounts != 0) {
+                    //打折 或 扣N元 但不是商品變價 (折扣碼)
+                    if (SelectTotalAmt-TotalCommodityDiscount >= _discountAmt) {
+                        if (_discounts > 1) {
+
+                            //折N元
+                            if (SelectTotalAmt < _discounts) _discounts = SelectTotalAmt;
+                            //TotalDiscount = parseFloat(+_discounts ,10);
+
+                            ActiveDiscountAMT = _discounts;
+                            SplitDiscountGAP = true;
+                            //拆此項的折扣比率
+                            NewDiscount = Math.floor(_discounts * ((_qty * _prices) / SelectTotalAmt)) + (_CommodityDiscounts * _qty);
+                            console.log(NewDiscount);
+                            SplitDiscountAmt += Math.floor(_discounts * ((_qty * _prices) / SelectTotalAmt));
+                            TotalDiscount += NewDiscount;
+                        }
+                        else {
+                            //打折
+                            Discounted = Math.floor((_qty * _prices) * parseFloat(_discounts));
+                            NewDiscount = (_qty * _prices) - Discounted;
+                            TotalDiscount += (_qty * _prices) - Discounted;
+                        }
+                    }
+                    else {
+                        showOriginalDiscount = true;
+                        NewDiscount = _CommodityDiscounts * _qty;
+                    }
+                }
+                else {
+                    //滿量
+                    if (SelectTotalQty >= _discountNum) {
+
+                        //算折扣 最小整數
+                        Discounted = Math.floor((parseFloat(_discounts) > 1 ? ((_qty * _prices) - _discounts) : ((_qty * _prices) * parseFloat(_discounts))));
+                        if (Discounted < 0) {
+                            NewDiscount = _qty * _prices;
+                            TotalDiscount += NewDiscount;
+                        }
+                        else {
+                            NewDiscount = (_qty * _prices) - Discounted;
+                            TotalDiscount += (_qty * _prices) - Discounted;
+                        }
+                    }
+                    else {
+                        showOriginalDiscount = true;
+                        NewDiscount = _CommodityDiscounts;
+                    }
+                }
+
+            }
+            //修改商品的折扣額
+            $(this).parent().parent().find('.m_disc').children('span').html(NewDiscount*-1);
+
+            if (showOriginalDiscount) {
+                //顯示滿額
+                $('.WOD234').html('此折扣碼需滿' + _discountAmt);
+            }
+            else {
+                $('.WOD234').html('');
+            }
+
+
+            TotalWeight += (_weight * _qty);
+            TotalCount++;
+            CheckEd += parseInt($(this).data('noinv'), 10);
+
+
+            //勾選商品的類別
+            let Gallery = $(this).parent().parent().find('.Gallery').html();
+            ItemGallery.push(Gallery);
+
+            if (Gallery == "MAG") {
+
+                if ($('#MagazineZone').is(":hidden")) {
+                    $('.ZoneExpend').show();
+                }
+                TAmt_Magt += (_prices * _qty);
+
+                let MagTitle = $(this).parent().parent().find('.MagTitle').html();
+
+                //let ItemCode = $(this).parent().parent().find('.Itemcode').html();
+                //let StartPeriod = CalcMagazinePeriod(MagTitle)
+                //$('#lbl_BEGNUM').html(StartPeriod);
+                //$('#lbl_ENDNUM').html(parseInt(StartPeriod, 10) + parseInt(MagPeroid, 10) - 1);
+
+                //let MagPeriod = {};
+                //MagPeriod.ItemCode = $(this).parent().parent().find('.Itemcode').html();
+                //MagPeriod.ItemName = $(this).parent().parent().find('.tt').html();
+                //MagPeriod.Title = MagTitle;
+                //MagPeriod.TP = $(this).parent().parent().find('.TotalPeroid').html();
+
+                //DisplayMagazinePeriod(MagPeriod);
+                let MagFEEInfo = {};
+                MagFEEInfo.ItemCode = $(this).parent().parent().find('.Itemcode').html();
+                MagFEEInfo.ItemName = $(this).parent().parent().find('.tt').html();
+                MagFEEInfo.MagAMT = _prices * _qty;
+                MagFEEInfo.MagPostage = 0;//$(this).parent().parent().find('.MagPostage').html();;
+                MagFEEInfo.MagPeroid = $(this).parent().parent().find('.MagPeroid').html();
+                CalcMagazinePostage(MagFEEInfo, $('#rdl_PCODE').html());
+
+                OnePostage = parseInt($(this).parent().parent().find('.MagPostage').html(), 10);
+                TotalPostage += MagFEEInfo.MagPostage * MagFEEInfo.MagPeroid;
+
+                //商品總期數
+                //$('#lbl_TotalPeroid').html(TotalPeroid);
+            }
+            else if (Gallery != "MAG" | Gallery != "APP") {
+                TAmt_K9KID += (_prices * _qty);
+                ZeroFreightLine -= (_prices * _qty) - NewDiscount;
+            }
+            //else if (Gallery == "KID") {
+            //    TAmt_K9KID += (_prices * _qty);
+            //    ZeroFreightLine -= (_prices * _qty) - NewDiscount;
+            //}
+            else {
+                TAmt_APP += (_prices * _qty);
+            }
+
+            TotalAmt = TAmt_Magt + TAmt_K9KID + TAmt_APP;
+
+            //重算分期金額
+            //MagazineZoneCalcFEE($('#rdl_PCODE').html());
+        }
+        else {
+            //取消後還原
+            if (_qty >= _discountNum) {
+                NewDiscount = (_discounts * _qty);
+                //修改商品的折扣額
+                $(this).parent().parent().find('.m_disc').children('span').html(NewDiscount*-1);
+            }
+            if (P03ItemCount < SelectItems) {
+                $('.ItemInActive').each(function () {
+                    $(this).find('.CartEach').removeAttr("disabled");
+                    $(this).find('.QtyPlus').attr("style", "visibility:initial");
+                });
+            }
+            //let ItemCode = $(this).parent().parent().find('.Itemcode').html();
+            //$('#lbl_MP_' + ItemCode).remove();
+        }
+        CheckCount++;
+    });
+
+    //開始逐項計算與判斷END
+
+    //拆折扣後補小數差額SplitDiscountGAP = true; 
+    if (SplitDiscountGAP) {
+        
+        let Difference = parseInt(ActiveDiscountAMT, 10) - parseInt(SplitDiscountAmt, 10);
+        console.log('要補差，' + parseInt(ActiveDiscountAMT, 10) + ";" + parseInt(SplitDiscountAmt, 10));
+        $('.ItemInActive').each(function () {
+            if ($(this).find('.CartEach').prop("checked")) {
+                let _disc = parseInt($(this).find('.m_disc').children('span').html(),10);
+                $(this).find('.m_disc').children('span').html(_disc - Difference);
+                TotalDiscount = TotalDiscount + Difference;
+                return false;
+            }
+        });
+    }
+    //雜誌專用vvv
+    //一個顯示的 一個藏的  
+    $('#lbl_ODMON,#TotalMag').html(TAmt_Magt);
+    //郵資
+    //$('#lbl_FEE_onePeriod').html(OnePostage);
+    $('#lbl_FEE').html(TotalPostage);
+
+    //雜誌專用^^^
+
+    if (DiscountInfo.V > 0) {
+        //有 帶到確認購買
+        $('#lbl_Promo').html('折扣方式：VIP折扣。').show();
+    }
+    if (DiscountInfo.E > 0) {
+        //有 帶到確認購買
+        $('#lbl_Promo').html('折扣方式：員工折扣。').show();
+    }
+    
+    //活動折扣 + 本身折扣
+    //TotalDiscount += (+TotalCommodityDiscount);
+
+    if ($.inArray('MAG', ItemGallery) < 0 && $.inArray('APP', ItemGallery) < 0) {
+        $('#MarketingArea').show();
+        if (ZeroFreightLine <= 0) {
+            $('#ZeroFreightNotify').html('已符合本島免運費門檻。').attr("style", "color:green;;font-size:1.3rem");
+        }
+        else {
+            $('#ZeroFreightNotify').html('貼心提醒：距離本島900元免運費門檻 還差NT' + ZeroFreightLine + '元').attr("style", "color:darkslategrey;font-size:1.3rem");
+        }
+    }
+    else {
+       if ($.inArray('APP', ItemGallery) >= 0)  
+	{
+		$('#MarketingArea').show();
+	}else{
+	 	ClearMarketingArea();
+        	$('#MarketingArea').hide();
+	}
+    }
+    $('#TotalBook').html(TAmt_K9KID);
+    $('#TotalAPP').html(TAmt_APP);
+    //+ TotalPostage
+    $('#CartTotalAmt').html(AppendComma(TotalAmt - TotalDiscount));
+    $('#CartWeightSum').before('<span class="Totalmsg">總計:' + AppendComma(TotalAmt) + '，折扣:' + TotalDiscount + '</span>');
+        //((TotalPostage != 0) ? '，郵資:' + TotalPostage : "") + '</span>');
+    $('#CartTotalCount').html(TotalCount);
+    $('#CartPostageSum').html(TotalPostage);
+
+    //顯示公斤 /1000
+    //$('#CartWeightSumDisplay').html(parseFloat(TotalWeight / 1000).toFixed(2));
+    $('#CartWeightSum').html(TotalWeight);
+    if (CheckCount > 0) {
+        //$('#CartSelectall').prop("checked", CheckEd == CheckCount);//TotalAmt != 0);
+        //if (CheckEd == CheckCount) $('.foot_del').show();
+        //else $('.foot_del').hide();
+    }
+    if (TotalItemQty == 0) {
+        ClearMagazineInfo();
+        if (!$('#MagazineZone').is(":hidden")) {
+            $('.expand_Mag').eq(0).parent().toggle(300);
+            $('#MagazineZone').toggle(500);
+        }
+        $('.ZoneExpend').hide();
+    }
+}
+//計算郵資
+function CalcPostage(_pcode) {
+    //影響郵資的欄位有
+    //國家 收費方式 付款方式 寄送方式
+    let _Postage = 0;
+    let _MATNR = [];
+    $('.CartEach').each(function () {
+        if ($(this).prop("checked")) {
+            let Gallery = $(this).parent().parent().find('.Gallery').html();
+            if (Gallery == "MAG") {
+                _MATNR.push($(this).parent().parent().find('.MATNR').html());
+            }
+        }
+    });
+    //let _SelectNotMagAMT = 0;
+    if (!StringFunc.Validation.isEmptyOrNull($('#ddl_Mailwayid').val())) {
+        $('#lbl_MagFEEZone').empty();
+        $('.CartEach').each(function () {
+            if ($(this).prop("checked")) {
+                let Gallery = $(this).parent().parent().find('.Gallery').html();
+                if (Gallery == "MAG") {
+                    let MagFEEInfo = {};
+                    let _qty = parseInt($(this).parent().parent().find('.ItemQty').val(), 10);
+                    let _prices = parseInt(RemoveComma($(this).parent().parent().find('.m_pices').html()), 10);
+
+                    MagFEEInfo.ItemCode = $(this).parent().parent().find('.Itemcode').html();
+                    MagFEEInfo.ItemName = $(this).parent().parent().find('.tt').html();
+                    MagFEEInfo.MATNR = $(this).parent().parent().find('.MATNR').html();
+                    MagFEEInfo.MagAMT = _prices * _qty;
+                    MagFEEInfo.MagPostage = $(this).parent().parent().find('.MagPostage').html();
+                    MagFEEInfo.MagPeroid = $(this).parent().parent().find('.MagPeroid').html();
+                    if ($('#ddl_Mailwayid').val() == "10") {
+                        MagFEEInfo.MagPostage = 0;
+                    }
+                    if (!StringFunc.Validation.isEmptyOrNull(_pcode)) {
+                        _Postage += CalcMagazinePostage(MagFEEInfo, _pcode);
+                    }
+                }
+                else {
+                    //_SelectNotMagAMT += parseInt(RemoveComma($(this).parent().parent().find('.m_totle').children('span').html()), 10);
+                }
+            }
+        });
+
+        $('#lbl_Postage').html('<span>郵資NT$</span><span>' + AppendComma(_Postage) + '</span>');
+        let TotalSum = parseInt(RemoveComma($('#TotalSum').html()), 10) + parseInt(_Postage, 10);
+        $('#lbl_OrderSumAmt').html('<span>總計NT$</span><span>' + AppendComma(TotalSum) + '</span>');
+    }
+
+    //暫時在 此處修正
+    //if (!$('#ddl_Country').is(':hidden')) {
+    //    //國別未出現
+    //    if (_MATNR.length == 1) {
+    //        //只有一個項目時,針對項目顯示寄送方式
+    //        if (_MATNR[0].substr(3, 2) != "07") {
+    //            $('#ddl_Mailwayid option[value="10"]').show();
+    //        }
+    //        else {
+    //            $('#ddl_Mailwayid option[value="11"]').hide();
+    //        }
+    //    }
+    //    else {
+
+    //        $('#ddl_Mailwayid option[value="10"]').show();
+    //        $('#ddl_Mailwayid option[value="11"]').show();
+    //    }
+    //}
+    //else {
+    //    if (_MATNR.length == 1) {
+    //        //只有一個項目時,針對項目顯示寄送方式
+    //        if (_MATNR[0].substr(3, 2) != "07") {
+    //            $('#ddl_Mailwayid option[value="7"]').show();
+    //            $('#ddl_Mailwayid option[value="8"]').hide();
+    //        }
+    //        else {
+    //            $('#ddl_Mailwayid option[value="7"]').hide();
+    //            $('#ddl_Mailwayid option[value="8"]').show();
+    //        }
+    //    }
+    //    else {
+    //        $('#ddl_Mailwayid option[value="7"]').show();
+    //        $('#ddl_Mailwayid option[value="8"]').show();
+    //    }
+    //}
+}
+
+//計算郵資
+function CalcMagazinePostage(_Obj, _Pcode) {
+    
+    let TP, DP, MP, PERD, FEE, DPDesc;
+    if (!StringFunc.Validation.isEmptyOrNull($('#ddl_Country').val())) {
+
+        //第4,第5碼為 07 = 學前 用航掛(貴的malf)
+        if (_Obj.MATNR.substr(3, 2) != "07") {
+            if ($('#ddl_Mailwayid').val() == "8") {
+                _Obj.MagPostage = $('#ddl_Country').find(':selected').data("malf");
+            }
+            else {
+                _Obj.MagPostage = $('#ddl_Country').find(':selected').data("maf");
+            }
+        }
+        else {
+            _Obj.MagPostage = $('#ddl_Country').find(':selected').data("malf");
+        }
+    }
+    //一次
+    if (StringFunc.Validation.isEmptyOrNull(_Pcode) || _Pcode == "1") {
+        PERD = 0;
+        MP = 0;
+        TP = _Obj.MagAMT;
+        DP = 0;
+        DPDesc = '';
+        FEE = _Obj.MagPostage * _Obj.MagPeroid;
+    }
+    else if (_Pcode == "2") {
+        //分期
+        PERD = 3;
+        //月付
+        MP = _Obj.MagAMT / PERD;
+        //$('#lbl_MP').html(_MP);
+        //分期總價
+        TP = MP * PERD;
+        //郵資
+        FEE = _Obj.MagPostage * _Obj.MagPeroid;
+        //頭期
+        DP = MP + FEE ;
+        //$('#lbl_DP').html(_MP + _onePeriod * _TotalPeroid);
+        DPDesc = '(' + MP + '+' + _Obj.MagPostage * _Obj.MagPeroid + ')'
+        //$('#lbl_DP_Desc').html('(' + _MP + '+' + (_onePeriod * _TotalPeroid) + ')');
+        //$('#lbl_FEE').html('0');
+        //_ODMON = (_MP * _PERD);
+
+    }
+
+    let MagazineFEEStr = StringFunc.MagazineFEEStr().replace("###ItemName###", _Obj.ItemName)
+        .replace(/###MagCode###/g, _Obj.ItemCode)
+        .replace("###TP###", TP)
+        .replace("###DP###", DP)
+        .replace("###MP###", MP)
+        .replace("###FEE###", FEE)
+        .replace("###onePeriod###", _Obj.MagPostage)
+        .replace("###MagPeroid###", _Obj.MagPeroid)
+        .replace("###DPDesc###", DPDesc);
+
+    $('#lbl_MagFEEZone').append(MagazineFEEStr);
+
+    return FEE;
+
+}
+
+
+
+////交易總額(舊)
+//function MagazineZoneCalcFEE(calc_DP) {
+
+//    //總額
+//    let _TotalMag = parseInt($('#TotalMag').html(), 10);
+//    //郵資
+//    let _onePeriod = parseInt($('#lbl_FEE_onePeriod').html(), 10);
+//    //總期數
+//    let _TotalPeroid = parseInt($('#lbl_TotalPeroid').html(), 10);
+
+//    let _ODMON = parseInt($('#lbl_ODMON').html(), 10);
+//    let _FEE = parseInt($('#lbl_FEE').html(), 10);
+//    if (calc_DP == "1") {
+//        $('#lbl_PERD').html('0');
+//        $('#lbl_MP').html('0');
+//        $('#lbl_TP').html('0');
+//        $('#lbl_DP').html('0');
+//        $('#lbl_DP_Desc').html('');
+//        $('#lbl_FEE').html(_onePeriod * _TotalPeroid);
+//    }
+//    if (calc_DP == "2") {
+//        let _PERD = 3;
+//        //分期
+//        $('#lbl_PERD').html(_PERD);
+//        //月付
+//        let _MP = _TotalMag / _PERD;
+//        $('#lbl_MP').html(_MP);
+//        //分期總價
+//        $('#lbl_TP').html(_MP * _PERD);
+//        //頭期
+//        $('#lbl_DP').html(_MP + _onePeriod * _TotalPeroid);
+//        $('#lbl_DP_Desc').html('(' + _MP + '+' + (_onePeriod * _TotalPeroid) + ')');
+//        //$('#lbl_FEE').html('0');
+//        _ODMON = (_MP * _PERD);
+//        _FEE = (_onePeriod * _TotalPeroid);
+//    }
+//    $('#lbl_totalamt').html(_ODMON + _FEE);
+//}

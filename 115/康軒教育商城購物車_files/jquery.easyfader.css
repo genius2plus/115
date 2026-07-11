@@ -1,0 +1,365 @@
+﻿#main_visual .kv_right,
+#main_visual .fader,
+#main_visual {
+    position: relative;
+    display: inline-block;
+    float: left;
+    width: 100%;
+}
+
+#main_visual,
+#main_visualKid,
+#main_visualMag,
+#main_visualMagDetail {
+    height: 408px;
+    background: #ffffff;
+}
+    /************************/
+    #main_visual .kv_left {
+        position: absolute;
+        display: inline-block;
+        top: 0px;
+        left: 0px;
+        width: 240px;
+        height: 408px;
+        z-index: 99;
+        /*background: #85b152;*/
+    }
+
+    #main_visual ul.kv_menu li,
+    #main_visual ul.kv_menu {
+        display: inline-block;
+        float: left;
+        width: 100%;
+        text-align: left;
+    }
+
+        #main_visual ul.kv_menu li + li {
+            border-top: 0.5px solid rgba(187,187,187,0.2);
+        }
+
+        /* 第一層選單 */
+        #main_visual ul.kv_menu li a:hover,
+        #main_visual ul.kv_menu li a {
+            display: inline-block;
+            color: #ffffff;
+            width: 100%;
+            padding: 0px 20px;
+            line-height: 40px;
+            height: 40px;
+        }
+
+            #main_visual ul.kv_menu li a:before {
+                float: right;
+                content: '›';
+                color: rgba(221,221,221,0.5);
+            }
+        /*	
+#main_visual ul.kv_menu li a:hover { 
+    background: #f7931e;	
+	}
+*/
+        /* 第二層選單 */
+        #main_visual ul.kv_menu li ul {
+            position: absolute;
+            display: none;
+            top: 0px;
+            left: 240px;
+            width: 100%;
+            height: 408px;
+            padding: 0px 0px;
+            background: #ffffff;
+            z-index: 2;
+            overflow: auto;
+        }
+
+        #main_visual ul.kv_menu li:hover ul {
+            display: block;
+            text-align: center;
+        }
+
+        #main_visual ul.kv_menu li ul a:hover,
+        #main_visual ul.kv_menu li ul a {
+            color: #000000;
+            height: auto;
+        }
+
+            #main_visual ul.kv_menu li ul a:hover {
+                color: #ffffff;
+            }
+
+    #main_visual .kv_right {
+        width: 100%;
+        padding-left: 240px;
+    }
+
+/************************/
+.fader {
+    overflow: hidden;
+    background: #ffffff;
+}
+
+    .fader ul {
+        list-style: none outside none;
+    }
+    /************************/
+    .fader .slide .txt,
+    .fader .slide {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .fader .slide,
+    .fader {
+        height: 408px;
+    }
+
+        .fader .slide {
+            opacity: 0;
+            background-repeat: no-repeat;
+            background-position: top center;
+            background-size: auto 408px;
+            -moz-background-size: auto 408px;
+            -webkit-background-size: auto 408px;
+            -o-background-size: auto 408px;
+        }
+
+            /*.fader .slide img {*/
+                /*                display: block;
+                max-width: 100%;
+                height: auto;*/
+                /*position: absolute;
+                top: 50%;
+                left: 50%;
+                display: block;
+                min-width: 100%;
+                min-height: 100%;
+                transform: translate(-50%,-50%);
+            }*/
+
+        .fader .txt {
+            width: 100%;
+            font-size: 1rem;
+            line-height: 1.8rem;
+            color: #ffffff;
+            text-align: center;
+            padding: 10% 20px;
+        }
+
+            .fader .txt .tt {
+                font-size: 38px;
+                line-height: 46px;
+                font-weight: 900;
+                color: #ffffff;
+            }
+
+
+        /************************/
+        .fader .prev,
+        .fader .next {
+            position: absolute;
+            height: 80px;
+            line-height: 45px;
+            width: 45px;
+            font-size: 100px;
+            text-align: center;
+            color: #888888;
+            top: 45%;
+            left: 0;
+            z-index: 5;
+            margin-top: -25px;
+            cursor: pointer;
+            opacity: .3;
+            transition: all 150ms;
+        }
+
+            .fader .prev:hover,
+            .fader .next:hover {
+                opacity: 1;
+            }
+
+        .fader .next {
+            left: auto;
+            right: 0;
+        }
+
+        .fader .pager_list {
+            position: absolute;
+            width: 100%;
+            height: 8px;
+            padding: 0;
+            line-height: 30px;
+            bottom: 0px;
+            text-align: center;
+            z-index: 10;
+        }
+
+            .fader .pager_list li {
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                margin: 0 7px;
+                background: #FFF;
+                opacity: .7;
+                text-indent: -9999px;
+                border-radius: 999px;
+                cursor: pointer;
+                transition: all 150ms;
+            }
+
+                .fader .pager_list li:hover,
+                .fader .pager_list li.active {
+                    opacity: 1;
+                    width: 40px;
+                    height: 10px;
+                    opacity: 1;
+                    border-radius: 0.5rem;
+                    background-color: #b5a78a;
+                }
+
+
+@media only screen and (max-width: 1920px) {
+
+    .fader .slide img {
+        width: 100%;
+        display: inline;
+        height: 408px;
+    }
+}
+@media screen and (max-width: 1024px) {
+    #main_visual,
+    #main_visualKid,
+    #main_visualMag,
+    #main_visualMagDetail {
+        height: 308px;
+        background: #ffffff;
+    }
+    #main_visual .kv_left {
+        display: none
+    }
+
+    #main_visual .kv_right {
+        padding-left: 0px;
+    }
+
+    .fader .slide,
+    .fader {
+        height: 308px;
+    }
+        .fader .slide img {
+            width: 100%;
+            display: inline;
+            height: 308px;
+        }
+}
+@media screen and (max-width: 768px) {
+
+    #main_visual,
+    #main_visualKid,
+    #main_visualMag,
+    #main_visualMagDetail {
+        height: 208px;
+        background: #ffffff;
+    }
+
+        #main_visual .kv_left {
+            display: none
+        }
+
+        #main_visual .kv_right {
+            padding-left: 0px;
+        }
+
+    .fader .slide,
+    .fader {
+        height: 208px;
+    }
+
+        .fader .slide img {
+            max-width: 100%;
+            display: inline;
+            height: 208px;
+        }
+}
+@media screen and (max-width: 480px) {
+
+    #main_visual,
+    #main_visualKid,
+    #main_visualMag,
+    #main_visualMagDetail {
+        height: 145px;
+        background: #ffffff;
+    }
+
+        #main_visual .kv_left {
+            display: none
+        }
+
+        #main_visual .kv_right {
+            padding-left: 0px;
+        }
+
+    .fader .slide,
+    .fader {
+        height: 145px;
+    }
+
+        .fader .slide img {
+            max-width: 100%;
+            display: inline;
+            height: 145px;
+        }
+
+        .fader .prev,
+        .fader .next {
+            position: absolute;
+            height: 80px;
+            line-height: 45px;
+            width: 25px;
+            font-size: 60px;
+            text-align: center;
+            color: #FFF;
+            top: 55%;
+            left: 0;
+            z-index: 5;
+            margin-top: -25px;
+            cursor: pointer;
+            /*opacity: .3;*/
+            transition: all 150ms;
+        }
+
+        .fader .next {
+            left: auto;
+            right: 0;
+        }
+
+
+        .fader .pager_list li {
+            top: 10px;
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin: 0 7px;
+            background: #FFF;
+            /*opacity: .7;*/
+            text-indent: -9999px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 150ms;
+        }
+
+            .fader .pager_list li:hover,
+            .fader .pager_list li.active {
+                top: 10px;
+                width: 20px;
+                height: 10px;
+                opacity: 1;
+                border-radius: 0.5rem;
+                background-color: #b5a78a;
+            }
+}
+
+

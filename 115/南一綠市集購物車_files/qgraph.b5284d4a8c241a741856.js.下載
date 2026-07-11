@@ -1,0 +1,61 @@
+window.QGSettings = {
+   "appId": "b5284d4a8c241a741856",
+   "airis": {
+      "domain": "stg.shop.nani1953.com.tw",
+      "enableAttributionTracking": true,
+      "enableAppierAppIdTracking": true
+   },
+   "batchSendInterval": {
+      "event": 0,
+      "profile": 5000
+   },
+   "debug": false,
+   "personalizationEnabled": true,
+   "enableGoogleTopics": true,
+   "vapidPublicKey": "BP-n_2pa3W7XnzabQKbzRI-1dJrXIz7hiLh_jAyyVtJz9PNyAgSyEq0U-kMBsaT3jUg2zwRXSYSBuRDu0oqVaS0",
+   "qgendpoint": "https://.aiqua.io/notify.html",
+   "origin": "https://www.facebook.com/groups/1298864497121563",
+   "inWebEnabled": true,
+   "push": {
+      "delay": 0,
+      "requestSelf": false,
+      "fakePrompt": false,
+      "secondsBetweenPrompts": 3600,
+      "restrictOrigin": false,
+      "useNotifyEndpoint": false,
+      "allowedPushDomains": null,
+      "optInTip": {
+         "title": "Stay tuned to the latest Offers and News",
+         "message": "Turn on notifications with these simple steps:\n 1. Click the icon on the address bar as shown in the example above.\n 2. Allow notifications.",
+         "bgColor": "#FFFFFF",
+         "textColor": "#000000",
+         "location": "right",
+         "overlay": true
+      },
+      "onSubscribedPopup": {
+         "enabled": false,
+         "htmlBody": "",
+         "showOverlay": true
+      }
+   }
+};
+if(window.qg && window.qg.queue) {
+    window.qg.queue.unshift(('init', QGSettings));
+}
+!function(q,g,r,a,p,h,js){
+    q.appier = q.qg;
+    if(!q.qg || !q.appier){
+        js=q.qg=q.appier=function() {
+            js.callmethod ? js.callmethod.call(js, arguments) : js.queue.push(arguments);
+        }
+        js.queue = [];
+    }
+    if(q.qg.initialized){return;}
+    window.qg.queue.unshift(['init',window.QGSettings])
+    p=g.createElement(r);
+    p.async=!0;
+    p.src=a;
+    h=g.getElementsByTagName(r)[0];
+    h.parentNode.insertBefore(p,h);
+    q.qg.initialized = true;
+}(window,document,'script','https://cdn-prd-gcp-jp0.aiqua.io/sdk/v3/r/aiqua.js');

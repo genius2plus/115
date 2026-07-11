@@ -1,0 +1,995 @@
+﻿var run = false;
+$(document).ready(function () {
+    if (run == false) {
+        BS.Event();
+        BS.Cart();
+        run = true;
+    }
+});
+$(window).on('load', function () {
+    if (run == false) {
+        BS.Event();
+        BS.Cart();
+    }
+});
+$(window).scroll(function () {//滾軸移動
+    /*手機版*/if (BS.Cookie('Mobile') == '1') {
+        if ($(window).scrollTop() > 0) {
+            $('#BT_GoTop').css({//置頂按鈕
+                left: window.innerWidth - 100,
+                top: window.innerHeight - 100,
+                display: 'block'
+            });
+        }
+        else 
+            $('#BT_GoTop').css('display', 'none');
+    }
+    /*電腦版*/else {
+        if ($('#Menu_Hist')[0]) {//瀏覽紀錄
+            if (144 < $(window).scrollTop())
+                $('#Menu_Hist').css('top', $(window).scrollTop());
+        } 
+    }
+});
+var BS = {};
+/*事件*/{
+    BS.Event = function () {//初始化
+        var Mode = BS.Cookie('Mode') || 'A'; 
+        $('#DDL_Mode').val(Mode); 
+        BS.Cookie.assign('Mode', Mode);
+        var Mobile_old = Mobile_new =BS.Cookie('Mobile'); 
+        /*電腦模式*/if (Mode == '0') Mobile_new = '0';
+        /*手機模式*/else if (Mode == '1') Mobile_new = '1';
+        /*手機模式*/else if (Mode == 'A' && isMobileDevice()) Mobile_new = '1';
+        /*手機模式*/else if (Mode == 'A' && window.innerWidth < 521) Mobile_new = '1';
+        /*電腦模式*/else if (Mode == 'A' && window.innerWidth > 520) Mobile_new = '0';
+        BS.Cookie.assign('Mobile', Mobile_new);
+        if (Mobile_new != Mobile_old) {
+            BS.Event.DDL_Mode($('#DDL_Mode'));
+        }
+        //設定樣式
+        if (Mobile_new == '1') 
+            $('form').addClass('Mobile');        
+        else 
+            $('form').removeClass('Mobile');
+        if (isMobileDevice()) {
+            document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=' + (BS.Cookie('Mobile')=='1'?'0.7':'0.3'));//行動裝置依比例縮放
+        }
+        $('#screen').val(window.innerWidth + '*' + window.innerHeight);
+        /*手機模式*/if (BS.Cookie('Mobile') == '1') {
+            /*購 物 車*/if ($('#Body_Img_Bar')[0]) {
+                if ($('.Grid_Cart th').length > 0) {//重設購物車清單樣式
+                    var table = document.createElement('table');
+                    var row = $('.Grid_Cart tr');
+                    for (var r = 1; r < row.length; r++) {
+                        var tr = document.createElement('tr');
+                        $(tr).attr('valign', 'top');
+                        //封面
+                        var td1 = document.createElement('td');
+                        $(td1).append($(row[r]).find('img')[0]);
+                        $($(td1).find('img')[0]).css('margin', '0px');
+                        $(tr).append(td1);
+                        //書名-單價-數量-金額
+                        var td2 = document.createElement('td');
+                        var bt = $(row[r]).find('input[type=submit]')[0];
+                        $(bt).css('float', 'right');
+                        $(td2).append(bt);
+                        $(td2).append($($(row[r]).find('td')[0]).text() + '<br><br>單價：' + $($(row[r]).find('td')[1]).html() + '　　　　');
+                        for (var i = 0; i < $($(row[r]).find('td')[2]).children.length; i++)
+                            $(td2).append($($(row[r]).find('td')[2]).children(i));
+                        $(td2).css({
+                            'text-align': 'left',
+                            'width': '100%',
+                            'font-size': '18px',
+                            'padding-right': $(bt).width() + 3
+                        });
+                        $($(td2).find('input[type=submit]')[0]).css('float', 'right');
+                        $(tr).append(td2);
+                        $(table).append(tr);
+                    };
+                    $('.Grid_Cart').empty();
+                    for (var i = 0; i < $(table).children().length; i++)
+                        $('.Grid_Cart').append($(table).children(i));
+                    if ($('#Div_SumInfo br').length == 0)
+                        $(document.createElement('br')).insertBefore($("font[color='gray']"));
+                    $('#mbreak').html('<br>');
+                }
+                else if ($('#Body_RBL_Payment br').length == 0) {//付款方式設折行 
+                    $(document.createElement('br')).insertAfter($('#Body_RBL_Payment span:nth-child(2)'));
+                    $(document.createElement('br')).insertAfter($('#Body_RBL_Payment span:nth-child(1)'));
+                    $(document.createElement('br')).insertAfter($('#Body_TB_Invoice_No'));
+                }
+            }
+            /*產品資訊*/else if ($('.Area_Book')[0]) {
+                if ($('#Body_BT_AddCart').length < 1)//無庫存取消數量
+                    $('#Body_SPAN_Qty').text('');
+            }
+            /*版本查詢*/else if ($('.Menu_Version')[0]) {
+                if ($('.Menu_Version tbody table').length == 0) {
+                    var tb = $('.Menu_Version tbody')[0];
+                    $(tb).append(document.createElement('tr'));
+                    $(tb).append(document.createElement('tr'));
+                    $(tb).append(document.createElement('tr'));
+                    $(tb).append(document.createElement('tr'));
+                    $(tb).append(document.createElement('tr'));
+                    //搬移學校
+                    $('.Menu_Version tbody tr:nth-child(7)').append($('.Menu_Version tbody tr:nth-child(2) th:nth-child(5)'));
+                    $('.Menu_Version tbody tr:nth-child(7)').append($('.Menu_Version tbody tr:nth-child(2) td:nth-child(5)'));
+                    //搬移查詢
+                    $('.Menu_Version tbody tr:nth-child(6)').append($('.Menu_Version tbody tr:nth-child(1) th:nth-child(5)'));
+                    $('.Menu_Version tbody tr:nth-child(6)').append($('.Menu_Version tbody tr:nth-child(1) td:nth-child(5)'));
+                    //搬移區域
+                    $('.Menu_Version tbody tr:nth-child(4)').append($('.Menu_Version tbody tr:nth-child(2) th:nth-child(3)'));
+                    $('.Menu_Version tbody tr:nth-child(4)').append($('.Menu_Version tbody tr:nth-child(2) td:nth-child(3)'));
+                    //搬移縣市
+                    $('.Menu_Version tbody tr:nth-child(3)').append($('.Menu_Version tbody tr:nth-child(2) th:nth-child(1)'));
+                    $('.Menu_Version tbody tr:nth-child(3)').append($('.Menu_Version tbody tr:nth-child(2) td:nth-child(1)'));
+                    //搬移學年
+                    $('.Menu_Version tbody tr:nth-child(2)').append($('.Menu_Version tbody tr:nth-child(1) th:nth-child(3)'));
+                    $('.Menu_Version tbody tr:nth-child(2)').append($('.Menu_Version tbody tr:nth-child(1) td:nth-child(3)'));
+                    //新增分隔線
+                    var td = document.createElement('td');
+                    td.colSpan = 2;
+                    td.style = 'padding:0px;';
+                    $(td).html("<table style='width:100%;margin:0;'>"
+                             + "<tr>"
+                             + "<td><hr style='width:80%;border-color:#007bff;'></td>"
+                             + "<td style='width:1%;font-size:18px;color:#007bff;margin:0 10px;padding:10px;'>或</td>"
+                             + "<td><hr style='width:80%;border-color:#007bff;'></td>"
+                             + "</tr>"
+                             + "</table>");
+                    $('.Menu_Version tbody tr:nth-child(5)').append(td);
+                    $('.Menu_Version select').css('width', '90%');
+                    $('.Menu_Version th').css('width', '1%').css('font-size', '20px');
+                    $('.Menu_Version>tr>td').css('width', '99%');
+                }
+                //搬移年級
+                if ($('#Body_DDL_Grade')[0] && $('.Grid_Version caption div #Body_DDL_Grade').length == 0)
+                    $('.Grid_Version caption div').append($('#Body_DDL_Grade'));
+            }
+            /*客服專區*/else if ($('.Tab_Service_Select')[0]) {
+                /*收縮*/if ($('.Area_Service').html().trim() == '')
+                    $('.Area_Service').css('display', 'none');
+                    /*展開*/else
+                    $('.Area_Service').insertAfter($('.Tab_Service_Select'));
+                /*客服信箱*/if ($('#Form_Service')[0]) {
+                    $('#Form_Service tr:nth-child(4) th:nth-child(1)').attr('colspan', '2');
+                    $('#Form_Service tr:nth-child(4) th:nth-child(2)').attr('colspan', '2');
+                    $('#Form_Service tr:nth-child(5) td:nth-child(1)').attr('colspan', '2');
+                    $('#Form_Service tr:nth-child(5) td:nth-child(2)').attr('colspan', '2');
+                    $('#Form_Service tr:nth-child(3) td:nth-child(2)').css('padding-left', '10px');
+                    var tr1 = document.createElement('tr');
+                    var tr2 = document.createElement('tr');
+                    $(tr1).append($('#Form_Service tr:nth-child(4) th:nth-child(2)'));
+                    $(tr2).append($('#Form_Service tr:nth-child(5) td:nth-child(2)'));
+                    $(tr2).insertAfter($('#Form_Service tr:nth-child(5)'));
+                    $(tr1).insertAfter($('#Form_Service tr:nth-child(5)'));
+                    $('.Area_Service textarea').css('width', '95%');
+                }
+            }
+            /*產品查詢*/else if ($('.Menu_Product')[0]) {
+                if ($('#Tab_SchoolClass').length == 0) {/*組別頁籤*/
+                    var div1 = document.createElement('div');
+                    div1.style = "background:url('/Images/Tab_Home.png') no-repeat center;height:40px;width:100%;text-align:center;font-size:24px;color:white;display:flex;align-items:center;justify-content:center;border-bottom:solid 3px #76bfeb;";
+                    div1.innerText = $('#Body_TB_Para4').attr('schoolclass');
+                    div1.id = "Tab_SchoolClass";
+                    $(div1).insertBefore($('.Menu_Product')[0]);
+                }
+                else
+                    $('#Tab_SchoolClass').text($('#Body_TB_Para4').attr('schoolclass'));
+            }
+
+            /*廣 告 區*/if ($('.Area_Advertise')[0]) {
+                $($('.Area_Advertise').parent()).css('display', ($('.Area_Book')[0] ? 'block' : 'flex'));
+            }
+            /*瀏覽紀錄*/{
+                $('#Menu_Hist').css({
+                    width: window.innerWidth * .4,
+                    height: document.documentElement.scrollHeight,
+                    top: $('#Header').height(),
+                    left: window.innerWidth
+                });
+                $('#Menu_Hist table:nth-child(1)').css('width', window.innerWidth * .4).css('height', window.innerHeight - $('#Header').height());
+            }
+            /*連結選單*/$('#Menu_Link').css({
+                top: $('#Header table').offset().top + $('#Header table').height(),
+                left: window.innerWidth + $('#Menu_Link').width(),
+                height: document.documentElement.scrollHeight
+            });
+        }
+        /*電腦模式*/else {
+            /*版本查詢*/if ($('#Title_Version')[0] && $('.Grid_Version caption div #Body_DDL_Grade').length == 0) {
+                $('.Grid_Version caption div').append($('#Body_DDL_Grade'));
+            }
+            /*產品查詢*/else if($('#Header table table tr td input[type="radio"]:checked')[0]) {
+                var c = $('#Header table table tr td input[type="radio"]:checked');
+                c.css('background-image', 'none');
+                if (c.prev())
+                    $(c.prev()).css('background-image', 'none');
+            }
+
+            /*廣 告 區*/if ($('.Area_Advertise')[0]) {
+                $('.Area_Advertise').css({
+                    top: $($('.Area_Advertise').prev()).offset().top,
+                    left: $($('.Area_Advertise').prev()).offset().left + $($('.Area_Advertise').prev()).width()-($('.Title_Sort')[0]?20:0)
+                });
+            }
+            /*瀏覽紀錄*/if ($('#Menu_Hist')[0]) {
+                $('#Menu_Hist').css({
+                    top: $('#Header table').offset().top + $('#Header table').height(),
+                    left: ($('#Header table').offset().left + $('#Header table').width() + 10)
+                });
+            }
+            /*會員選單*/if ($('#Page_Menu_PN_Member')[0]) {
+                $('#Page_Menu_PN_Member').css({
+                    left: $('#Page_Menu_LK_Member').offset().left - 5,
+                    top: $('#Page_Menu_LK_Member').offset().top + 35
+                });
+                $('#Div_Shadow').css({//顯示陰影
+                    display: 'block',
+                    width: window.innerWidth,
+                    height: document.documentElement.scrollHeight,
+                    top: 0,
+                    left: 0
+                });
+            }
+       }
+        /*不限模式*/{
+            /*首    頁輪播區預設  */if ($('#Carousel')[0]) {
+                $('#Carousel div').css('top', $('#Header').height() + $('#Carousel').height() - $('#Carousel div').height() - 20)
+                                  .css('left', $('#Carousel').offset().left + $('#Carousel').width() - $('#Carousel div').width());
+            }
+            /*購 物 車             */else if ($('.Title_Cart')[0]) {
+                /*步驟一*/if ($('.Grid_Cart')[0]) {
+                    /*預設數量切換*/$('.Grid_Cart Select').each(function () {
+                        var mtrl_seq = $(this).attr('mtrl_seq');
+                        var product = BS.Cookie('Cart').split(',');
+                        $(this).val(product.filter(item => item && item.includes(mtrl_seq + '_'))[0].split('_')[1]);
+                    });
+                    /*預設金額    */BS.Cart.CartCount();
+                }
+                /*步驟二*/else if ($('#Body_TB_ORD_Name')[0]) {
+                    /*預設填寫資料同步*/if ($('[id*=TB_ORD_Name]')[0]) {
+                        $('[id*=TB_ORD_Name]').keyup(function (e) { $('[id*=TB_RCV_Name]').val($(this).val()); });
+                        $('[id*=TB_ORD_Tel]').keyup(function (e) { $('[id*=TB_RCV_Tel]').val($(this).val()); });
+                        $('[id*=TB_ORD_Mobile]').keyup(function (e) { $('[id*=TB_RCV_Mobile]').val($(this).val()); });
+                        $('[id*=TB_ORD_Address]').keyup(function (e) { $('[id*=TB_RCV_Address]').val($(this).val()); });
+                    }
+                    /*預設選擇發票方式*/if ($('.RadioOption')[0]) {
+                        $('.RadioOption').each(function (e) {
+                            $('.RadioOption:eq(' + e + ')').click(function () {
+                                $('.RadioOption').each(function () {
+                                    $(this).next('div').hide();
+                                });
+                                $(this).next('div').show();
+                                $('[id*=RB_Invoice' + e + ']').attr('checked', 'ckecked');
+                                if (e == 1)
+                                    $('[id*=TB_Invoice_No]').focus();
+                                else if (e == 2)
+                                    $('[id*=TB_Invoice_LoveCode]').focus();
+                                else if (e == 3)
+                                    $('[id*=TB_Invoice_Barcode]').focus();
+                            });
+                        });
+                        if ($('input[name*=RB_Invoice]:checked').val() == null)
+                            $('.RadioOption:eq(0)').trigger('click');
+                        else
+                            $('input[name*=RB_Invoice]:checked').trigger('click');
+                    }
+                    /*預設愛心碼查詢  */if ($('[id*=_LoveCode]')[0]) {
+                        $('[id*=_LoveCode]').keyup(function () {
+                            if ($(this).val().length > 2) {
+                                $.ajax({
+                                    async: false,
+                                    type: 'GET',
+                                    url: '/LoveCode/' + $(this).val(),
+                                    success: function (data) {
+                                        $('[id*=LB_Invoice_Title]').html(data);
+                                    }
+                                });
+                            }
+                            else
+                                $('[id*=LB_Invoice_Title]').html('');
+                        });
+                    }
+                    /*預設統編抬頭查詢*/if ($('[id*=TB_Invoice_No]')[0]) {
+                        $('[id*=TB_Invoice_No]').keyup(function () {
+                            if ($('[id*=TB_Invoice_No]').val().length == 8) {
+                                $.ajax({
+                                    async: false,
+                                    type: 'GET',
+                                    url: '/UniformNo/' + $('#Body_TB_Invoice_No').val(),
+                                    success: function (data) {
+                                        $('[id*=TB_Invoice_Title]').val(data);
+                                    }
+                                });
+                            }
+                            else
+                                $('[id*=TB_Invoice_Title]').val('');
+                        });
+                    }
+                }
+            }
+            /*產品查詢-結果數量    */else if ($('#ProductCount')[0]) {
+                $('#ProductCount').text($('.Original').length);
+            }
+            /*產品資訊-圖片預覽放大*/else if ($('#Body_Image1')[0]) {
+                /*標示已售完*/if ($('#Body_BT_AddCart').length == 0 && $('#img_added').length == 0) {
+                        var img_a = document.createElement('input');
+                        $(img_a).insertAfter(('#Body_Image1'));
+                        img_a.outerHTML = '<input type="button" id="img_added" value="已售完"'
+                                        + ' style="position:static;margin-left:10px;z-index:10;margin-top:' + $('.Area_Image_View').height() * .7 + 'px;border:0;border-radius:15px;color:white;background-color:#000000;opacity:0.4;font-size:16px;padding:5px 10px;" />';
+                }
+                /*標示已加入*/else {
+                    var str = ',' + BS.Cookie('Cart') + ',';
+                    if (str.includes(',' + $('#Body_Mtrl_Seq').val() + '_') && $('#img_added').length == 0) {
+                        var img_a = document.createElement('input');
+                        $(img_a).insertAfter($('#Body_Image1'));
+                        img_a.outerHTML = '<input type="button" id="img_added" value="已加入"'
+                                        + ' style="position:static;margin-left:10px;z-index:10;margin-top:' + $('.Area_Image_View').height() * .7 + 'px;border:0;border-radius:15px;color:white;background-color:#FF4500;font-size:16px;padding:5px 10px;" />';
+                    }
+                }
+            }
+            /*客服專區-操作說明    */else if ($('.Area_Service')[0]) {
+                /*操作說明*/if ($('.accordion')[0]) {
+                    $('#accordion').accordion({
+                        collapsible: true,
+                        active: true,
+                        heightStyle: 'content'
+                    });
+                    $('#accordion h3').each(function () {
+                        $(this).css('background-color', '#3370AC').css('color', 'white');
+                        $(this).html('<span style="float:right;">﹀</span>' + $(this).text());
+                        $(this).on('click', function () {
+                            if ($(this).html().includes('︿'))
+                                $(this).html($(this).html().replace('︿', '﹀'));
+                            else
+                                $(this).html($(this).html().replace('﹀', '︿'));
+                            if ((window.innerHeight > document.documentElement.scrollHeight) || (window.innerHeight < $('#Header').height() + $('#Footer').height() + $('.MainBody').height() && BS.Cookie('Mobile') != '1')) {
+                                $('.Area_Service').css('height', window.innerHeight - $('#Header').height() - $('#Footer').height() - 120);
+                            }
+                            else {
+                                $('.Area_Service').css('height', '');
+                            }
+                        });
+                    });
+                }
+                /*設定底色*/if ($('.Area_Service').height() < window.innerHeight - $('#Header').height() - $('#Footer').height() - 120) {
+                    $('.Area_Service').css('height', window.innerHeight - $('#Header').height() - $('#Footer').height() - 120);
+                }
+            }
+            /*販售據點-縣市折行    */else if ($('.Menu_Dealer tr:nth-child(2) br').length == 0) {
+                var lab = $('.Menu_Dealer tr:nth-child(2) input');
+                var w = $('.Menu_Dealer tr:nth-child(2) td:nth-child(2)').width() - 30;
+                var item = $(lab[0]).width() + $($(lab[0]).next()).width();                
+                var gap = (BS.Cookie('Mobile') == '1' ? Math.round(w / item, 0) : 10);
+                for (var i = 0; i < lab.length; i++) {
+                    if (i > 0 && i % gap == 0) {
+                        $(document.createElement('br')).insertBefore($(lab[i]));
+                    }
+                }
+            }
+            /*陰    影-預設位置    */if ($('#Div_Shadow')[0]) {
+                $('#Div_Shadow').css({
+                    height: document.documentElement.scrollHeight,
+                    width: document.documentElement.scrollWidth,
+                    top: 0,
+                    left: 0
+                });
+            }
+
+            /*瀏覽紀錄-預設內容    */if ($('#His') && $('.Area_Book').length == 0) {
+                BS.History();
+            }
+            /*驗證碼輸入           */if ($('[id*=TB_Check]')[0]) {
+                $('.BT_Reload').click();
+                $('[id*=TB_Check]').each(function () {
+                    $(this).on('keydown', function (event) {
+                        //限制按上下鍵增減數值
+                        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+                            event.preventDefault();
+                        }
+                        if ($(this).val().length >= 4 && event.key === 'Enter') {
+                            document.getElementById($(this).attr('BT')).focus();
+                        }
+                    });
+                });
+            }
+            /*密碼內容-顯示隱藏    */if ($('.BT_Eye')[0]) {
+                if ($('#Body_TB_PW1')[0])
+                    $('#Body_TB_PW1').val(hexToText($('#Body_TB_PW1h').val()));
+                if ($('#Body_TB_PW2')[0])
+                    $('#Body_TB_PW2').val(hexToText($('#Body_TB_PW2h').val()));
+            }
+            /*頁    尾             */{
+                var resizeObserver = new ResizeObserver(entries => {
+                    FooterPosition();
+                });
+                if ($('.MainBody')[0])
+                    resizeObserver.observe($('.MainBody')[0]);
+                FooterPosition();
+                $('#Footer').css('width', $('.MainBody').width());
+                $('#Footer').css('width', $('.MainBody').width());
+                $('#Footer table').css('width', $('.MainBody').width());
+            }
+        }
+    }
+    BS.Event.BT_Carousel= function (e) {//指定輪播頁面
+        var img = $('#Carousel img');
+        for (var i = 0; i < img.length; i++) {
+            $('#Carousel input:nth-child(' + (i + 1) + ')').css('color', '#666666');
+            if ((i + 1) == $(e).val()) {
+                $(img[i]).css('display', 'block');
+                Index_a = i;
+            }
+            else
+                $(img[i]).css('display', 'none');
+        }
+        $(e).css('color', 'orangered');
+    }
+    BS.Event.BT_Count = function (e) {
+        if ($(e).val() == '-') {
+            var qty = parseInt($($(e).next()).val());
+            if (qty > 1) {
+                qty--;
+                $($(e).next()).val(qty).change();
+            }
+        }
+        else {
+            var qty = parseInt($($(e).prev()).val());
+            if (qty < 200) {
+                qty++;
+                $($(e).prev()).val(qty).change();
+            }
+        }
+    }
+    BS.Event.BT_Eye = function (e) {//密碼顯示隱藏
+        var txt = $(e).prev(); 
+        txt.attr('type', { 'password': 'text', 'text': 'password' }[txt.attr('type')]);
+        $(e).css('background', "url('/Images/Ico_eye" + { 'password': 'close', 'text': 'open' }[txt.attr('type')] + ".png?v=" + RandomString(5) + "') no-repeat center");
+    }
+    BS.Event.BT_GoPage = function (url) {//換頁面
+        window.location.href = url;
+        return false;
+    }
+    BS.Event.BT_History = function () {//歷史紀錄按鈕
+        $('#GoTop').css('display', 'none');
+        $('#GoBottom').css('display', 'none');
+        $('#Div_Shadow').css({//顯示陰影
+            display: 'block',
+            width:  window.innerWidth,
+            height: document.documentElement.scrollHeight,
+            top: 0,
+            left: 0
+        });
+        $('#Menu_Hist').css({//顯示瀏覽紀錄
+            display: 'block',
+            left: $('#Header table').offset().left+ $('#Header table').width() -$('#Menu_Hist').width(),
+            top: $('#Header').height(),
+            height: document.documentElement.scrollHeight
+        });
+        $('#His div').css('height', $('#His').height() - 100);
+        BS.History.GoTop();
+    }
+    BS.Event.BT_Menu = function () {//會員選單
+        $('#Div_Shadow').css({//顯示陰影
+            display: 'block',
+            width: window.innerWidth,
+            height: document.documentElement.scrollHeight,
+            top: 0,
+            left: 0
+        });
+        $('#Menu_Link').css({
+            display:'block',
+            top: $('#Header').height(),
+            left:$('#Header table').offset().left+ $('#Header table').width() -$('#Menu_Link').width(),
+            height: document.documentElement.scrollHeight
+        });
+        $('#Menu_Link table tr td').each(function () {
+            $(this).click(function (event) { 
+                $(this).find('a:first')[0].click();
+            });
+        });
+        BS.History.GoTop();
+    }
+    BS.Event.BT_Preview = function () {//預覽
+        $('#Div_Shadow').css({//顯示陰影
+            display:'block',
+            height: document.documentElement.scrollHeight,
+            width: document.documentElement.scrollWidth,
+            top: 0,
+            left: 0
+        });
+        var V = document.createElement('div'); 
+        document.getElementsByTagName('Body')[0].appendChild(V);
+        V.outerHTML = "<table id='View_Table' style='display:flex;align-items:flex-start;z-index:90;background-color:white;position:absolute;width:" + $('.MainBody').width() + "px;height:" + window.innerHeight * .8 + "px;top:" + $('#Header').height() + "px;left:" + $('.MainBody').offset().left + "px;margin:auto;'>"
+                    + "<tbody style='width:100%;'>"
+                    + "<tr><td colspan='3' align='right' style='width:100%;height:1%;'><img src='/Images/BT_Close.png' id='View_Close' style='cursor:pointer;' onclick='BS.Event.BT_Shadow_Close();'></td></tr>"
+                    + "<tr>"
+                    + "<td style='width:30px;'><input type='button' id='BT_L' style=\"background:url(\'/Images/BT_ArrowLeft.png\') no-repeat center;width:30px;height:100%;font-size:24;background-color:transparent;border:none;cursor:pointer;\" /></td>"
+                    + "<td align='center' style='width:100%;'  >"
+                    + "<img id='View_ImgBig' src='" + $('#Body_Image1').attr('src') + "' />"
+                    +"</td>"
+                    + "<td style='width:30px;'><input type='button' id='BT_R' style=\"background:url(\'/Images/BT_ArrowRight.png\') no-repeat center;width:30px;height:100%;font-size:24;background-color:transparent;border:none;cursor:pointer;\"/></td>"
+                    + "</tr>"
+                    + "</tbody>"
+                    + "</table>" ;
+        $('#View_Table input').each(function () {
+            $(this).on('click', function () {
+                var img = $('#View_ImgBig').attr('src').split('/')[$('#View_ImgBig').attr('src').split('/').length - 1], arg = 1;
+                if ($(this).attr('id') == 'BT_L')
+                    arg = -1;
+                var img_list = $('.Area_Image_List img');
+                for (var i = 0; i < img_list.length; i++) {
+                    if (img_list[i].src.split('/')[img_list[i].src.split('/').length - 1] == img) {
+                        if ((i + arg) % img_list.length < 0)
+                            $('#View_ImgBig').attr('src', img_list[(i + arg + img_list.length) % img_list.length].src);
+                        else
+                            $('#View_ImgBig').attr('src', img_list[(i + arg) % img_list.length].src);
+                        var w = $('#View_ImgBig').width(), h = $('#View_ImgBig').height();
+                        var v_w = $('#View_Table tr:nth-child(2) td:nth-child(2)').width();
+                        var v_h = $('#View_Table').height() - $('#View_Table tr:nth-child(1)').height()-20;
+                        var d = '';
+                        if (w > h) {
+                            if (v_h > v_w / w * h) {
+                                $('#View_ImgBig').css('width', v_w).css('height', 'auto');
+                                d = '1';
+                            }
+                            else {
+                                $('#View_ImgBig').css('width', 'auto').css('height', v_h);
+                                d = '2';
+                            }
+                        }
+                        else {
+                            if (v_w > v_h / h * w) {
+                                $('#View_ImgBig').css('width', 'auto').css('height', v_h);
+                                d = '3';
+                            }
+                            else {
+                                $('#View_ImgBig').css('width', v_w).css('height', 'auto');
+                                d = '4';
+                            }
+                        }
+                        break;
+                    }
+                }
+            });
+        });
+        $('#View_Table input')[1].click();
+        $('#View_Table input')[0].click();
+    }
+    BS.Event.BT_Rule = function () {//顯示會員條款
+        $('#Div_Rule').css({
+            display: 'block',
+            width: $('.MainBody').width() * .8,
+            height: $('#Footer').offset().top - $('#Header').height() - 25,
+            top: $('#Header').offset().top + $('#Header').height(),
+            left: $('.MainBody').offset().left + $('.MainBody').width() * .1
+        });
+        $('#Div_Shadow').css({//顯示陰影
+            display: 'block',
+            height: document.documentElement.scrollHeight,
+            width: document.documentElement.scrollWidth,
+            top: 0,
+            left: 0
+        });
+    }
+    BS.Event.BT_Reload = function (e) {//更新驗證碼
+        var img = $(e).prev();
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url: '/VerifyCode',
+            success: function (data) {
+                $(img).attr('src', data);
+                $($(img).next().next().next()).val('');
+            }
+        });
+    }
+    BS.Event.BT_Shadow_Close = function () {//點陰影
+        if (BS.Cookie('Mobile') == '1') {
+            $('#Menu_Hist').css('display', 'none').css('left', window.innerWidth);
+            $('#Menu_Link').css({
+                display: 'none',
+                top: $('#Header').height(),
+                left: $('#Header table').width() -$('#Menu_Link').width()
+            });
+        }else if ($('#Page_Menu_PN_Member')[0]) {
+            $('#Page_Menu_LK_Member').click();
+        }
+        if ($('#Div_Rule')[0]) {
+            $('#Div_Rule').css('display', 'none');
+        }
+        if ($('#View_Table')[0]) {
+            $('#View_Table').remove();
+        }
+        $('#Div_Shadow').css('display', 'none');
+    }
+    BS.Event.BT_Version_Close = function (e) {
+        $('#TermUp').css('display', 'none');
+        $('#TermUpProduct').css('display', 'none');
+        $('#TermDown').css('display', 'none');
+        $('#TermDownProduct').css('display', 'none');
+        $('.BT_Active').attr('class', 'BT_Sell');
+        $('#Menu_Hist').css('top', $('#Header').height());
+        BS.History.GoTop();
+    }
+    BS.Event.DDL_Cart_Qty = function (e) {//購買數量 
+        BS.Cart.add($(e).attr('mtrl_seq') + '_' + $(e).val());
+        BS.Cart.CartCount();
+    }
+    BS.Event.DDL_Mode = function (e) {//模式選單
+        BS.Cookie.assign('Mode', $(e).val());
+        location.reload();
+    }
+}
+/*Cookie存取*/{
+    BS.Cookie = function (e) {
+        var value = '', gap = '';
+        var tmp = document.cookie.split(';');
+        for (var j = 0; j < tmp.length; j++) {
+            if (tmp[j].includes(e + '=')) {
+                var m = tmp[j].replace(e + '=', '').split(',');
+                for (var i = 0; i < m.length; i++) {
+                    if ( myTrim(m[i]) != '' && value.indexOf(myTrim(m[i])) == -1) {
+                        if (m[i].includes('=') )
+                            break;
+                        value += gap +  myTrim(m[i]);
+                        gap = ',';
+                    }
+                }
+            }
+        }
+        return value;
+    };
+    BS.Cookie.add = function (obj, e) {//Cookie加值
+        var value = BS.Cookie(obj);
+        if (!value.includes(e)) { 
+            value +=  (value.length > 0?',':'') + e; 
+        }
+        BS.Cookie.assign(obj, value);
+    };
+    BS.Cookie.assign = function (obj, e) {//Cookie加值
+        document.cookie = obj+'=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';//設定過期
+        date = new Date();
+        date.setTime(date.getTime() + (24 * 60 * 60 * 1000));
+        document.cookie = obj + '='+e+'; expires=' + date.toGMTString() + ';path=/';//設定新日期
+    };
+    BS.Cookie.remove = function (e) {//Cookie移除
+        document.cookie = e + '=;';
+        document.cookie = e + '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/';//設過期
+    }
+}
+/*購物車紀錄*/{
+    BS.Cart = function () {//設定購物車品項已選
+        var product = BS.Cookie('Cart');
+        var tmp = product.split(',');
+        var cnt = 0;
+        for (var i = 0; i < tmp.length; i++) {
+            if ( myTrim(tmp[i]) != '' && tmp[i].indexOf('undefined') == -1)
+                cnt++;
+        }
+        $('.Span_Cart').each(function () { $(this).html(cnt) });
+        //設定已選和數量
+        var str = ',' + product + ',';
+        if ($('#Body_DDL_Qty')[0]) {//產品資訊預設數量
+            var mtrl_seq = $('#Body_Mtrl_Seq').val();
+            var qty = '1'; 
+            if (str.includes(',' + mtrl_seq + '_')) {
+                for (var i = 0; i < tmp.length; i++) {
+                    if (tmp[i].includes(mtrl_seq + '_')) {
+                        qty = tmp[i].split('_')[1];
+                        break;
+                    }
+                }
+            }
+            $('#Body_DDL_Qty').val(qty);
+        }
+        else if ($('.Grid_Cart select')[0]) {//購物車預設數量
+            $('.Grid_Cart select').each(function () {
+                var mtrl_seq = $(this).attr('mtrl_seq');
+                if (str.includes(',' + mtrl_seq + '_')) {
+                    for (var i = 0; i < tmp.length; i++) {
+                        if (tmp[i].includes(mtrl_seq + '_')) {
+                            $(this).val(tmp[i].split('_')[1]);
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+        else if ($(".Original input[onclick='BS.Cart.AddCart(this);']")[0]) {//設定已加入樣式
+            $(".Original input[onclick='BS.Cart.AddCart(this);']").each(function () {
+                var mtrl_seq = $(this).attr('mtrl_seq');
+                if (str.includes(',' + mtrl_seq + '_'))
+                    $($(this).closest('.Original')[0]).addClass('Select');
+            });
+        }
+    }
+    BS.Cart.add = function (e) {//加入購物車
+        var product = BS.Cookie('Cart').split(',');
+        var mtrl_seq = e.split('_')[0], qty = e.split('_')[1];
+        var tar = product.filter(item => item && item.indexOf(mtrl_seq + '_') === -1 && item.indexOf('undefined') === -1).join(',');
+        if (mtrl_seq.indexOf('undefined') == -1)
+            tar += (tar.trim()!=''?',':'') + mtrl_seq + '_' + qty;
+        BS.Cookie.remove('Cart');
+        BS.Cookie.add('Cart', tar);
+        BS.Cart();
+    }
+    BS.Cart.AddCart = function (e) {//加入購物車
+        BS.Cart.add($(e).attr('mtrl_seq') + '_' + ($('#Body_DDL_Qty')[0] ? $('#Body_DDL_Qty').val() : '1'));
+    }
+    BS.Cart.CartCount = function () {//購物車金額合計
+        var tr = $('.Grid_Cart tr');
+        var total = 0, qtys = 0;
+        for (var i = 0; i < tr.length; i++) {
+            if ($(tr[i]).find('img')[0]) {
+                var prc = parseInt($($(tr[i]).find('span')[0]).text());
+                var qty = parseInt($(tr[i]).find('select').val());
+                var amt = prc * qty;
+                if ($(tr[i]).find('span')[0])
+                    $($(tr[i]).find('span')[1]).text(amt);
+                total += amt;
+                qtys += qty;
+            }
+        }
+        $('#Body_LB_Amt').text(total);//總金額
+        $('#TotalBook').text($('.Grid_Cart img').length);//總品項
+        $('#TotalQty').text(qtys);//總數量
+        if ($('#DIV_Total')[0]) {
+            $('#DIV_Total').html('總計金額：<font color="OrangeRed">' + total + '</font>元')
+        }
+    }
+}
+/*瀏覽紀錄*/{
+    BS.History = function () {
+        //清除物件
+        var value = BS.Cookie('his');
+        if (value != '') {//取得資料
+            $.ajax({
+                async: true,
+                type: 'GET',
+                url: '/ProductHist',
+                success: function (data) {
+                    $('#His').html(data);
+                    if (data == '')
+                        $('#His').parent().next().children(0).text('無紀錄');
+                    else
+                        $('#His').parent().next().children(0).text('清除紀錄');
+                }
+            });
+        }
+        else {
+            $('#His').html('');
+            $('#His').parent().next().children(0).html('<span style="color:#999999">暫時無瀏覽紀錄</span>');
+        }
+    }
+    BS.History.add = function (e) {//新增點閱紀錄
+        var record = BS.Cookie('his').split(',');
+        var tar = '', gap = '', mtrl_seq = e.split('_')[0];
+        for (var i = 0; i < record.length; i++) {//移除舊紀錄
+            if (record[i] != '') {
+                if (record[i].indexOf(mtrl_seq + '_') == -1 && record[i].indexOf('undefined') == -1) {
+                    tar += gap + record[i];
+                    gap = ',';
+                }
+            }
+        }
+        var now = new Date();
+        var year = now.getFullYear();
+        var month = (now.getMonth() + 1).toString().padStart(2, '0'); // 月份從0開始，所以要加1
+        var day = now.getDate().toString().padStart(2, '0');
+        var hours = now.getHours().toString().padStart(2, '0');
+        var minutes = now.getMinutes().toString().padStart(2, '0');
+        var seconds = now.getSeconds().toString().padStart(2, '0');
+
+        if (mtrl_seq.indexOf('undefined') == -1)
+            tar += gap + mtrl_seq + '_' + year + month + day + hours + minutes + seconds;
+        BS.Cookie.remove('his');
+        BS.Cookie.add('his', tar);
+        BS.History();
+    }
+    BS.History.remove = function () {//清除點閱紀錄
+        BS.Cookie.remove('his');
+        BS.History();
+    }
+    BS.History.GoTop = function () {//至頂
+        $('html, body').animate({ scrollTop: 0 }, 1000);
+    }
+    BS.History.GoDown = function () {//至底
+        $('html, body').animate({ scrollTop: document.body.scrollHeight || document.documentElement.scrollHeight }, 1000);
+    }
+}
+/*通用Function*/{
+    //行動裝置識別
+    function isMobileDevice() {
+        var userAgent = navigator.userAgent.toLowerCase();
+        var dev = /android|iphone|ipad|ipod|blackberry|windows phone|opera mini|mobile/i.test(userAgent);
+        if (dev)
+            return true;
+        else
+            return false;
+    }
+    //亂數
+    function RandomString(digits) {
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var result = '';
+        var charactersLength = characters.length;
+        for (var i = 0; i < digits; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+    //清空白
+    function myTrim(str) {
+        return str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+    }
+    //回上頁非目前頁）
+    function GoBack() {
+        var currentUrl = window.location.href;
+        var referrerUrl = document.referrer;
+        if (referrerUrl && referrerUrl !== currentUrl) {
+            window.location.href = referrerUrl;
+        }
+        else {
+            // 從 sessionStorage 讀取紀錄（使用自訂分隔字串）
+            var historyStackStr = sessionStorage.getItem('historyStack') || '';
+            var historyStack = historyStackStr ? historyStackStr.split('|') : [];
+            if (historyStack.length > 1) {
+                historyStack.pop(); // 移除當前頁
+                var lastPage = historyStack.pop(); // 取得上一個頁面
+                sessionStorage.setItem('historyStack', historyStack.join('|')); // 更新紀錄
+                if (lastPage && lastPage !== currentUrl) {
+                    window.location.href = lastPage;
+                } else {
+                    window.location.href = '/'; // fallback
+                }
+            }
+            else {
+                window.location.href = '/'; // fallback 頁
+            }
+        }
+    }
+    //記錄目前頁面（非重複）
+    (function trackPageHistory() {
+        var currentUrl = window.location.href;
+        var historyStackStr = sessionStorage.getItem('historyStack') || '';
+        var historyStack = historyStackStr ? historyStackStr.split('|') : [];
+
+        if (historyStack.length === 0 || historyStack[historyStack.length - 1] !== currentUrl) {
+            historyStack.push(currentUrl);
+            sessionStorage.setItem('historyStack', historyStack.join('|'));
+        }
+    })();
+    //解碼
+    function hexToText(hexString) {
+        var text = '';
+        for (var i = 0; i < hexString.length; i += 2) {
+            var hexCode = hexString.substring(i, i + 2);
+            var charCode = parseInt(hexCode, 16);
+            text += String.fromCharCode(charCode);
+        }
+        return text;
+    }
+    //頁尾定位
+    function FooterPosition() {
+        var blockMain = document.querySelector('.MainBody');
+        var footer = document.getElementById('Footer');
+
+        if (!blockMain || !footer || ($('.Title_Cart')[0] &&BS.Cookie('Mobile')=='1'))//手機版購物車不做調整以免影響操作遮住
+            return;
+
+        var blockMainHeight = blockMain.offsetHeight + ($('#Div_Suggest')[0] ? $('#Div_Suggest').height() : 0)+30;
+        var footerHeight = footer.offsetHeight;
+        var totalHeight = blockMainHeight + footerHeight;   
+        var windowHeight = window.innerHeight;
+
+        if (totalHeight < windowHeight) { 
+            footer.style.position = 'fixed';
+            footer.style.bottom = '0';
+            footer.style.left = '0';
+            footer.style.right = '0';
+            var blockMainBottom = blockMain.offsetTop + blockMainHeight;
+            var viewportBottom = windowHeight - footerHeight;
+            if (viewportBottom < blockMainBottom) {
+                footer.style.position = 'relative';
+                footer.style.bottom = 'auto';
+                footer.style.left = 'auto';
+                footer.style.right = 'auto';
+            }
+        } else { 
+            footer.style.position = 'relative';
+            footer.style.bottom = 'auto';
+            footer.style.left = 'auto';
+            footer.style.right = 'auto';
+        }
+        $('#Footer').css('width', blockMain.width);
+        $('#Div_Suggest').css('width', blockMain.width);
+    }
+    //使用者資訊
+    function UserInfo() {         
+        var browser = 'Unknown';
+        var version = 'Unknown';
+        // 使用 navigator.userAgent 判斷瀏覽器類型
+        /*Edge*/if (navigator.userAgent.includes('Edg')) {
+            browser = 'Edge';
+            version = navigator.userAgent.split('Edge/')[1];
+        }
+        /*Chrome*/else if (navigator.userAgent.includes('Chrome')) {
+            browser = 'Chrome';
+            version = navigator.userAgent.split('Chrome/')[1].split(' ')[0];
+        }
+        /*Chrome*/else if (navigator.userAgent.includes('CriOS')) {
+            browser = 'Chrome';
+            version = navigator.userAgent.split('CriOS/')[1].split(' ')[0];
+        }
+        /*Firefox*/else if (navigator.userAgent.includes('Firefox')) {
+            browser = 'Firefox';
+            version = navigator.userAgent.split('Firefox/')[1];
+        }
+        /*Safari*/else if (navigator.userAgent.includes('Safari')) {
+            browser = 'Safari';
+            version = navigator.userAgent.split('Version/')[1].split(' ')[0];
+        }
+        /*Opera*/else if (navigator.userAgent.includes('Opera') || navigator.userAgent.includes('OPR')) {
+            browser = 'Opera';
+            version = navigator.userAgent.split('Opera/')[1] || navigator.userAgent.split('OPR/')[1];
+        }
+        // 螢幕大小
+        var screenWidth = window.screen.width;
+        var screenHeight = window.screen.height;
+
+        // 瀏覽器顯示大小（可視區域大小）
+        var browserWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        var browserHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+        // 網頁縮放比例
+        var zoomLevel = window.devicePixelRatio || 1;
+        // 將資訊顯示在網頁上（你也可以使用 console.log() 將資訊顯示在開發者工具的控制台中）
+        var h3 = document.createElement('H3');
+        var div1 = document.createElement('div');
+        h3.innerText = '使用者瀏覽器資訊';
+        alert('瀏覽器：' + browser + '\n'
+            + '版本：' + version + '\n'
+            + '螢幕大小：' + screenWidth + ' x ' + screenHeight + '\n'
+            + '瀏覽器顯示大小：' + browserWidth + ' x ' + browserHeight + '\n'
+            + '網頁縮放比例：' + zoomLevel + '\n'
+            + 'status:' + BS.Cookie('Mobile')
+            );
+        return false;
+    }
+    function f() {
+        var fontSizes = {}; // 用於儲存字型大小及其出現次數的物件
+
+        // 遍歷所有元素
+        $('body *').each(function () {
+            var fontSize = $(this).css('font-size');
+
+            // 如果字型大小已存在，則增加計數，否則新增
+            if (fontSizes[fontSize]) {
+                fontSizes[fontSize]++;
+            } else {
+                fontSizes[fontSize] = 1;
+            }
+        });
+ 
+        // （可選）將統計結果顯示在網頁上
+        var resultDiv = $('#result');
+        var msg='';
+        for (var fontSize in fontSizes) {
+            msg+= fontSize + ': ' + fontSizes[fontSize] + ' 次\n';	
+        }
+        alert(msg);
+    }
+    //手機載具驗證
+    function isValidMobile(barcode) {
+        var upperCaseBarcode = barcode.toUpperCase(); // 將輸入轉換為大寫
+        if (!barcode) 
+            return false; // 空值直接判斷為無效
+        if (upperCaseBarcode.length !== 8) 
+            return false; // 長度必須為 8 碼
+        if (upperCaseBarcode.charAt(0) !== '/') 
+            return false; // 第一碼必須為 "/"        
+        var pattern = /^[0-9A-Z.\-+]{7}$/;
+        return pattern.test(upperCaseBarcode.substring(1)); // 驗證後 7 碼 (已轉換為大寫)
+    }
+}

@@ -1,0 +1,3158 @@
+﻿
+//********************************** 個別Function **********************************//
+function CreateMask() {
+    let div = document.createElement("div");
+    div.id = "DeliveryAreaMask";
+    div.className = "divMask";
+    div.style.width = document.getElementById('DeliveryArea').clientWidth + "px";
+    div.style.height = document.getElementById('DeliveryArea').clientHeight + "px";
+    document.getElementById('DeliveryArea').appendChild(div);
+
+    div = document.createElement("div");
+    div.id = "MagazineAreaMask";
+    div.className = "divMask";
+    div.style.width = document.getElementById('MagazineArea').clientWidth + "px";
+    div.style.height = document.getElementById('MagazineArea').clientHeight + "px";
+    document.getElementById('MagazineArea').appendChild(div);
+}
+function DrawPic(_obj, _Eyes) {
+    let canvasC = document.getElementById(_obj.id).getContext('2d');
+    let imageP = new Image();
+    let BaseSize = 30;
+
+    imageP.onload = function () {
+        if (imageP.width >= imageP.height) {
+            imageWidth = BaseSize;
+            imageHeight = BaseSize * (imageP.height / imageP.width);
+        }
+        else if (imageP.width < imageP.height) {
+            imageHeight = BaseSize;
+            imageWidth = BaseSize * (imageP.width / imageP.height);
+        }
+        canvasC.width = imageWidth;
+        canvasC.height = imageHeight;
+        canvasC.fillStyle = '#ffffff';
+
+        canvasC.fillRect(0, 0, imageWidth, imageHeight);
+        canvasC.drawImage(imageP, 0, 0, imageWidth, imageHeight);
+    };
+    imageP.src = "./images/" + (_Eyes == 'C' ? 'Close' : 'Open') + "eyes.png";
+    $(_obj).removeClass((_Eyes == 'C' ? 'Oeyes' : 'Ceyes')).addClass((_Eyes == 'C' ? 'Ceyes' : 'Oeyes'));
+}
+function SetHomeslick() {
+    $(".drawer .drawer_body").hide();
+    $(".drawer .drawer_head").click(function () {
+        $(this)
+            .toggleClass("active")
+            .next(".drawer_body")
+            .slideToggle(10)
+            .siblings(".drawer_body")
+            .slideUp("slow");
+        $(this)
+            .siblings()
+            .removeClass("active");
+    });
+    /*
+        $("#secondpane .menu_body:eq(0)").show();
+        $("#secondpane p.menu_head").mouseover(function(){
+            $(this).addClass("current").next("div.menu_body").slideDown(500).siblings("div.menu_body").slideUp("slow");
+            $(this).siblings().removeClass("current");
+        });
+    */
+    /****************************
+    slick 滑動效果
+    *****************************/
+
+    $('.book_g01').slick({
+        infinite: true,
+        slidesToShow: 6,
+        slidesToScroll: 1,
+        responsive: [
+            {
+                breakpoint: 992,
+                settings: {
+                    infinite: true,
+                    slidesToShow: 3,
+                    slidesToScroll: 1,
+                }
+            },
+            {
+                breakpoint: 768,
+                settings: {
+                    slidesToShow: 2,
+                    slidesToScroll: 1,
+                }
+            },
+            {
+                breakpoint: 480,
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1
+                }
+            }
+        ]
+    });
+    /****************************/
+    $('.book_g02').slick({
+        infinite: true,
+        slidesToShow: 5,
+        slidesToScroll: 1,
+        responsive: [
+            {
+                breakpoint: 1240,
+                settings: {
+                    infinite: true,
+                    slidesToShow: 4,
+                    slidesToScroll: 1,
+                }
+            },
+            {
+                breakpoint: 992,
+                settings: {
+                    infinite: true,
+                    slidesToShow: 3,
+                    slidesToScroll: 1,
+                }
+            },
+            {
+                breakpoint: 768,
+                settings: {
+                    slidesToShow: 2,
+                    slidesToScroll: 1
+                }
+            }
+        ]
+    });
+    /****************************/
+
+    /****************************/
+    $('.book_g04').slick({
+        infinite: true,
+        slidesToShow: 4,
+        slidesToScroll: 1,
+        responsive: [
+            {
+                breakpoint: 992,
+                settings: {
+                    infinite: true,
+                    slidesToShow: 3,
+                    slidesToScroll: 1,
+                }
+            },
+            {
+                breakpoint: 768,
+                settings: {
+                    slidesToShow: 2,
+                    slidesToScroll: 1
+                }
+            }
+        ]
+    });
+}
+function BindMarketStaffInfo(_obj) {
+
+    let _CoMarket = GetUrlVars()["CoMarket"];
+    if (_CoMarket != undefined) {
+        $('#tb_MarketingStaffNo').hide();
+        let apiParam = {
+            Method: 'MarketingStaff',
+            SourceUUID: $.trim($('#SourceUUID').val()),
+            CoMarket: $.trim(_CoMarket),
+        };
+        //Facebook Pixel Code 引用 && _obj.toUpperCase() === "APP" 1567066910876740
+        if (_CoMarket.toUpperCase() === "APP04" ) {
+            //$.get("FBPixel.html", function (data) { $("body").append(data); });
+            fbq('init', '620971690550054');
+            fbq('track', 'PageView');
+            sessionStorage.setItem("FBPixel", "On");
+        }
+        else {
+            sessionStorage.removeItem("FBPixel");
+        }
+
+        WebAPI.Post("FERequest", apiParam, false, function (jsons) {
+            if (jsons.Success) {
+                let json = JSON.parse(jsons.Message);
+                let MarketingStaff = {}
+                MarketingStaff.Code = _CoMarket;
+                MarketingStaff.Name = json[0].MarketingStaff;
+                sessionStorage.setItem("MarketingStaff", JSON.stringify(MarketingStaff));
+                $('.tempclass').remove();
+                //$('#tb_Note').val(json[0].MarketingStaff);
+                $('#lbl_MarketingStaffName').html(json[0].MarketingStaff).show();
+                $('#tb_MagMemo').val(json[0].MarketingStaff).attr('disabled', true);//.attr("placeholder", "若無免填");
+                $('#tb_MagMemo').before("<span class='tempclass'>業務姓名</span>");
+                $('#tb_MarketingStaffNo').hide();
+            }
+            else {
+                $('#tb_MagMemo').val('').attr("placeholder", "若無免填").removeAttr("disabled");
+                $('#lbl_MarketingStaffName').html('').hide();
+            }
+        }, function (xhr) {
+            //beforeSend
+            sessionStorage.removeItem("MarketingStaff");
+        }, function () {
+            //complete
+        }, function () {
+            //fail
+        });
+    }
+    else {
+        if (StringFunc.Validation.isEmptyOrNull(sessionStorage.getItem('MarketingStaff'))) {
+            $('#tb_MarketingStaffNo').show();
+        }
+        //sessionStorage.removeItem("MarketingStaff");
+    }
+}
+function BindMarketInfo() {
+    WebAPI.Get("FERequest", ToUrlParam({ Method: "GetMarketInfo" }), false, function (jsons) {
+        let dal = new cs.PostResult();
+        dal.ini(jsons);
+        if (dal.Success) {
+            let json = JSON.parse(dal.Message);
+            let PromoStr = "";
+            for (let key in json) {
+                PromoStr += '<input class="btn PromoType" id="PromoType' + json[key].Code + '" data-pt="' + json[key].Code + '" type="Button" value="' + json[key].Display + '"/>';
+            }
+            $('#tb_PromoType').next().after(PromoStr);
+        }
+        else {
+            console.log('取得 PromoType 資料失敗: ' + dal.Message);
+        }
+    }, function () { }, function () { });
+
+    WebAPI.Get("FERequest", ToUrlParam({ Method: "GetActivitiesInfo" }), false, function (jsons) {
+        let dal = new cs.PostResult();
+        dal.ini(jsons);
+        if (dal.Success) {
+            //let json = JSON.parse(dal.Message);
+            //let ActivitiesStr = "";
+            localStorage.setItem("ActivitiesInfo", dal.Message);
+        }
+        else {
+            console.log('取得 PromoType 資料失敗: ' + dal.Message);
+        }
+    }, function () { }, function () { });
+
+    //套入自動轉置
+    $('#goods_Cartitem').basictable({
+        breakpoint: 768,
+    });
+    $('#CheckOut_Item').basictable({
+        breakpoint: 768,
+    });
+}
+
+function ModifyUserInfoClick(_OBJ) {
+    AppendMamberPart('');
+    $('#MemberData').hide();//.trigger('click'); PurchaseInfo
+    $('#PurchaseInfo').hide();
+    $('#MemberActionActive').html(_OBJ);
+    $('#ModifyUserInfo').removeClass('btn-outline-info').addClass('btn-info');
+
+    $('.MemberAction').each(function () { $(this).removeClass('btn-primary').addClass('btn-outline-primary'); })
+    $('.OrderTypeQS').each(function () { $(this).removeClass('btn-info').addClass('btn-outline-info').hide(); });
+    let MemberInfo = JSON.parse(sessionStorage.getItem('MemberInfo'));
+    if (MemberInfo != null) {
+        switch (_OBJ) {
+            case "MemberIntegrateInfo":
+                MemberBaseData(MemberInfo[0].Email);
+                $('#MemberData').show();
+                $('#MemberIntegrateInfo,MemberData').show();
+                break;
+            case "PurchaseInfo":
+                OrderHistory(MemberInfo[0].Email, '7');
+                $('#MemberIntegrateInfo,#PurchaseInfo').show();
+                //$('#OrderBtns').children('li').show();
+                //$('#OrderBtns').children('li').eq(0).children('button').removeClass('btn-outline-primary').addClass('btn-primary');
+                break;
+            default:
+                break;
+        }
+
+    }
+    else {
+        //重新登入
+        //$('#LoginModal').modal('show');
+        GoToSomewhere = _OBJ;
+        //DisplayInfoAera("#app");
+        alert('您已閒置過久，將為您轉至康軒會員中心重新驗證。');
+        //if (confirm('將為您轉至康軒會員中心，是否同意?')) {}
+        let dvCode = $.trim(getRandomNumber());
+        SetAutoLogin(dvCode, { GSW: GoToSomewhere, MS: sessionStorage.getItem('MarketingStaff') });
+        return false;
+        //location.href = './index';
+    }
+}
+function ReceiveInfoFromOrderClear() {
+    //清按鈕
+    $('.ReceiveLocation,.TInvoice,.TInvoice_P').each(function () { $(this).removeClass('btn-primary').addClass('btn-default').show(); })
+    $('.DomesticCounty,.DomesticZip,.Foreign,.FreightCountry,.DonationUnit').remove();
+    //清值
+    $('#tb_ReceiveName,#tb_ReceiveContact,#tb_ReceiveLocation,#tb_County,#tb_Zip,#tb_Country,#tb_Address,#tb_InvoiceType,#ddl_ReceiveAddress,#tb_EmployeeDept').val('');
+    $('#ReceiveFromP,#ReceiveFromC').html('');
+    //隱藏
+    $('.TInvoice_C,.TInvoice_P,#tb_Zip,#tb_InvoiceP_Extend,#tb_Invoice_Donate').hide();
+    //清顯示
+    $('#lbl_Zip,#lbl_County,#lbl_TownName').html('');
+
+    //還原
+    $('#ReceiveFrom').show();
+    //
+    $('.divMask').remove();
+}
+//清值
+function ClearLoginModalInfo() {
+    Refreshmodal('LoginModal');
+
+    $('#tb_ChkPsWd').next('span').html('close').hide();
+    $('#ddl_Town option').remove();
+    $('.RadioButton.sex').each(function () { $(this).removeClass('btn-primary').addClass('btn-default'); })
+    $(this).removeClass('btn-default').addClass('btn-primary');
+    $('#rdl_sex').html('');
+    if ($('#btn_ForgotSelect').val() == "取消") {
+        $('#btn_ForgotSelect').trigger('click');
+    }
+
+}
+//驗證項目
+function Verify(obj) {
+    let VerifyResult = true;
+    switch (obj) {
+        case "login":
+            let uid = $('#tb_User').val();
+            VerifyResult = $.trim(uid).length != 0;
+            if (VerifyResult) {
+                VerifyResult = !StringFunc.Validation.isEmptyOrNull($('#tb_UserPWD').val());
+            }
+            break;
+        case "Regi":
+            VerifyResult = StringFunc.Validation.is_email($.trim($('#tb_email').val()));
+            break;
+        case "Beforeregister":
+            $('.TBRequired').each(function () {
+                if (VerifyResult) {
+                    VerifyResult = !StringFunc.Validation.isEmptyOrNull($.trim($(this).val()));
+                }
+                if (VerifyResult) {
+                    VerifyResult = !StringFunc.Validation.isEmptyOrNull($.trim($('#rdl_sex').html()));
+                }
+            });
+            break;
+    }
+    return VerifyResult;
+}
+function GetTopMenu() {
+    WebAPI.Get("FERequest", ToUrlParam({ Method: "GetTopMenu" }), false, function (jsons) {
+        let dal = new cs.PostResult();
+        dal.ini(jsons);
+        if (dal.Success) {
+            let json = JSON.parse(dal.Message);
+            for (let key in json) {
+                if (key != 0) $("#menu_list").append('<li class="F38EN"></li>');
+                $("#menu_list").append('<li><a href="' + json[key].MenuDirection + '" target="' + json[key].Target + '">' + json[key].MenuDisplay + '</a></li>');
+                //RWD 這個可以有下層submenu
+                $("#menu_list_RWD").append('<li><a href="' + json[key].MenuDirection + '" target="' + json[key].Target + '">' + json[key].MenuDisplay + '</a></li>');
+            }
+        }
+        else {
+            console.log('取得 GetTopMenu 資料失敗: ' + dal.Message);
+        }
+    }, function () { }, function () { });
+}
+
+function GetBottomSlickImg() {
+    WebAPI.Get("FERequest", ToUrlParam({ Method: "GetBottomImg" }), false, function (jsons) {
+        let dal = new cs.PostResult();
+        dal.ini(jsons);
+        if (dal.Success) {
+            let json = JSON.parse(dal.Message);
+            for (let key in json) {
+                if (key != 0) $("#menu_list").append('<li class="F38EN"></li>');
+                $(".home_10 ul").append('<li><a href="#" target="_top"><div class="pic"><img src="' + json[key].ImagePath + '" /></div></a></li>');
+
+            }
+        }
+        else {
+            console.log('取得 GetBottomImg 資料失敗: ' + dal.Message);
+        }
+    }, function () { }, function () { });
+
+    $('.book_g03').slick({
+        autoplay: true,
+        pauseOnHover: false,
+        speed: 1500,
+        autoplaySpeed: 5000,
+        dots: true,
+        infinite: true,
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        responsive: [
+            {
+                breakpoint: 992,
+                settings: {
+                    infinite: true,
+                    slidesToShow: 2,
+                    slidesToScroll: 1,
+                }
+            },
+            {
+                breakpoint: 768,
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1
+                }
+            }
+        ]
+    });
+}
+function GetUEContent() {
+    let UEStr = '<li><div class="txt"><span class="title">###title###</span><p>###PPP###</p><span class="more">###more###</span></li>';
+    WebAPI.Get("FERequest", ToUrlParam({ Method: "GetUEContent" }), false, function (jsons) {
+        let dal = new cs.PostResult();
+        dal.ini(jsons);
+        if (dal.Success) {
+            let json = JSON.parse(dal.Message);
+            let combination = "";
+            for (let key in json) {
+                combination += UEStr.replace("###title###", json[key].UETitle)
+                    .replace("###PPP###", json[key].UEcontent)
+                    .replace("###more###", json[key].UEMore);
+            }
+            $(".home_11 ul").append(combination);
+        }
+        else {
+            console.log('取得 UE 資料失敗: ' + dal.Message);
+        }
+    }, function () { }, function () { });
+    $('.book_g031').slick({
+        autoplay: true,
+        pauseOnHover: false,
+        speed: 1500,
+        autoplaySpeed: 15000,
+        dots: true,
+        infinite: true,
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        responsive: [
+            {
+                breakpoint: 992,
+                settings: {
+                    infinite: true,
+                    slidesToShow: 2,
+                    slidesToScroll: 1,
+                }
+            },
+            {
+                breakpoint: 768,
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1
+                }
+            }
+        ]
+    });
+}
+function GetCashFlow() {
+    let apiParam = {
+        Method: 'GetTPCashFlow',
+        CallType: 'Pay',
+        SourceUUID: $.trim($('#SourceUUID').val()),
+    };
+    setTimeout(function () {
+        WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+            if (jsons.Success) {
+                $('#PaymentAera').children('form').attr('action', jsons.Message);
+            }
+        }, function () {
+            //beforeSend
+        }, function () {
+            //complete
+        });
+    }, function () {
+        //fail
+
+    }, 200);
+}
+function GetAPPBanner() {
+    //取出banner
+    let apiParam = {
+        Method: "GetAPPBanner",
+        SourceUUID: $.trim($('#SourceUUID').val()),
+    };
+    WebAPI.Post("FERequest", apiParam, false, function (jsons) {
+        let dal = new cs.PostResult();
+        dal.ini(jsons);
+        //dal.Success = false;
+        if (dal.Success) {
+            $('#main_visual_APP').parent().prev().hide();
+            //Banner
+            json = JSON.parse(dal.Message);
+            if (json.length > 0) {
+                let DetailBannerStr = "";
+                for (let key in json) {
+                    DetailBannerStr += StringFunc.AppBanner()
+                        .replace("###BDESC###", StringFunc.Validation.isEmptyOrNull(json[key].BDesc) ? "#" : json[key].BDesc)
+                        .replace("###target###", StringFunc.Validation.isEmptyOrNull(json[key].BDesc) ? "_top" : "_blank")
+                        .replace("###IMG###", ' <img class="kid" src="' + json[key].BannerPath + '"/>')
+                        .replace("###PICURL###", '');
+                }
+                $('#main_visual_APP').children().find('ul').eq(0).append(DetailBannerStr);
+                let csslink = document.createElement('link');
+                csslink.type = 'text/css';
+                csslink.rel = 'stylesheet';
+                csslink.href = './dist/web_layout_e.css?v=20241210';
+                document.getElementsByTagName('head')[0].appendChild(csslink);
+                $('.oBk001').hide();
+                $('.oBk001').next().show();
+                $($('.block_02')[0]).addClass('gradient');
+            }
+        }
+        else {
+            //無banner
+            $('#main_visual_APP').parent().prev().show();
+            $('#main_visual_APP').parent().hide();
+            let csslink = document.createElement('link');
+            csslink.type = 'text/css';
+            csslink.rel = 'stylesheet';
+            csslink.href = './dist/web_layout_apb.css?v=20241121';
+            document.getElementsByTagName('head')[0].appendChild(csslink);
+            $('.oBk001').show();
+            $('.oBk001').next().hide();
+        }
+    }, function () { }, function () {
+        $('#main_visual_APP').easyFader();
+    });
+}
+function BindMemberData() {
+    let MemberInfo = JSON.parse(sessionStorage.getItem('MemberInfo'));
+    if (!StringFunc.Validation.isEmptyOrNull(MemberInfo)) {
+        GetCartInfo(MemberInfo[0].Email);
+    }
+}
+function DisplayInfoAera(showinfoID) {
+    //$('.info_right').children('.info').hide();
+    //$(showinfoID).show();
+    $('.preload,.PreLoading').fadeOut(500);
+    setTimeout(function () {
+        $('.Subinfo').hide();//.removeClass('show').addClass('hide');
+        $(showinfoID).fadeIn();//.addClass('show');
+        //$('#link_' + showinfoID).trigger('click');
+        $("html, body").animate({ scrollTop: $("#webtop").offset().top }, 300)
+    }, 200);
+}
+
+function PutInCart(OBJ, _id) {
+    let MemberInfo = JSON.parse(sessionStorage.getItem('MemberInfo'));
+
+    let apiParam = {
+        Method: 'PutInCart',
+        SourceUUID: $.trim($('#SourceUUID').val()),
+        Cart: {
+            _Email: MemberInfo[0].Email,
+            ItemCode: OBJ.itemcode,
+            itemname: OBJ.itemName,
+            ItemPrice: OBJ.price,
+            unit_price: OBJ.unit_price,
+            taxonomy: OBJ.taxonomy,
+            url: OBJ.url,
+            product_image_url: OBJ.product_image_url,
+            Gift: OBJ.Gift,
+            Qty: OBJ.qty,
+        },
+    };
+    setTimeout(function () {
+        WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+            if (jsons.Success) {
+                if (StringFunc.Validation.isEmptyOrNull(_id) || _id != "CartGo") {
+                    GoCheckOutItem = "";
+                    popupCarMessage(jsons.Message, MemberInfo[0].Email);
+                    GetCartInfo(MemberInfo[0].Email);
+                    let FBPixel = sessionStorage.getItem("FBPixel");
+                    if (FBPixel == "On") {
+                        fbq('init', '1567066910876740');
+                        fbq('track', 'PageView');
+                        fbq('track', 'AddToCart');
+                    }
+                }
+                else {
+                    GoCheckOutItem = OBJ.itemcode;
+                    let QMLoc = window.location.toString().indexOf('?');
+                    if (QMLoc > 0)
+                        location.href = window.location.toString().substring(0, QMLoc) + "?go=Goods_Cart&Ac=GoCheckout";
+                    else
+                        location.href = window.location.toString() + "?go=Goods_Cart&Ac=GoCheckout";
+                }
+
+
+let taxonomy =  OBJ.taxonomy || "康軒教育商城"
+                
+                window.InsiderQueue.push(                    
+                    {
+                        "type": "add_to_cart",
+                        "value": {
+                            "id": OBJ.itemcode,
+                            "name": OBJ.itemname,
+                            "taxonomy": (taxonomy || '')
+    .split(',')
+    .map(x => x.trim())
+    .filter(x => x !== ''),
+                            "unit_price": parseInt(OBJ.unit_price),
+                            "unit_sale_price": parseInt(OBJ.price),
+                            "quantity": parseInt(OBJ.qty) || 1,
+                            "url": OBJ.url,
+                            "product_image_url": OBJ.product_image_url
+                        }
+
+                    });
+                //window.InsiderQueue.push({ type: "init" });
+            }
+            else {
+                popupCarMessage(jsons.Message);
+
+            }
+        }, function () {
+            //beforeSend
+        }, function () {
+            //complete
+        }, function () {
+            //fail
+        });
+    }, 200);
+}
+
+function NotificationMe(OBJ) {
+    let MemberInfo = JSON.parse(sessionStorage.getItem('MemberInfo'));
+    let apiParam = {
+        Method: 'NotifyMe',
+        SourceUUID: $.trim($('#SourceUUID').val()),
+        NM: {
+            _Email: MemberInfo[0].Email,
+            _ItemCode: OBJ._ItemCode,
+        },
+    };
+    $('.PreLoading').show();
+    setTimeout(function () {
+        WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+            popupMessage(jsons.Message);
+            $('.PreLoading').fadeOut('400');
+        }, function () {
+            //beforeSend
+        }, function () {
+            //complete
+        }, function () {
+            //fail
+            $('.PreLoading').fadeOut('400');
+        });
+    }, 300);
+}
+function GetCartInfo(Email) {
+
+    let apiParam = {
+        Method: 'GetCartNum',
+        SourceUUID: $.trim($('#SourceUUID').val()),
+        Cart: { _Email: Email, },
+    };
+    setTimeout(function () {
+        WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+            if (jsons.Success) {
+                $('#CartItemNum').html(jsons.Message).show();
+                if (jsons.Message == "0")
+                    $('.CartEmtpy').show().prev().hide();
+                else
+                    $('.CartEmtpy').hide().prev().show();
+            }
+            else {
+                $('#CartItemNum').hide();
+                $('.CartEmtpy').hide().prev().show();
+            }
+        }, function () {
+            //beforeSend
+        }, function () {
+            //complete
+        }, function () {
+            //fail
+        });
+    }, 200);
+}
+
+function CartItemRemove(_itemno) {
+    let MemberInfo = JSON.parse(sessionStorage.getItem('MemberInfo'));
+    let apiParam = {
+        Method: "RemovtCartItem",
+        SourceUUID: $.trim($('#SourceUUID').val()),
+        Cart: {
+            _Email: MemberInfo[0].Email,
+            ItemCode: _itemno,
+        }
+    };
+    WebAPI.Post("FERequest", apiParam, false, function (jsons) {
+        var dal = new cs.PostResult();
+        dal.ini(jsons);
+        if (dal.Success) {
+            GetCartInfo(MemberInfo[0].Email);
+        }
+        else {
+            console.log('移除 購物車商品 資料失敗: ' + dal.Message);
+        }
+    }, function () { }, function () { });
+}
+function GetTown() {
+    if (localStorage.getItem('GetTown') == null) {
+        let apiUrl = "FERequest";
+        let apiParam = ToUrlParam({ Method: "GetZip" });
+        WebAPI.Get(apiUrl, apiParam, false, function (jsons) {
+            var dal = new cs.PostResult();
+            dal.ini(jsons);
+            if (dal.Success) {
+                localStorage.setItem("GetZip", dal.Message);
+            }
+            else {
+                console.log('取得 郵遞區號 資料失敗: ' + dal.Message);
+            }
+        }, function () { }, function () { });
+    }
+}
+function GetReceiveInfo() {
+    if (localStorage.getItem('GetCounty') == null) {
+        let apiUrl = "FERequest";
+        let apiParam = ToUrlParam({ Method: "GetCounty" });
+        WebAPI.Get(apiUrl, apiParam, false, function (jsons) {
+            var dal = new cs.PostResult();
+            dal.ini(jsons);
+            if (dal.Success) {
+                localStorage.setItem("GetCounty", dal.Message);
+            }
+            else {
+                console.log('取得行政區資料失敗: ' + dal.Message);
+            }
+        }, function () { }, function () { });
+    }
+    if (localStorage.getItem('FreightArea') == null) {
+        let apiUrl = "FERequest";
+        let apiParam = ToUrlParam({ Method: "AreaDisplayCode" });
+        WebAPI.Get(apiUrl, apiParam, false, function (jsons) {
+            var dal = new cs.PostResult();
+            dal.ini(jsons);
+            if (dal.Success) {
+                localStorage.setItem("FreightArea", dal.Message);
+            }
+            else {
+                console.log('取得 國際貨運-地區 資料失敗: ' + dal.Message);
+            }
+        }, function () { }, function () { });
+    }
+    if (localStorage.getItem('FreightCountry') == null) {
+        let apiUrl = "FERequest";
+        let apiParam = ToUrlParam({ Method: "GetCountry" });
+        WebAPI.Get(apiUrl, apiParam, false, function (jsons) {
+            var dal = new cs.PostResult();
+            dal.ini(jsons);
+            if (dal.Success) {
+                localStorage.setItem("FreightCountry", dal.Message);
+            }
+            else {
+                console.log('取得 國際貨運-國家 資料失敗: ' + dal.Message);
+            }
+        }, function () { }, function () { });
+    }
+}
+function GetBookSrhtype() {
+    if (sessionStorage.getItem('Srhtype') == null) {
+        let apiUrl = "FERequest";
+        let apiParam = ToUrlParam({ Method: "GetSrhtype" });
+        WebAPI.Get(apiUrl, apiParam, false, function (jsons) {
+            var dal = new cs.PostResult();
+            dal.ini(jsons);
+            if (dal.Success) {
+                sessionStorage.setItem("Srhtype", dal.Message);
+            }
+            else {
+                console.log('取得 GetSrhtype資料失敗: ' + dal.Message);
+            }
+        }, function () { }, function () { });
+    }
+    if (sessionStorage.getItem('SrhtypeC') == null) {
+        let apiUrl = "FERequest";
+        let apiParam = ToUrlParam({ Method: "GetSrhtypeC" });
+        WebAPI.Get(apiUrl, apiParam, false, function (jsons) {
+            var dal = new cs.PostResult();
+            dal.ini(jsons);
+            if (dal.Success) {
+                sessionStorage.setItem("SrhtypeC", dal.Message);
+            }
+            else {
+                console.log('取得 GetSrhtypeC資料失敗: ' + dal.Message);
+            }
+        }, function () { }, function () { });
+    }
+}
+
+function AppendMamberPart(obj) {
+    //RefreshMI
+    WebAPI.Get("FERequest", ToUrlParam({ Method: "RefreshMI" }), false, function (jsons) {
+        var dal = new cs.PostResult();
+        dal.ini(jsons);
+        //localStorage.removeItem("MemberInfo");
+        if (dal.Success) {
+            sessionStorage.setItem("MemberInfo", dal.Message);
+        }
+        else {
+            localStorage.clear();
+            sessionStorage.removeItem("MemberInfo", dal.Message);
+        }
+    }, function () { }, function () { });
+
+    if (!isEmptyOrNull(sessionStorage.getItem('MemberInfo'))) {
+        let json = JSON.parse(sessionStorage.getItem('MemberInfo'));
+        let now = DateTimeFunc.GetTodaydash() + ' ' + DateTimeFunc.GetNowTimeComplete();
+        //        if (now <= json[0].LogEndDT) {
+        $('#Logintext').html("<div>歡迎 " + json[0].MemberName + "</div><div>會員專區<div>");
+        $('#Logintext').attr("data-toggle", "modal").attr("data-target", "#LoginModal");
+        //$('#Logintext').html('會員專區');
+ MemberBaseData(json[0].Email);
+        if (!isEmptyOrNull(obj)) {
+            //檢查是否由加入購物車觸發
+            if (!(Object.keys(PutInItem).length != 0 || !StringFunc.Validation.isEmptyOrNull(GoToSomewhere))) {
+                let SEMsg = "";
+                if (json[0].MemberLevel != "V") {
+                    SEMsg = json[0].SEMember != "0" ? "<BR>您目前屬於企業團購用戶" : "";
+                    if (!StringFunc.Validation.isEmptyOrNull(SEMsg)) {
+                        SEMsg += StringFunc.Validation.isEmptyOrNull(json[0].SEVF) ? "，但尚未通過驗證，請至您的信箱查看【康軒教育商城 - 企業團購驗證信】並完成驗證，謝謝。" : "";
+                    }
+                }
+                //20240322 會員中心介接
+                let MCacBtn = "";//json[0].MC_Active == "0" ? '<button class="btn btn-icon btn-lg btn-info" type="button" id="ActiveMemberCenter">啟用會員中心</button>' : '';
+                popupMessage("歡迎回來，" + json[0].Email + SEMsg + MCacBtn);
+
+            }
+            GetCartInfo(json[0].Email);
+        }
+        $('#LMH').html(json[0].MemberName + '，您好');
+        //}
+        //else {
+        //    //localStorage.removeItem("MemberInfo");
+        //    $('#Logintext').html('註冊/登入').show();
+        //    $('#LMH').html('會員登入 Login');
+        //}
+    }
+    else {
+        $('#Logintext').html('註冊/登入').show();
+        $('#LMH').html('會員登入 Login');
+        window.InsiderQueue.push({
+            "type": "user",
+            "value": {
+                uuid: "",
+                "language": "zh_TW",
+                "gdpr_optin": true
+            }
+        });
+	 window.InsiderQueue.push({ type: "init" });
+    }
+}
+//刷驗證碼
+function ChangeDVCode(obj) {
+    var imgNode = document.getElementById(obj);
+    imgNode.src = "./Handler/DynamicVerification.ashx?type=" + (obj == "DVCode" ? "" : obj) + "&t=" + (new Date()).valueOf(); // 這裡加時間防止瀏覽器快取
+    $('#tb_' + obj).val('');
+}
+
+
+//********************************** 初始資料 **********************************//
+function DefaultPage() {
+
+    //popupMessage('<p>康軒教育商城網站系統全新改版更換中,5/31(三)網站暫停服務一天，預計6/1(四)重新開啟敬請期待,版面更換期間造成不便敬請見諒。</p>')
+    let CommodityStr = StringFunc.HomePageDisplay('Commodity');
+
+    let Rank10Str = StringFunc.HomePageDisplay('Rank10');
+
+    //抓商品
+    let apiUrl = "FERequest";
+    let apiParam = ToUrlParam({ Method: "GetHomePageCommodity" });
+    WebAPI.Get(apiUrl, apiParam, false, function (jsons) {
+        let dal = new cs.PostResult();
+        dal.ini(jsons);
+        if (dal.Success) {
+            let Info = JSON.parse(dal.Message);
+
+            let json = JSON.parse(Info.DisplayCommodityGroup);
+
+            //HomePageMessage
+            if (!StringFunc.Validation.isEmptyOrNull(Info.HomePageMessage)) {
+                popupHPMessage(Info.HomePageMessage);
+            }
+
+            //console.log(json);
+            let CommodityCollectStr = "";
+            for (let key in json) {
+                CommodityCollectStr = "";
+
+                let CommodityCollect = JSON.parse(JSON.stringify(json[key].CommodityCollect));
+                for (let cc in CommodityCollect) {
+                    if (json[key].AreaID.endsWith("L")) {
+                        //十大暢銷排行榜
+                        CommodityCollectStr += Rank10Str.replace("##jpgnum##", CommodityCollect[cc].MATNR + 'b')
+                            .replace("#$#matnr#$#", CommodityCollect[cc].MATNR)
+                            .replace("#$#charg#$#", CommodityCollect[cc].CHARG)
+                            .replace("##Shortdescription##", CommodityCollect[cc].SAPName)
+                            .replace(/##BookPrice##/g, (CommodityCollect[cc].KBETR != "0" ? "NT$ " + CommodityCollect[cc].KBETR : " 缺書補貨中"));
+
+                    }
+                    else {
+                        let NewPriceStr = (CommodityCollect[cc].PromoMinNum == "1" ?
+                            "<span class='KH48DR'>省" + CommodityCollect[cc].PromoDisCount + "</span>NT$ " + (parseInt(CommodityCollect[cc].KBETR, 10) - parseInt(CommodityCollect[cc].PromoDisCount, 10)).toString() :
+                            "NT$ " + CommodityCollect[cc].KBETR) + '<span class="discount" ' +
+                            (CommodityCollect[cc].PromoMinNum == "1" ? "style='display:block'" : "style='display:none'") + '>NT$' + CommodityCollect[cc].KBETR + '</span>';
+
+                        CommodityCollectStr += CommodityStr.replace("##jpgnum##", CommodityCollect[cc].MATNR + 'b')
+                            .replace("#$#matnr#$#", CommodityCollect[cc].MATNR)
+                            .replace("#$#charg#$#", CommodityCollect[cc].CHARG)
+                            .replace("##Inventory##", CommodityCollect[cc].Inventory)
+                            .replace("###Mask###", CommodityCollect[cc].Inventory == "OutofStock" ? "<span style='color:white;'>缺書補貨中</span>" : '<img src="images/shopping.svg">')
+                            .replace("##Shortdescription##", CommodityCollect[cc].SAPName)
+                            //.replace(/##BookPrice##/g, (CommodityCollect[cc].PromoMinNum == "1" ?
+                            //    "<span class='KH48DR'>省" + CommodityCollect[cc].PromoDisCount + "</span>NT$ " + (parseInt(CommodityCollect[cc].KBETR, 10) - parseInt(CommodityCollect[cc].PromoDisCount, 10)).toString() :
+                            //    "NT$ " + CommodityCollect[cc].KBETR))
+                            .replace(/##OriPrice##/g, CommodityCollect[cc].KBETR)
+                            //.replace("###Show###", (CommodityCollect[cc].PromoMinNum == "1" ? "style='display:block'" : "style='display:none'"))//先隱藏
+                            .replace(/##Price##/g, (parseInt(CommodityCollect[cc].KBETR, 10) - parseInt(CommodityCollect[cc].PromoDisCount, 10)).toString())
+				.replace("###NewPrice###", CommodityCollect[cc].Inventory == "OutofStock" ? "缺書補貨中" : NewPriceStr)
+				.replace(/##Itemname##/g, CommodityCollect[cc].SAPName)				
+				.replace(/##taxonomy##/g,  [
+      					CommodityCollect[cc].Gallery_type,
+      					CommodityCollect[cc].GropSort,
+      					CommodityCollect[cc].TypeNames,
+      					CommodityCollect[cc].K9_Bkyear !== '年級' ? CommodityCollect[cc].K9_Bkyear : ''
+ 					]
+     					.filter(v => v != null && String(v).trim() !== '')
+     					.join(','))
+				.replace("##jpgnum##", CommodityCollect[cc].MATNR + 'b')
+				.replace("#$#Itemurl#$#", location.origin + '/K9Web/Index?go=Shareurl&sharelink=' + FormateToBase64string(CommodityCollect[cc].MATNR + ";" + CommodityCollect[cc].CHARG))
+                            .replace("#$#Itemcode#$#", CommodityCollect[cc].K9Code);
+                    }
+                }
+
+                //處理區塊
+                if (json[key].AreaID.endsWith("L")) {
+                    //十大暢銷排行榜
+                    $("#" + json[key].AreaID).append(CommodityCollectStr);//
+                    $("#" + json[key].AreaID).parent().addClass(json[key].CommodityClass);
+                    $("#" + json[key].AreaID).prev().html(json[key].BannerTitle);
+                    $("#" + json[key].AreaID).prev().children().eq(0).html(json[key].BannerTitleSub);
+                }
+                else {
+                    //新全勝書系 
+                    //熱賣商品 
+                    //最新上架
+                    //國中推薦
+                    //學習評量
+                    //最新上架
+                    $("#" + json[key].AreaID).append(CommodityCollectStr).addClass(json[key].CommodityClass);
+                    let _href = json[key].AreaID == "Block5_3" ? "?go=Kid" : ("?go=ModalALL&CDC=" + json[key].DC);
+                    $("#" + json[key].AreaID).parent().prev().children().find('a').attr('href', _href).attr('data-sk', "ALL");
+                    if (StringFunc.Validation.isEmptyOrNull(json[key].BannerClass)) {
+                        $("#" + json[key].AreaID).parent().prev().attr('style', 'background:linear-gradient(to right, ' + json[key].BannerColorLeft + ' 0%, ' + json[key].BannerColorRight + ' 100% )');
+                    }
+                    else {
+                        $("#" + json[key].AreaID).parent().prev().addClass(json[key].BannerClass)
+                    }
+                    if (!StringFunc.Validation.isEmptyOrNull(json[key].TitleFontColor)) {
+                        $("#" + json[key].AreaID).parent().prev().find('.tt').attr('style', 'color:' + json[key].TitleFontColor + ' !important');
+                    }
+
+                    $("#" + json[key].AreaID).parent().prev().children().eq(0).html(json[key].BannerTitle);
+                    $("#" + json[key].AreaID).parent().prev().children().eq(1).html(json[key].BannerTitleSub);
+                }
+            }
+
+            //處理banner height:408px; width:960px;
+            json = JSON.parse(Info.HomeBanner);
+            if (json.length > 0) {
+                let DetailBannerStr = "";
+                for (let key in json) {
+                    DetailBannerStr += StringFunc.Magazine_Info("Banner")
+                        .replace("z-index: 3; opacity: 1;", "")
+                        .replace("###BDESC###", json[key].BDesc + json[key].JumpItem)
+                        .replace("###target###", json[key].PageTarget)
+                        //.replace("###IMG###", ' <img src="' + json[key].BannerPath + '" style="height:408px; width:960px;"/>')
+                        .replace("###IMG###", ' <img class="kid" src="' + json[key].BannerPath + '"/>')
+                        //.replace("###PICURL###", json[key].BannerPath);
+                        .replace("###PICURL###", "");
+                }
+                $('#main_visual').children().find('ul').eq(1).append(DetailBannerStr);
+                $('#main_visual').attr('style', 'background:' + json[0].Bannercolor);
+                $('#main_visual').easyFader();
+
+            }
+        }
+        else {
+            console.log('取得 首頁商品項目 資料失敗: ' + dal.Message);
+        }
+    }, function () { }, function () { });
+
+    let TempStr = "";
+    //上方輪播
+    if (!isEmptyOrNull(sessionStorage.getItem('Srhtype'))) {
+        let SrhType = JSON.parse(sessionStorage.getItem('Srhtype'));
+        for (let i in SrhType) {
+            TempStr += '<li><a href="#" target="_top" class="HomeBSRH" id="SRH' + SrhType[i].Code + '">' + SrhType[i].Display + '</a></li>';
+        }
+        $('#main_visual .kv_menu').append(TempStr);
+    }
+    if (!isEmptyOrNull(sessionStorage.getItem('SrhtypeC'))) {
+        let SrhtypeC = JSON.parse(sessionStorage.getItem('SrhtypeC'));
+        $('.HomeBSRH').each(function () {
+            let SRHID = this.id;
+            let _href = SRHID.endsWith("C") ? "?go=KG1" : (SRHID.endsWith("K") ? "?go=KG1" : "?go=goods");
+            TempStr = "";
+            let aClass = "";
+            let _note = "";
+
+            for (let i in SrhtypeC) {
+                if (SrhtypeC[i].PCode == "C" || SrhtypeC[i].PCode == "K") {
+                    _note = ' data-note="  ⇓79折⇓"';
+                }
+                else if (SrhtypeC[i].PCode == "M") {
+                    _note = ' data-note="   ⇓9折⇓"';
+                }
+                aClass = (SrhtypeC[i].Display == '新品推薦' ? 'JWU3H ' : '');
+                if (SRHID.endsWith(SrhtypeC[i].PCode)) {
+                    aClass += (SrhtypeC[i].PCode == 'E' || SrhtypeC[i].PCode == 'K' ? 'JWU3HEA' : '');
+                    TempStr += '<li><a ' + _note + ' class="' + aClass + '" href="' + _href + '&QSP=' + SrhtypeC[i].PCode +
+                        "&CDC=" + SrhtypeC[i].Code + '" target="_top">' + SrhtypeC[i].Display + '</a></li>';
+                    //(SrhtypeC[i].PCode == 'C' ? "&CDC=" + SrhtypeC[i].Code : "&QS=" + SrhtypeC[i].Display) +
+                    //"&QS=" + SrhtypeC[i].Display +
+                }
+            }
+            $(this).after("<ul>" + TempStr + "</ul>");
+        });
+    }
+    //右下角鈴噹
+    $('.preload,.PreLoading').slideUp(500);
+    $('#home').slideDown(1000);
+    $("html, body").animate({ scrollTop: $("#webtop").offset().top }, 1000)
+    SetHomeslick();
+}
+//只抓商品名
+function ProdDescription(_obj, _selectid, Dispear = '') {
+    const Cmonth = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"];
+
+    if (StringFunc.Validation.isEmptyOrNull(Dispear)) {
+        let apiParam = {
+            Method: 'GetItemDetail',
+            SourceUUID: $.trim($('#SourceUUID').val()),
+            ObjInfo: {
+                K9Code: _obj,
+            },
+        };
+        WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+
+            if (jsons.Success) {
+                let Info = JSON.parse(jsons.Message);
+                //T92413062762197 微調
+                let PlusMonth = (Info[0].K9Name.indexOf('13個月') > 0 ? 1 : 0);
+                PlusMonth = (PlusMonth == 0 && Info[0].K9Name.indexOf('14個月') > 0 ? 2 : 0);
+                if (Info[0].K9Name.indexOf('(') > 0) {
+                    $('#' + _selectid).html(Info[0].K9Name.substr(0, Info[0].K9Name.indexOf('(')));
+                    if ($('#' + _selectid).html().length > 17) {
+                        $('#' + _selectid).attr("style", "font-size: large;");
+                    }
+                }
+                else {
+                    $('#' + _selectid).html(Info[0].K9Name);
+                }
+                //T92413082863595 帶金額
+                $('#' + _selectid).next().html(Info[0].K9KBETR);
+                //T92413062762197 增加
+                if (PlusMonth>0) {
+                    $('#' + _selectid).next().next().next().append("，<span style='color:blue;'>再加贈" + Cmonth[PlusMonth] + "個月(共14個月)</span>");
+                }
+                //K920240429Q01 改itemcode
+                $($('#' + _selectid).parent().children().find('.FastToCart')).attr('data-itemcode', _obj);
+                //T92413082863595 改金額
+                $($('#' + _selectid).parent().children().find('.FastToCart')).attr('data-price', Info[0].K9KBETR);
+            }
+            else {
+                //$('#' + _selectid).html('');
+            }
+        }, function () {
+            //beforeSend
+        }, function () {
+            //complete
+        }, function () {
+            //fail
+        });
+    }
+    else {
+        $('#' + _selectid).parent().parent().parent().addClass('box_02_1');
+        $('#' + _selectid).parent().hide();
+    }
+}
+//商品資料
+function GoodsDescription(_obj, _obj1) {
+    let MemberInfo = JSON.parse(sessionStorage.getItem('MemberInfo'));
+    //取詳細資料
+    let apiParam = {
+        Method: 'GetItemDetail',
+        SourceUUID: $.trim($('#SourceUUID').val()),
+        ObjInfo: {
+            MATNR: $.trim(_obj),
+            CHARG: $.trim(_obj1),
+            Adduser: StringFunc.Validation.isEmptyOrNull(MemberInfo) ? "" : MemberInfo[0].Email,
+        },
+    };
+    //清值&重設
+    $('#lbl_ItemName').html('');
+    $('#lbl_BPic').attr('src', '');
+    $('#lbl_Descr').html('');
+    $('#ItemQty').html('1');
+
+    $('.PreLoading').show();
+    setTimeout(function () {
+        WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+
+            if (jsons.Success) {
+                let Info = JSON.parse(jsons.Message);
+
+                let json = JSON.parse(Info.GetItemDetail);
+
+
+                //分享
+                if (window.location.href.indexOf('Shareurl') < 0) {
+                    if (window.location.href.indexOf('?') < 0) {
+                        $('#lbl_ShareLink').html(window.location.href + '?go=Shareurl&sharelink=' + FormateToBase64string(json[0].MATNR+";"+json[0].CHARG));
+                        console.log(asyncTinyURL(window.location.href + '?go=Shareurl&sharelink=' + FormateToBase64string(json[0].MATNR+";"+json[0].CHARG)));
+                    }
+                    else {
+                        $('#lbl_ShareLink').html(window.location.href.substr(0, window.location.href.indexOf('?')) + '?go=Shareurl&sharelink=' + FormateToBase64string(json[0].MATNR+";"+json[0].CHARG));
+                        console.log(asyncTinyURL(window.location.href.substr(0, window.location.href.indexOf('?')) + '?go=Shareurl&sharelink=' + FormateToBase64string(json[0].MATNR+";"+json[0].CHARG)));
+                    }
+                }
+                else {
+                    $('#lbl_ShareLink').html(window.location.href);
+                }
+                //縮網址
+                //$('#lbl_ShareLink_A').attr("href", json[0].ShortURL);
+
+
+                $('#lbl_ItemCode').html(json[0].ItemCode);
+                $('#lbl_ItemCode').prev('span').html('人氣數：' + json[0].TakeLookTimes);
+                $('#lbl_Gallery').html(json[0].Gallery);
+                $('#lbl_ItemName').html(json[0].ItemName);
+                $('#lbl_PromotionDiscount').html(json[0].PromotionDiscount);
+                $('#lbl_PromotionMinNum').html(json[0].PromotionMinNum);
+                let _SalePrice = parseInt(json[0].KBETR, 10);
+                if (!StringFunc.Validation.isEmptyOrNull(json[0].PromotionDiscount)) {
+
+                    if (!StringFunc.Validation.isEmptyOrNull(json[0].PromotionMinNum) &&
+                        parseInt(json[0].PromotionMinNum, 10) == 1) {
+                        _SalePrice = _SalePrice - parseInt(json[0].PromotionDiscount, 10);
+                    }
+                }
+
+                $('#lbl_SalePrice').html(json[0].KBETR).next('span').html('NT$' + json[0].KBETR);
+
+
+                if (_SalePrice != 0 & parseInt(json[0].LABST, 10) > 5) {
+                    $('#lbl_CountUpPrice').html(_SalePrice);
+                    if (_SalePrice == json[0].KBETR) $('#lbl_SalePrice').html(_SalePrice).next('span').hide();
+                    else $('#lbl_SalePrice').html(json[0].KBETR).next('span').show();
+                }
+                else {
+                    $('#lbl_CountUpPrice').html('---');
+                    $('#lbl_SalePrice').html(_SalePrice).next('span').hide();
+                }
+                $('#lbl_CountUpPrice').attr('countto', _SalePrice);
+
+                $('#lbl_MATNR_CHARG').html(json[0].MATNR + '-' + json[0].CHARG);
+         $('#lbl_GropSort').html(
+    [
+        json[0].Gallery_type,
+        json[0].GropSort,
+        json[0].TypeNames,
+        json[0].K9_Bkyear !== '年級' ? json[0].K9_Bkyear : ''
+    ]
+    .filter(v => v != null && String(v).trim() !== '')
+    .join(',')
+);
+                $('#lbl_Author').html(json[0].Author);
+                $('#lbl_PubisherName').html(json[0].PubisherName);
+                $('#lbl_BookSize').html(json[0].BookSize);
+                $('#lbl_Pagenum').html(json[0].Pagenum);
+                //$('#lbl_Agent').html(json[0].Agent);
+                $('#lbl_SaleArea').html(json[0].SaleArea);
+                $('#lbl_Descr').html(json[0].Descr.Fulltohalf());
+		//圖片檔重刷
+                $('#lbl_BPic').attr('src', json[0].BPic+'?V=20260612');
+                if (json[0].Gallery.toUpperCase() == "KID") {
+                    $('#lbl_BPic').parent().next().show();
+                }
+                else {
+                    $('#lbl_BPic').parent().next().hide();
+                }
+                window.InsiderQueue.push({
+                    "type": "product",
+                    "value": {
+                        "id": json[0].ItemCode,
+                        "name": json[0].ItemName,
+                      "taxonomy": [
+    json[0].Gallery_type,
+    json[0].GropSort,
+    json[0].TypeNames,
+    json[0].K9_Bkyear !== '年級' ? json[0].K9_Bkyear : ''
+]
+.filter(v => v != null && String(v).trim() !== ''),
+                        "unit_price": json[0].KBETR,
+                        "unit_sale_price": _SalePrice,
+                        "url": location.origin + '/K9Web/Index?go=Shareurl&sharelink=' + FormateToBase64string(json[0].MATNR + ";" + json[0].CHARG),
+                        "product_image_url": location.origin +"/K9Web/"+ json[0].BPic
+                    }
+                });
+                window.InsiderQueue.push({ type: "init" });
+                $('#CartTurn').hide();
+                if (parseInt(json[0].LABST, 10) < 6) {
+                    $('#lbl_LABST').html("缺書補貨中");
+                    $('.CartAdd').hide();
+                    $('#NotificationMe').show();
+                }
+                else {
+                    $('#lbl_LABST').html(json[0].LABST);
+                    if (json[0].GropSort == "會考衝刺線上學習課程") {
+                        $('.CartAdd').hide();
+                        $('#CartTurn').show();
+                       // $('#CartTurn').attr("href", "https://www.yourclass.com.tw/");
+                        $('#lbl_LABST').append("<BR><BR>");
+                    } else {
+
+                    $('.CartAdd').show();
+                        $('#CartTurn').hide();
+                    }
+                    $('#NotificationMe').hide();
+                }
+                //Kid延申說明
+                let showExtendContent = true;
+
+                $('.HoverIMG').empty().hide();
+                $('#lbl_ExtendContent').empty();
+                if (showExtendContent && !StringFunc.Validation.isEmptyOrNull(Info.ExtendContent)) {
+                    let _EC = JSON.parse(Info.ExtendContent);
+                    let HoverIMGDispaly = false;
+                    let HoverIMGSample = '<span class="EFJV33K"><img src="###SRC###" /></span>';
+                    let HoverIMGStr = "";
+                    let ContentStr = "";
+
+                    for (let i in _EC) {
+                        switch (_EC[i].CType) {
+                            case "01":
+                                //小圖
+                                if (!HoverIMGDispaly) HoverIMGDispaly = true;
+                                HoverIMGStr += HoverIMGSample.replace("###SRC###", _EC[i].CText);
+                                break;
+                            case "02":
+                                //YT連結
+                                ContentStr += (StringFunc.Validation.isEmptyOrNull(ContentStr) ? "" : "<br>") + _EC[i].CText.Fulltohalf();
+                                break;
+                            case "03":
+                                //文字
+                                ContentStr += (StringFunc.Validation.isEmptyOrNull(ContentStr) ? "" : "<br>") + _EC[i].CText.Fulltohalf();
+                                break;
+                            case "04":
+                                //圖片
+                                ContentStr += (StringFunc.Validation.isEmptyOrNull(ContentStr) ? "" : "<br>") + "<img src='./" + _EC[i].CText + "' />";
+                                break;
+                        }
+                    }
+
+                    if (HoverIMGDispaly) {
+                        $('.HoverIMG').append(HoverIMGStr).show();
+                    }
+
+                    if (!StringFunc.Validation.isEmptyOrNull(ContentStr)) {
+                        $('#lbl_ExtendContent').append(ContentStr);
+                    }
+                }
+                //$('#NotificationMe').hide();
+            }
+            else {
+                //查無商品資料處理
+            }
+
+            $('.PreLoading').fadeOut('400');
+            $('.LoginModalSend').removeAttr("disabled");
+        }, function () {
+            //beforeSend
+        }, function () {
+            //complete
+        }, function () {
+            //fail
+            $('.PreLoading').fadeOut('400');
+            $('.LoginModalSend').removeAttr("disabled");
+        });
+
+    }, 200);
+}
+
+function DisplayAll(_QSObj, _Gallery) {
+    let _goods = "";
+    //館別轉換
+    let Change_Gallery = false;
+    //全站查詢 用K9的模版
+    if (_Gallery == "ALL") {
+        //_Gallery = "K9";
+        Change_Gallery = true;
+        $('.preload').fadeIn(500);
+        $(".memuOBJ,#home").hide();
+        $("#home").hide();
+    }
+    _Gallery = (_Gallery != "K9") ? "Kid" : _Gallery;
+    let GoodsPageItem = StringFunc.GoodsPageItem();
+
+    let apiParam = {
+        Method: "CommodityFuncDisplayAll",
+        SourceUUID: $.trim($('#SourceUUID').val()),
+        CP: {
+            PageNum: 1,
+            DisplayCategory: _QSObj,
+        }
+    };
+    $('.PreLoading').show();
+    setTimeout(function () {
+        WebAPI.Post("FERequest", apiParam, false, function (jsons) {
+            let dal = new cs.PostResult();
+            dal.ini(jsons);
+            if (dal.Success) {
+                $("#goods_pageitem" + _Gallery + ",#GoodsPageButton" + _Gallery).empty();
+                let Info = JSON.parse(dal.Message);
+
+                let json = JSON.parse(Info.GalleryBooks);
+
+                let TotalPage = 0;
+
+                for (let key in json) {
+                    if (json[key].K9Code == "6010800470") {
+                        console.log(json[key]);
+                    }
+                    _goods += GoodsPageItem.replace("##jpgnum##", json[key].MATNR + 'b')
+                        .replace("#$#matnr#$#", json[key].MATNR)
+                        .replace("#$#charg#$#", json[key].CHARG)
+                        .replace("###Shortdescription###", json[key].PName)
+                        .replace(/##BookPrice##/g, json[key].KBETR)
+                        .replace("##Inventory##", json[key].Inventory)
+                        .replace("###Mask###", json[key].Inventory == "OutofStock" ? "<span style='color:white;font-size: 1.5rem;'>缺書補貨中</span>" : '<img src="images/shopping.svg">')
+                        //.replace(/##BookOnsalePrice##/g, json[key].SalePrice)
+                        .replace(/##BookOnsalePrice##/g, (json[key].Inventory == "OutofStock" ? "<spanx'>缺書補貨中</spanx>" : (json[key].PromotionMinNum == "1" ?
+                            "<span class='KH48DR'>省" + json[key].PromotionDiscount + "</span>NT$ " + (parseInt(json[key].KBETR, 10) - parseInt(json[key].PromotionDiscount, 10)).toString() :
+                            "NT$ " + json[key].KBETR)))
+                        //.replace("###Show###", (json[key].PromoMinNum == "1" ? "style='display:block'" : "style='display:none'"))//先隱藏
+                        .replace("##Show##", ((json[key].PromotionDiscount != "0" & json[key].Inventory != "OutofStock") ? "<BR>NT$ " + json[key].KBETR + "</span>" : "<BR><span><span>"))
+                        .replace(/##Itemcode##/g, json[key].K9Code)
+                         .replace(/##Itemname##/g,json[key].PName)
+                          .replace(/##taxonomy##/g,[
+      json[key].Gallery_type,
+      json[key].GropSort,
+      json[key].TypeNames,
+      json[key].K9_Bkyear !== '年級' ? json[key].K9_Bkyear : ''
+ ]
+     .filter(v => v != null && String(v).trim() !== '')
+     .join(','))
+				.replace(/##OriPrice##/g, json[key].KBETR)
+                        .replace(/##Itemurl##/g, location.origin + '/K9Web/Index?go=Shareurl&sharelink=' + FormateToBase64string(json[key].MATNR + ";" + json[key].CHARG))
+                    
+
+                    //TotalPage = json[key].totalPage;
+
+                }
+                //暫時hide
+                //let isPageHome = true;
+                //let IsPageEnd = (_page == TotalPage);;
+                $("#goods_pageitem" + _Gallery).append(_goods);
+
+                //let LowLimit = 0;
+                //let HighLimit = TotalPage;
+
+                //for (let i = 1; i <= TotalPage; i++) {
+                //    let Ishidden = "";
+                //    //左3右3 最多7個項目 
+                //    if (TotalPage > 6) {
+                //        LowLimit = _page - 3 < 0 ? 0 : _page - 3;
+                //        HighLimit = LowLimit + 6 > TotalPage ? TotalPage : LowLimit + 6;
+                //        if (i < LowLimit || i > HighLimit) {
+                //            Ishidden = " hidden";
+                //        }
+                //    }
+                //    dynamicPage += '<span class="GoodPageJump ' + (_page == i ? "current" : "CanClick") + '" data-goto="' + i + '" ' + Ishidden + '>' + i + '</span>';
+
+                //}
+                //console.log('HighLimit'+HighLimit);
+                //$('#GoodsPageButton' + _Gallery).append(Pagebutton
+                //    .replace("###front###", (LowLimit > 0 ? '<span class="TriDot">...</span>' : ""))
+                //    .replace("###Behind###", (HighLimit < TotalPage ? '<span class="TriDot">...</span>' : ""))
+                //    .replace("###dynamicPage###", dynamicPage)
+                //    .replace("###maxpage###", TotalPage)
+                //    .replace(/###IsPageHome###/g, (isPageHome ? "disabled" : "CanClick"))
+                //    .replace(/###IsPageEnd###/g, (IsPageEnd ? "disabled" : "CanClick")));
+                $('#goods_pageitem' + _Gallery).show();
+            }
+            else {
+                popupMessage(dal.Message);
+                console.log('取得 資料失敗: ' + dal.Message);
+                $('#goods_pageitem' + _Gallery + ',#GoodsPageButton' + _Gallery).hide();
+            }
+
+            $('.PreLoading').fadeOut();
+            if (Change_Gallery) {
+                $('.preload').fadeOut(500);
+                $('#Kid').show();
+                $('#checked_SrhtypeC').parent().hide();
+                $('#Query_SrhtypeC').parent().hide();
+                $('#Query_SrhtypeC').parent().next().attr('style', 'float: inherit;');
+                $(".home_11").empty().hide();
+                $('#main_visualKid').fadeOut(10);
+                $('.g-kidgoods').find('.box.b_top_left').hide();
+            }
+        }, function () { }, function () { });
+        $('img').bind('error', function (e) {
+            var e = e.type;
+            switch (e) {
+                case 'error':
+                    //console.log($(this).attr('src'));
+                    $(this).attr('src', 'PorductImage/EmptyPic.jpg');
+                    break;
+            }
+        });
+    }, 300);
+    $("html, body").animate({ scrollTop: $("#webtop").offset().top }, 100);
+
+    return true;
+}
+//書籍館、幼兒館
+function GoodsData(_page, _QSObj, _Gallery) {
+
+    //特例在此註冊事件
+    $('#ddl_goods_Srhtype').on('change', function (e) {
+        if (sessionStorage.getItem('SrhtypeC') != null) {
+            let json = JSON.parse(sessionStorage.getItem('SrhtypeC'));
+            $('#ddl_goods_SrhtypeC option').remove();
+            $('#ddl_goods_SrhtypeC').append("<option value=''>----</option>");
+            for (var key in json) {
+                if (json[key].PCode == $(this).val()) {
+                    $('#' + this.id + 'C').append('<option value="' + json[key].Code + '">' + json[key].Display + ' </option>');
+                }
+            }
+        }
+    });
+
+    //上方查詢
+    let STempStr = "";
+    //let _code = "";
+    if (!StringFunc.Validation.isEmptyOrNull(_QSObj)) {
+
+        if (!isEmptyOrNull(sessionStorage.getItem('Srhtype')) && $('#ddl_goods_Srhtype').children('option').length == 0) {
+            let SrhType = JSON.parse(sessionStorage.getItem('Srhtype'));
+            $('#ddl_goods_Srhtype option').remove();
+            $('#ddl_goods_Srhtype').append("<option value=''>----</option>");
+            for (let i in SrhType) {
+                if (!(SrhType[i].Code == "C" || SrhType[i].Code == "K"))
+                    STempStr += "<option value='" + SrhType[i].Code + "'>" + SrhType[i].Display + "</option>";
+            }
+            $('#ddl_goods_Srhtype').append(STempStr);
+        }
+        if (!isEmptyOrNull(_QSObj.P)) {
+            $('#ddl_goods_Srhtype').val(_QSObj.P);
+            $('#ddl_goods_Srhtype').trigger('change');
+        }
+        if (!isEmptyOrNull(sessionStorage.getItem('SrhtypeC'))) {
+            let SrhtypeC = JSON.parse(sessionStorage.getItem('SrhtypeC'));
+
+            for (let i in SrhtypeC) {
+                if (SrhtypeC[i].Code == _QSObj.CDC && SrhtypeC[i].PCode == _QSObj.P) {
+                    //_code = SrhtypeC[i].Code;
+                    $('#ddl_goods_SrhtypeC').val(SrhtypeC[i].Code);
+                    //$('#ddl_goods_Srhtype').val(SrhtypeC[i].PCode).trigger('change');
+                    _QSObj.CDC = SrhtypeC[i].Code;
+                    break;
+                }
+            }
+
+        }
+
+
+        //if (!isEmptyOrNull(_code)) { $('#ddl_goods_SrhtypeC').val(_code); }
+        //更新共用查詢變數
+        quickSrhWord.P = _QSObj.P;
+        quickSrhWord.C = _QSObj.C;
+        quickSrhWord.CDC = _QSObj.CDC;
+    }
+    else {
+        _QSObj = {};
+        _QSObj.P = '';
+        _QSObj.C = '';
+        _QSObj.CDC = '';
+    }
+    let _goods = "";
+
+    //館別轉換
+    let Change_Gallery = false;
+    //全站查詢 用K9的模版
+    if (_Gallery == "ALL") {
+        //_Gallery = "K9";
+        Change_Gallery = true;
+        $('.preload').fadeIn(500);
+        $(".memuOBJ,#home").hide();
+        $("#home").hide();
+    }
+    //康軒圖書傳入K9 但用Kid的模版
+    _Gallery = StringFunc.Validation.isEmptyOrNull(_Gallery) ? "K9" : _Gallery;
+    _Gallery = (_Gallery != "K9") ? "Kid" : _Gallery;
+
+    let GoodsPageItem = StringFunc.GoodsPageItem();
+
+    let Pagebutton = StringFunc.Pagebutton();
+
+    //處理傳入年級
+    if (!StringFunc.Validation.isEmptyOrNull(_QSObj.Grade)) {
+        $('.Goods_Query').each(function () {
+            let GQKind = $(this).data('kind');
+            if (GQKind == "Query_Cgrade") {
+                if ($(this).val() == _QSObj.Grade) {
+                    $(this).prop("checked", true);
+                }
+                else {
+                    $(this).prop("checked", false);
+                }
+            }
+        });
+    }
+    let dynamicPage = "";
+    let apiParam = {
+        Method: "CommodityFunc",
+        SourceUUID: $.trim($('#SourceUUID').val()),
+        CP: {
+            PageNum: _page,
+            goodskeyword: $.trim(StringFunc.Validation.isEmptyOrNull($('#Search_keyword').val()) ? _QSObj.C : $('#Search_keyword').val()),
+            QuerySCHTYPE: $.trim(_QSObj.P),
+            QueryCgrade: (StringFunc.Validation.isEmptyOrNull(_QSObj.Grade) ? $.trim($('#checked_Cgrade').html()) : _QSObj.Grade.substring(0, 2)),
+            QueryCType: $.trim($('#checked_CType').html()),
+            QureyCdc: $.trim($('#checked_Cdc').html()) + (StringFunc.Validation.isEmptyOrNull(_QSObj.CDC) ? '' : _QSObj.CDC.substring(0, 4)),
+            Gallery: _QSObj.G,
+        }
+    };
+    $('.PreLoading').show();
+    setTimeout(function () {
+        WebAPI.Post("FERequest", apiParam, false, function (jsons) {
+            let dal = new cs.PostResult();
+            dal.ini(jsons);
+            if (dal.Success) {
+                $("#goods_pageitem" + _Gallery + ",#GoodsPageButton" + _Gallery).empty();
+                let Info = JSON.parse(dal.Message);
+
+                let json = JSON.parse(Info.GalleryBooks);
+
+                let TotalPage = 0;
+
+                for (let key in json) {
+                    _goods += GoodsPageItem.replace("##jpgnum##", json[key].MATNR + 'b')
+                        .replace("#$#matnr#$#", json[key].MATNR)
+                        .replace("#$#charg#$#", json[key].CHARG)
+                        .replace("###Shortdescription###", json[key].PName)
+                        .replace(/##BookPrice##/g, json[key].KBETR)
+                        .replace("##Inventory##", json[key].Inventory)
+                        .replace("###Mask###", json[key].Inventory == "OutofStock" ? "<span style='color:white;font-size: 1.5rem;'>缺書補貨中</span>" : '<img src="images/shopping.svg">')
+                        //.replace(/##BookOnsalePrice##/g, json[key].SalePrice)
+                        .replace(/##BookOnsalePrice##/g, (json[key].Inventory == "OutofStock" ? "<spanx'>缺書補貨中</spanx>" : (json[key].PromoMinNum == "1" ?
+                            "<span class='KH48DR'>省" + json[key].PromoDisCount + "</span>NT$ " + (parseInt(json[key].KBETR, 10) - parseInt(json[key].PromoDisCount, 10)).toString() :
+                            "NT$ " + json[key].KBETR)))
+                        //.replace("###Show###", (json[key].PromoMinNum == "1" ? "style='display:block'" : "style='display:none'"))//先隱藏
+                        .replace("##Show##", ((json[key].PromoDisCount != "0" & json[key].Inventory != "OutofStock") ? "<BR>NT$ " + json[key].KBETR + "</span>" : "<BR><span><span>"))
+                        .replace(/##Itemcode##/g, json[key].K9Code)
+			 .replace(/##Itemname##/g,json[key].PName)
+.replace("#$#Itemurl#$#", location.origin + '/K9Web/Index?go=Shareurl&sharelink=' + FormateToBase64string(json[key].MATNR + ";" + json[key].CHARG))
+			.replace(/##OriPrice##/g, json[key].KBETR)
+                         .replace(/##taxonomy##/g,[
+      json[key].Gallery_type,
+      json[key].GropSort,
+      json[key].TypeNames,
+      json[key].K9_Bkyear !== '年級' ? json[key].K9_Bkyear : ''
+ ]
+     .filter(v => v != null && String(v).trim() !== '')
+     .join(','))
+.replace("##jpgnum##", json[key].MATNR + 'b')
+			;
+                    TotalPage = json[key].totalPage;
+
+                }
+                //Banner
+                json = JSON.parse(Info.GalleryBanner);
+                if (json.length > 0) {
+                    let DetailBannerStr = "";
+                    for (let key in json) {
+                        DetailBannerStr += StringFunc.Magazine_Info("Banner")
+                            .replace("###BDESC###", "#")
+                            .replace("###target###", '')
+                            //.replace("###IMG###", ' <img class="kid" src="' + json[key].BannerPath + '" />')
+                            .replace("###IMG###", '')
+                            .replace("###PICURL###", json[key].BannerPath);
+                    }
+                    $('#main_visualKid').children().find('ul').eq(0).append(DetailBannerStr);
+                    $('#main_visualKid').attr('style', 'background:' + json[0].Bannercolor);
+                }
+                //TotalPage = 20;
+                let isPageHome = (_page == 1);
+                let IsPageEnd = (_page == TotalPage);;
+                $("#goods_pageitem" + _Gallery).append(_goods);
+
+                let LowLimit = 0;
+                let HighLimit = TotalPage;
+
+                for (let i = 1; i <= TotalPage; i++) {
+                    let Ishidden = "";
+                    //左3右3 最多7個項目 
+                    if (TotalPage > 6) {
+                        LowLimit = _page - 3 < 0 ? 0 : _page - 3;
+                        HighLimit = LowLimit + 6 > TotalPage ? TotalPage : LowLimit + 6;
+                        if (i < LowLimit || i > HighLimit) {
+                            Ishidden = " hidden";
+                        }
+                    }
+                    dynamicPage += '<span class="GoodPageJump ' + (_page == i ? "current" : "CanClick") + '" data-goto="' + i + '" ' + Ishidden + '>' + i + '</span>';
+
+                }
+                //console.log('HighLimit'+HighLimit);
+                $('#GoodsPageButton' + _Gallery).append(Pagebutton
+                    .replace("###front###", (LowLimit > 0 ? '<span class="TriDot">...</span>' : ""))
+                    .replace("###Behind###", (HighLimit < TotalPage ? '<span class="TriDot">...</span>' : ""))
+                    .replace("###dynamicPage###", dynamicPage)
+                    .replace("###maxpage###", TotalPage)
+                    .replace(/###IsPageHome###/g, (isPageHome ? "disabled" : "CanClick"))
+                    .replace(/###IsPageEnd###/g, (IsPageEnd ? "disabled" : "CanClick")));
+                $('#goods_pageitem' + _Gallery + ',#GoodsPageButton' + _Gallery).show();
+            }
+            else {
+                popupMessage(dal.Message);
+                console.log('取得 資料失敗: ' + dal.Message);
+                $('#goods_pageitem' + _Gallery + ',#GoodsPageButton' + _Gallery).hide();
+            }
+            $('.PreLoading').fadeOut();
+            if (Change_Gallery) {
+                $('.preload').fadeOut(500);
+                $('#Kid').show();
+                $('#checked_SrhtypeC').parent().hide();
+                $('#Query_SrhtypeC').parent().hide();
+                $('#Query_SrhtypeC').parent().next().attr('style', 'float: inherit;');
+                $(".home_11").empty().hide();
+                $('#main_visualKid').fadeOut(10);
+                $('.g-kidgoods').find('.box.b_top_left').hide();
+            }
+        }, function () { }, function () { });
+        $('img').bind('error', function (e) {
+            var e = e.type;
+            switch (e) {
+                case 'error':
+                    //console.log($(this).attr('src'));
+                    $(this).attr('src', 'PorductImage/EmptyPic.jpg');
+                    break;
+            }
+        });
+    }, 300);
+
+    if (document.querySelector('input[type="checkbox"][value]').getAttribute('value')!=="X001" && document.querySelector('input[type="checkbox"][value]').getAttribute('value')!=="R002") $('#Query_SrhtypeC').children().find('label').eq(0).addClass('JWU3H').attr('data-note', '  ⇓79折⇓');
+    $("html, body").animate({ scrollTop: $("#webtop").offset().top }, 100);
+
+    return true;
+}
+//幼兒館查詢項目
+function BindQueryItem_Kid(_QS, _Type) {
+    GetBookSrhtype();
+    if (sessionStorage.getItem('SrhtypeC') != null) {
+        let json = JSON.parse(sessionStorage.getItem('SrhtypeC'));
+        for (let i in json) {
+            if (json[i].PCode == (StringFunc.Validation.isEmptyOrNull(_QS.P) ? _Type : _QS.P)) {
+                $('#Query_SrhtypeC').append('<li><label><input type="checkbox" class="Goods_Query" data-kind="Query_SrhtypeC"' +
+                    ' value="' + json[i].Code +
+                    '" data-qs="' + json[i].Display + '">' + json[i].Display + '</label></li>');
+            }
+        }
+    }
+    $('.Goods_Query').each(function () {
+        if ($(this).val() == _QS.CDC) {
+            $(this).prop('checked', true);
+            $('#checked_Cdc').append($(this).val() + ';');
+        }
+    });
+}
+//書籍館查詢項目
+function BindQueryItem(_QS) {
+    WebAPI.Get("FERequest", ToUrlParam({ Method: "GetQueryItem" }), false, function (jsons) {
+        var dal = new cs.PostResult();
+        dal.ini(jsons);
+        if (dal.Success) {
+            let json = JSON.parse(dal.Message);
+            let QIary = ['Query_Cdc', 'Query_CType', 'Query_Cgrade'];
+            for (let key in json) {
+                let QI = json[key];
+                for (let i in QI) {
+                    $('#' + QIary[key]).append('<li><label><input type="checkbox" class="Goods_Query" data-kind="' + QIary[key] +
+                        '" value="' + QI[i].PubCode +
+                        '" data-qs="' + QI[i].PubName + '" ' + (key == 0 ? ' data-cdc="' + QI[i].PubCode + '"' : '') + '>' + QI[i].PubName + '</label></li>');
+                }
+            }
+            let grade = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+            //年級
+            for (i = 1; i <= 9; i++) {
+                $('#' + QIary[2]).append('<li><label><input type="checkbox" class="Goods_Query" data-kind="' + QIary[2] + '" value="0' + i + '" data-qs="' + grade[i] + '年級" >' + grade[i] + '年級</label></li>');
+            }
+
+
+        }
+        else {
+            console.log('取得 參考書、教科書 查詢項目 失敗: ' + dal.Message);
+        }
+    }, function () { }, function () {
+
+    });
+    $('.Goods_Query').each(function () {
+        let qs = $(this).data('qs');
+        let cdc = $(this).data('cdc');
+        $(this).prop('checked', true).trigger('click'); if (qs == _QS.P) {
+
+        }
+        if (!StringFunc.Validation.isEmptyOrNull(cdc) && cdc == _QS.CDC) {
+            $(this).prop('checked', true);
+            $('#checked_Cdc').append(_QS.CDC + ';');
+        }
+    });
+}
+//最新消息
+function EventData() {
+    let _events = "";
+    let Events = '\
+<li>\
+<a href="?go=event-info" target="_top">\
+<div class="pic"><img src="PorductImage/sImages/photo_440x250.gif"></div>\
+<div class="txt">\
+<p class="h3">我們開啟的教學視野有多大，將來為孩子開啟的生命世界就有多大！</p>\
+<p class="dd">康軒有鑑於學齡前幼兒教育發展的重要，憑藉長年發展中小學教科書的專業經驗，向下延伸學前與幼稚教育研究，並以具備前瞻性的教育理念，推出一系列的小康軒幼教教材。</p>\
+</div>\
+</a>\
+</li>';
+    for (let i = 1; i <= 10; i++) {
+        _events += Events;
+    }
+    $("#events_pageitem").append(_events);
+    return true;
+}
+
+//購物車資料
+function CartData(GoCheckOut) {
+    //Facebook Pixel Code 引用
+    let FBPixel = sessionStorage.getItem("FBPixel");
+    if (FBPixel == "On") {
+        fbq('init', '1567066910876740');
+        fbq('track', 'PageView');
+        fbq('track', 'InitiateCheckout');
+    }
+
+    let _CartData = "";
+
+    if (StringFunc.Validation.isEmptyOrNull(sessionStorage.getItem('MemberInfo'))) {
+        //登入
+        //$('#LoginModal').modal('show');
+        GoToSomewhere = "LoginThenGoCart";
+        //DisplayInfoAera("#app");
+        alert('將為您轉至康軒會員中心。');
+        //if (confirm('將為您轉至康軒會員中心，是否同意?')) {}
+        let dvCode = $.trim(getRandomNumber());
+        SetAutoLogin(dvCode, { GSW: GoToSomewhere, MS: sessionStorage.getItem('MarketingStaff') });
+        return false;
+    }
+    else {
+        GoToSomewhere = "";
+        let MemberInfo = JSON.parse(sessionStorage.getItem('MemberInfo'));
+        let apiParam = {
+            Method: 'GetCartList',
+            SourceUUID: $.trim($('#SourceUUID').val()),
+            Cart: { _Email: MemberInfo[0].Email, },
+        };
+        $('.PreLoading').show();
+        $('#goods_Cartitem tbody tr').remove();
+        setTimeout(function () {
+
+            WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+                if (jsons.Success) {
+                    let Info = JSON.parse(jsons.Message);
+
+                    json = JSON.parse(Info.ShoppingCart);
+                    Promotion = JSON.parse(Info.Promotion);
+
+                    CartGift = JSON.parse(Info.CartGift);
+                    //staff History
+                    if (!StringFunc.Validation.isEmptyOrNull(Info.StaffBuyHistory)) { StaffOrderHistory = JSON.parse(Info.StaffBuyHistory); }
+                    //staff
+                    if (!StringFunc.Validation.isEmptyOrNull(Info.P07Disc)) {
+                        sessionStorage.setItem('P07Disc', Info.P07Disc);
+                    }
+                    else {
+                        sessionStorage.setItem('P07Disc', JSON.stringify('{}'));
+                    }
+                    //VIP
+                    if (!StringFunc.Validation.isEmptyOrNull(Info.P06Disc)) {
+                        sessionStorage.setItem('P06Disc', Info.P06Disc);
+                    }
+                    else {
+                        sessionStorage.setItem('P06Disc', JSON.stringify('{}'));
+                    }
+                    if (StringFunc.Validation.isEmptyOrNull(Info.SEVerity)) {
+                        //SpecialEnterprise
+                        if (!StringFunc.Validation.isEmptyOrNull(Info.P09Disc)) {
+                            sessionStorage.setItem('P09Disc', Info.P09Disc);
+                        }
+                        else {
+                            sessionStorage.setItem('P09Disc', JSON.stringify('{}'));
+                        }
+                    }
+                    else {
+                        popupMessage(Info.SEVerity);
+                    }
+                    //推薦
+                    if (localStorage.getItem('RGift') != null) { localStorage.removeItem('RGift'); }
+                    localStorage.setItem("RGift", Info.RGift);
+
+                    //COMSG
+                    if (!StringFunc.Validation.isEmptyOrNull(Info.CheckOutMsg)) {
+                        popupMessage(Info.CheckOutMsg);
+                    }
+
+                    let MarketingStaff = sessionStorage.getItem('MarketingStaff');
+                    try {
+                        MarketingStaff = JSON.parse(sessionStorage.getItem('MarketingStaff'));
+                        $('.tempclass').remove();
+                        if (!StringFunc.Validation.isEmptyOrNull(MarketingStaff)) {
+                            $('#tb_MagMemo').val(MarketingStaff.Name).attr('disabled', true);//.attr("placeholder", "若無免填");
+                            $('#tb_MagMemo').before("<span class='tempclass'>業務姓名</span>");
+                        }
+                    }
+                    catch (e) {
+
+                    }
+
+                    let Discounted = false;
+
+                    for (let i in json) {
+                        let Goods_Cart = StringFunc.ShoppingCart();
+                        Discounted = (json[i].PromoMinNum != "0" && json[i].Qty >= json[i].PromoMinNum);
+                        let AllPromoInfo = "";
+                        for (let j in Promotion) {
+                            if (json[i].ItemCode == Promotion[j].ItemCode) {
+                                for (let k = 1; k < Object.keys(Promotion[j]).length; k++) {
+                                    if (!StringFunc.Validation.isEmptyOrNull(Object.values(Promotion[j])[k]))
+                                        AllPromoInfo += Object.values(Promotion[j])[k] + "_";
+                                }
+                            }
+
+                        }
+                        let AllGift = "";
+                        for (let j in CartGift) {
+                            if (json[i].ItemCode == CartGift[j].ItemCode) {
+                                AllGift += "<span style='border-bottom: 1px solid gray;'>" + CartGift[j].Mag_GiftType + '_' + CartGift[j].GiftName + "</span><BR>";
+                            }
+                        }
+                        if (!StringFunc.Validation.isEmptyOrNull(AllGift)) AllGift = "<div class='ttGift'>" + AllGift + "</div>";
+
+                        //庫存安全
+                        let SafeInv = json[i].Inventory == "UnSafe" ? false : true;
+                        //是否顯示庫存
+                        let showInv = (json[i].Gallery == 'APP' || json[i].Gallery == 'MAG') ? false : true;
+                        //是否已下架,預設否 有安全庫存的商品才要判斷
+                        let IsClose = false;
+                        if (showInv) {
+                            showInv = parseInt(json[i].Qty, 10) > parseInt(json[i].InventoryNum, 10);
+                            if (!StringFunc.Validation.isEmptyOrNull(json[i].CloseDate)) {
+                                IsClose = DateTimeFunc.DateDiff(json[i].CloseDate, DateTimeFunc.GetToday()) < 0;;
+                            }
+                        }
+			 if (json[i].Gallery == 'APP') {
+     				if (!StringFunc.Validation.isEmptyOrNull(json[i].CloseDate)) {
+         				IsClose = DateTimeFunc.DateDiff(json[i].CloseDate, DateTimeFunc.GetToday()) < 0;;
+     				}
+ 			}
+	
+                        let MaskMsg = '<span class="InvNumRed" style="display:' + (showInv ? "block" : 'none') + ';">(目前庫存不足，無法結帳)</span>'
+                        //已下架
+                        if (IsClose) {
+                            MaskMsg = '<span class="InvNumRed" style="display:block;">(此商品已下架，無法結帳)</span>'
+                            Goods_Cart = Goods_Cart
+                                .replace(/CanClick/g, "")
+                                .replace(/QtyMinus/g, "")
+                                .replace(/QtyPlus/g, "");
+                        }
+                        _CartData += Goods_Cart
+                            .replace("##Itemcode##", json[i].ItemCode)
+                            .replace("###Inv###", SafeInv && !IsClose ? "" : " InvUnSafe")
+                            .replace("##ItemWeight##", json[i].ItemWeight)
+                            .replace("##ItemPromoDis##", json[i].PromoDisCount)
+                            .replace("##ItemPromoNum##", json[i].PromoMinNum)
+                            .replace("##Activities##", AllPromoInfo)
+                            .replace("##ItemClose##", IsClose)
+                            .replace("##Gift##", AllGift)
+                            .replace("###PromotionIcon###", "")
+                             .replace(
+    "##Gallery##",
+    
+        json[i].Gallery
+)
+.replace(
+    "##Galleryname##",
+    [
+        json[i].Gallery_type,
+        json[i].GropSort,
+        json[i].TypeNames,
+        json[i].K9_Bkyear !== '年級' ? json[i].K9_Bkyear : ''
+    ]
+    .filter(v => v != null && String(v).trim() !== '')
+    .map(v => `'${String(v).trim()}'`)
+    .join(',')
+)
+                            .replace("##InventoryNum##", json[i].InventoryNum)
+                            .replace("##MagTitle##", json[i].Title)
+                            .replace("##MagType##", json[i].MagType)
+                            .replace("##PreSchool##", json[i].Preschool)
+                            .replace("##MATNR##", json[i].MATNR)
+                            .replace("##MagPostage##", json[i].Postage)
+                            .replace("##TotalP##", json[i].TotalPeriod)
+                            .replace("##ItemDesc##", json[i].ItemName + MaskMsg)
+                            .replace("##UnitPrice##", AppendComma(json[i].ItemPrice))
+                            .replace("##UnitQty##", json[i].Qty)
+                            .replace("##QtyOrg##", json[i].Qty)
+                            .replace("##UintSumAmt##", AppendComma(json[i].SumAmt))
+                            .replace("##PICURL##", json[i].Gallery == "MAG" ? json[i].ImagePath : json[i].ImageURL)
+                            .replace("##DisCount##", (Discounted ? parseInt(json[i].PromoDisCount, 10) * json[i].Qty * -1 : ""))
+                            .replace(/##RowNo##/g, i)
+                            //.replace(/###APPStyle###/g, (json[i].Gallery == "APP" ? "APS" : ""))
+                            .replace(/###Show###/g, (json[i].Gallery == "APP" || json[i].Gallery == "MAG" ? "style='visibility:hidden'" : ""))
+                            .replace("###ReadOnly###", (json[i].Gallery == "APP" || json[i].Gallery == "MAG" ? "readonly" : ""));
+
+                        OrderInfo.County = json[i].County;
+                        OrderInfo.Ctype = json[i].Ctype;
+                        OrderInfo.Zip = json[i].Zip;
+                        OrderInfo.Town = json[i].Town;
+                        OrderInfo.Address = json[i].Address;
+                        OrderInfo.Contart = json[i].Contart;
+                        OrderInfo.DefInv = json[i].DefInv;
+                        OrderInfo.DefInvMob = json[i].DefInvMob;
+                        OrderInfo.FullName = json[i].FullName;
+                    }
+
+
+                    $("#goods_Cartitem tbody").append(_CartData);
+                    if (!StringFunc.Validation.isEmptyOrNull(GoCheckOut)) {
+                        if (StringFunc.Validation.isEmptyOrNull(GoCheckOutItem)) {
+                            $('#CartSelectall').trigger('click');
+                            $('#btn_CheckOut').trigger('click');
+                        }
+                        else {
+                            //選擇直接購買的商品
+                        }
+                    }
+                    OrderInfo.Name = MemberInfo[0].MemberName;
+                    OrderInfo.Email = MemberInfo[0].Email;
+                    $('#btn_Clear_PromoType').hide().trigger('click');
+                    $('#btn_Confirm').show();
+                    $('#CartSelectall').prop("checked", false);
+let total =0;
+let items = json.map(function (CLArray) {
+
+     // 去除商品名稱中的 HTML
+     let productName = $('<div>')
+         .html(CLArray.ItemName)
+         .text()
+         .trim();
+     productName = CLArray.ItemName.split('<span')[0].trim();
+
+     // 金額轉數字
+     let salePrice = parseFloat(CLArray.SumAmt) || 0;
+
+     // 加總購物車總金額
+     total += salePrice;
+
+     return {
+         id: CLArray.ItemCode,
+
+         name: productName,
+
+                  taxonomy: 
+[
+    CLArray.Gallery_type,
+    CLArray.GropSort,
+    CLArray.TypeNames,
+    CLArray.K9_Bkyear !== '年級' ? json[0].K9_Bkyear : ''
+]
+    .filter(v => v != null && String(v).trim() !== '')
+.flatMap(v => String(v).split(','))
+.map(v => v.trim().replace(/^['"]+|['"]+$/g, ''))
+.filter(v => v),
+
+         unit_price: parseFloat(CLArray.ItemPrice),
+
+         unit_sale_price: parseInt(CLArray.ItemPrice)-parseInt(CLArray.PromoDisCount),
+
+         quantity: parseInt(CLArray.Qty, 10),
+
+         url: location.origin + '/K9Web/Index?go=Shareurl&sharelink=' + FormateToBase64string(CLArray.MATNR + ";" + CLArray.CHARG),
+
+         product_image_url:
+             location.origin + "/K9Web/" + CLArray.ImageURL
+     };
+ });
+
+ window.InsiderQueue.push({
+     type: 'cart',
+     value: {
+         total: total,
+         items: items
+     }
+ });
+
+                }
+                else {
+                    if (jsons.Message != "查無資料") {
+
+                        DefaultPage();
+                    }
+                    else {
+                        $('#btn_Confirm').hide();
+                    }
+                }
+
+                $('.ZoneExpend').hide();
+                $('.PreLoading').fadeOut();
+            }, function () {
+                //beforeSend
+            }, function () {
+                //complete
+            }, function () {
+                //fail
+            });
+
+        }, 200);
+
+    }
+    return true;
+    //模擬讀出會員的暫存購物清單
+    //let goods_Cart = {
+    //    PicPath: ["<img src='PorductImage/sImages/b001.jpg'>", "350", "380"],
+    //    ItemDesc: ["", "國小英語My English Writing Book", "國小國文My Chinese Writing Book", "國小數學My Math Writing Book"],
+    //    UnitPrice: ["", "250", "350", "480"],
+    //    UnitQty: ["", "1", "2", "3"],
+    //    UintSumAmt: ["", "250", "700", "1440"],
+    //};
+    //for (let i = 1; i <= 3; i++) {
+    //    _CartData += Goods_Cart.replace("##jpgnum##", i)
+    //        .replace("##ItemDesc##", goods_Cart.ItemDesc[i])
+    //        .replace("##UnitPrice##", goods_Cart.UnitPrice[i])
+    //        .replace("##UnitQty##", goods_Cart.UnitQty[i])
+    //        .replace("##UintSumAmt##", goods_Cart.UintSumAmt[i])
+    //        .replace(/##RowNo##/g, i);
+    //    //let CartItems = {
+    //    //    PicPath: '',
+    //    //    ItemDesc: '',
+    //    //    UnitPrice: '',
+    //    //    UnitQty: '',
+    //    //    UintSumAmt: '',
+    //    //};
+    //    //CartItems.PicPath = "PorductImage/sImages/b00" + i + ".jpg";
+    //    //CartItems.ItemDesc = goods_Cart.ItemDesc[i];
+    //    //CartItems.UnitPrice = goods_Cart.UnitPrice[i];
+    //    //CartItems.UnitQty = goods_Cart.UnitQty[i];
+    //    //CartItems.UintSumAmt = goods_Cart.UintSumAmt[i];
+    //    //CartList.push(CartItems);
+    //}
+    //$("#goods_Cartitem tbody").append(_CartData);
+
+    //localStorage.setItem("CartList", JSON.stringify(CartList));
+}
+
+function StaffBuyCheck(_item, _qty) {
+    let rValue = "";
+    //檢查購買記錄 1140916不限制 1150129不限制
+    //for (let i in StaffOrderHistory) {
+        //if (_item == StaffOrderHistory[i].Itemcode) {
+            //if (parseInt(StaffOrderHistory[i].BuyQty, 10) + parseInt(_qty, 10) > 5) {
+               // rValue = "員購商品一個品項最多可購買五本。您已於 " + StaffOrderHistory[i].OrderDate + " 陸續購買  " + StaffOrderHistory[i].BuyQty + "件，";
+               // rValue += "本次購買 " + _qty + " 件已超過上限";
+            //}
+            //else if (parseInt(StaffOrderHistory[i].BuyQty, 10) > 5) {
+              //  rValue = "此商品您已於 " + StaffOrderHistory[i].OrderDate + " 陸續購買  " + StaffOrderHistory[i].BuyQty + "件，" + StaffOrderHistory[i].NextCanBuyDate + "可再購買。";
+            //}
+        //}
+    //}
+    //if (StringFunc.Validation.isEmptyOrNull(rValue)) {
+        //if (_qty > 5) {
+           //rValue = "員購商品一個品項最多可購買五本";
+        //}
+    //}
+    return rValue;
+}
+//會員基本資料
+function MemberBaseData(_MA) {
+    let apiParam = {
+        Method: 'MemberAction',
+        SourceUUID: $.trim($('#SourceUUID').val()),
+        MA: {
+            Method: 'MemberBaseData',
+            MemberAccount: _MA,
+        },
+    };
+    setTimeout(function () {
+        WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+            if (jsons.Success) {
+                json = JSON.parse(jsons.Message);
+                //console.log(json);
+                let _MemberInfo = json.MemberInfo[0];
+                let _MemberDevice = JSON.parse(json.MemberDevice);
+                //console.log(_MemberInfo);
+
+                $('#lbl_MemberName').html(_MemberInfo._Name);
+                $('#lbl_MemberSex_MI').html(_MemberInfo._Sex);
+                $('#lbl_MemberEmail').html(_MemberInfo._Email);
+
+                $('#lbl_MIZIP').html(_MemberInfo._ZipNo);
+                $('#lbl_County_MI').html(_MemberInfo._CountyName);
+                $('#lbl_Town_MI').html(_MemberInfo._TownName);
+                $('#lbl_addressMI').html(_MemberInfo._Address);
+                $('#lbl_Area_MI').html(_MemberInfo._Area);
+                $('#lbl_Country_MI').html(_MemberInfo._Country);
+
+                $('#lbl_MobileMI').html(_MemberInfo._Mobile);
+
+                $('#lbl_DefaultInvoice_MI').html(_MemberInfo._DefaultInvoice);
+                $('#lbl_DefaultInvoiceMobile').prev().html((_MemberInfo._DefaultInvoice == "會員載具") ? "" : _MemberInfo._DefaultInvoice + "：");
+                $('#lbl_DefaultInvoiceMobile').html(_MemberInfo._DefaultInvoiceMobile);
+
+                $('#lbl_ReceiveNewsLetter_MI').html(_MemberInfo._ReceiveNewsLetter);
+                $('#lbl_LastUpdateDate').html('最近更新日期：' + _MemberInfo._LastUpdateDate);
+
+                $('#lbl_APPExpired_MI').html(StringFunc.Validation.isEmptyOrNull(_MemberInfo._APPExpired) ? "" : '有效期：' + _MemberInfo._APPExpired.substring(0, 16));
+                $('#lbl_SubscriptType_MI').html(StringFunc.Validation.isEmptyOrNull(_MemberInfo._SubscriptType) ? "" : '訂閱類別：' + _MemberInfo._SubscriptType);
+                $('#lbl_SubscriptPD_MI').html(StringFunc.Validation.isEmptyOrNull(_MemberInfo._SubscriptPauseDate) ? "" : "暫停訂閱時間：" + _MemberInfo._SubscriptPauseDate.substring(0, 16));
+                //console.log(_MemberDevice);
+
+                $('#lbl_MemberNameR').html(_MemberInfo._NameR);
+                $('#lbl_AddressR').html(_MemberInfo._AddressR);
+                $('#lbl_MobileR').html(_MemberInfo._MobileR);
+
+                $('.MI_display').show();
+                $('.MI_Modify').hide();
+                if (!StringFunc.Validation.isEmptyOrNull(_MemberDevice)) {
+                    let StrTemplate = StringFunc.ElementTemplate_Device();
+                    $('.Member_Device').remove();
+                    let Devices = "";
+                    for (let i in _MemberDevice) {
+                        Devices += StrTemplate
+                            .replace("###CustomName###", StringFunc.Validation.isEmptyOrNull(_MemberDevice[i].CustomName) ? _MemberDevice[i].DeviceModel : _MemberDevice[i].CustomName)
+                            .replace("###DUID###", _MemberDevice[i].DeviceUID);
+                    }
+                    $('#MemberDevices').after(Devices);
+                    $('#MemberDevices').parent().show();
+
+                }
+                else {
+                    $('.Member_Device').remove();
+                    $('#MemberDevices').parent().hide();
+                }
+                if (_MemberInfo._Magazineflag == "Y") {
+
+                    $('#lbl_SubscriptNo_MI').html("編號：" + _MemberInfo._MagazineNum);
+                    $('#Magazineflag').children('div').eq(6).hide();
+                    $('#Magazineflag').children('div').eq(5).hide();
+                    $('#Magazineflag').children('div').eq(3).hide();
+                    $('#Magazineflag').children('div').eq(4).hide();
+
+
+                }
+                else {
+                    $('#Magazineflag').children('div').eq(6).show();
+                    $('#Magazineflag').children('div').eq(5).show();
+                    $('#Magazineflag').children('div').eq(3).show();
+                    $('#Magazineflag').children('div').eq(4).show();
+                }
+let mobile = _MemberInfo._MobileR
+    .replace(/[^\d]/g, '')
+    .replace(/^0/, '');
+		window.InsiderQueue.push({
+     type: 'user',
+     value: {
+         "uuid":  _MemberInfo._AutoNum,
+         "gender":  _MemberInfo._Sex,
+         "gdpr_optin": true,
+         "name":_MemberInfo._NameR,
+         "username":  _MemberInfo._NameR,
+         "email":  _MemberInfo._Email,
+         "email_optin": true,
+         "phone_number": '+886' + mobile,
+         "sms_optin": true,
+         "language": "zh_TW",
+
+     }
+ });
+ window.InsiderQueue.push({ type: "init" });
+            }
+        }, function () {
+            //beforeSend
+        }, function () {
+            //complete
+        }, function () {
+            //fail
+        });
+    }, 200);
+}
+//會員所有訂單
+function OrderHistory(_MA, _days = "999") {
+    let apiParam = {
+        Method: 'MemberAction',
+        SourceUUID: $.trim($('#SourceUUID').val()),
+        MA: {
+            Method: 'OrderHistory',
+            MemberAccount: _MA,
+            OrderDays: _days,
+            SearchKeyWord: ''
+        },
+    };
+    $('.PreLoading').show();
+    setTimeout(function () {
+        WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+            let _PO = "";
+            if (jsons.Success) {
+
+                let PODstr = StringFunc.ElementTemplate_PO('D');
+
+                let POstr = StringFunc.ElementTemplate_PO('M');
+                json = JSON.parse(jsons.Message);
+                let _OrderArray = JSON.parse(json.OrderList);
+                //T92413081563272 是否顯示 chkbox RF_ATM
+                const RFATMchk = '<div class="row" style="margin-bottom: 0.5rem;align-self: end;"><input type="checkbox" class="RF_ATM_ITEM" data-orderno="###ShoppingNo###" data-pd="###ProductCode###" />ATM退款</div>';
+                const RFATM = "<button type='button' class='btn btn-sm btn-outline-warning Refund_ATM' data-orderno='###ShoppingNo###' data-os='###OS###'>ATM退款作業</button>";
+
+                let _CartGift = JSON.parse(json.CartGift);
+                let item = 0;
+                for (let i in _OrderArray) {
+                    let RFchkboxCount = 0;
+                    let ATMRefundedCount = 0;
+                    let _POD = "";
+                    let SubItemInSAP = false;
+
+                    let ShowTAAMSG = (_OrderArray[i].OrderStatus == "付款成功" || _OrderArray[i].OrderStatus == "分期付款");
+
+                    //if (!StringFunc.Validation.isEmptyOrNull(AllGift)) AllGift = "<div class='ttGift'>" + AllGift + "</div>";
+
+                    //ATM資訊
+                    let ShowATM = !(_OrderArray[i].OrderStatus == "付款成功" || _OrderArray[i].OrderStatus == "分期付款");
+
+                    if (ShowATM) ShowATM = (_OrderArray[i].OrderStatus.indexOf("取消") < 0);
+                    if (ShowATM) {
+                        //7天內 
+                        let PassDays = DateTimeFunc.DateDiff(DateTimeFunc.GetTodaydash(), _OrderArray[i].OrderDate.substring(0, 16));
+                        ShowATM = PassDays <= 7;
+                    }
+
+                    //整批是否顯示
+                    let ShowBatchRFbtn = (_OrderArray[i].OrderStatus == "付款成功" || _OrderArray[i].OrderStatus == "分期付款");
+                    //是否結帳允許退款
+                    // ShowBatchRFbtn = _OrderArray[i].RefundStatus == "Allow";
+                    //if (ShowBatchRFbtn) { }
+                    //大於一筆 SubCount > 1 &&
+                    //明細沒有已經下SAP的資料 !SubItemInSAP && 
+                    //未超過(約)20分鐘
+                    if (ShowBatchRFbtn) ShowBatchRFbtn = parseInt(_OrderArray[i].PassMinute, 10) <= 20;
+                    //補郵資不給退
+                    if (ShowBatchRFbtn) ShowBatchRFbtn = _OrderArray[i].CommodityInfo != "雜誌補郵資";
+
+                    //匯款要改狀態
+                    if (_OrderArray[i].PayWay == "6") {
+                        _OrderArray[i].OrderStatus = "等待銀行對帳";
+                        ShowBatchRFbtn = false;
+                    }
+
+                    item++;
+                    //if (item == 15) {
+                    //    item = item;
+                    //}
+
+                    let showAddedpostage = "";
+                    for (let j in _OrderArray[i].PLDCollect) {
+                        POD = _OrderArray[i].PLDCollect[j];
+                        //SubItemID += "D" + j;
+                        let SubCount = 0;
+                        //第2筆明細加分隔線 <div class="row" style="border-top: solid 1px green">
+
+                        //T92413081563272 是否顯示 chkbox RF_ATM
+                        ShowRFchkbox = !(POD.Gallery == "MAG" || POD.Gallery == "APP");
+                        if (ShowRFchkbox) ShowRFchkbox = StringFunc.Validation.isEmptyOrNull(POD.RefundDate)
+                        if (ShowRFchkbox) RFchkboxCount++;
+
+                        //單項是否顯示 付款成功或定期扣
+                        let ShowRFbtn = (_OrderArray[i].OrderStatus == "付款成功" || _OrderArray[i].OrderStatus == "分期付款");//s _OrderArray[i].RefundStatus == "Allow";
+                        //歡樂聽必需 POD.NextEndDate不為空
+                        //已超過(約)20分鐘
+                        if (ShowRFbtn) {
+                            ShowRFbtn = !ShowBatchRFbtn;
+                            if (ShowRFbtn) {
+                                if (POD.Gallery == "MAG") {
+
+                                    //要補郵資就不顯示退貨說明
+                                    if (ShowRFbtn) ShowRFbtn = StringFunc.Validation.isEmptyOrNull(POD.AddPostage);
+                                    //補郵資的單不顯示退貨說明
+                                    if (ShowRFbtn) ShowRFbtn = POD.ProductCode != "POSTAGE";
+                                    //若此單為分期
+                                    if (_OrderArray[i].OStatusCode == "P" && ShowRFbtn) {
+                                        //後台是否有開啟停止
+                                        //ShowRFbtn = POD.StopPeriodPay == "Y";
+                                    }
+                                    if (ShowRFbtn) ShowRFbtn = StringFunc.Validation.isEmptyOrNull(POD.RefundDate);
+                                }
+                                else if (POD.Gallery == "APP") {
+                                    ShowRFbtn = !StringFunc.Validation.isEmptyOrNull(POD.NextEndDate);
+
+                                    if (ShowRFbtn)
+                                        if (!StringFunc.Validation.isEmptyOrNull(POD.RefundDate)) {
+                                            ShowRFbtn = false;
+                                        }
+                                }
+                                else {
+                                    //7天之後不給退
+                                    if (parseInt(DateTimeFunc.DateDiff(_OrderArray[i].OrderDate.substring(0, 16), DateTimeFunc.GetToday()), 10) >= 7)
+                                        ShowRFbtn = false;
+                                    if (ShowRFbtn)
+                                        ShowRFbtn = StringFunc.Validation.isEmptyOrNull(POD.RefundDate);
+                                }
+                            }
+                        }
+                        if (ShowTAAMSG) ShowTAAMSG = !(POD.Gallery == "APP" || POD.Gallery == "MAG");
+
+                        let yavIcon = "<img src='./images/yav-32x32.png'>";
+                        //先藏
+                        //ShowRFbtn = false;
+                        let BtnDisplay = "【退貨說明】";
+                        let BtnClass = "btn-warning";
+                        if (POD.Gallery == "APP") {
+                            BtnDisplay = "【申請退款】";
+                            ShowATM = false;
+                        }
+                        //T92413061962076 取消
+                        if (POD.Gallery == "MAG") {
+                            //BtnDisplay = "中止訂閱";
+                            BtnClass = "btn_c32";
+                        }
+                        if (POD.ProductCode == "400003-00") BtnDisplay = "【解除自動續訂】";
+
+                        let _ItemAMT = parseInt(POD.SellingPrice, 10) * parseInt(POD.Qty, 10);
+                        let Discount = "";
+                        if (!StringFunc.Validation.isEmptyOrNull(POD.Discount) && POD.Discount != "0") {
+                            _ItemAMT = parseInt(_ItemAMT, 10) - parseInt(POD.Discount, 10)
+                            Discount += "<br>(折:" + AppendComma(POD.Discount) + ")";
+                        }
+
+                        let AllGift = "";
+                        for (let j in _CartGift) {
+                            if (POD.ProductCode == _CartGift[j].ItemCode && _OrderArray[i].ShoppingNo == _CartGift[j].ShoppingNo) {
+                                AllGift += "<span style='border-bottom: 1px solid gray;'>" + _CartGift[j].Mag_GiftType + '_' + _CartGift[j].GiftName + "</span><BR>";
+                            }
+                        }
+                        if (!StringFunc.Validation.isEmptyOrNull(AllGift)) {
+                            AllGift = AllGift;
+                        }
+
+                        if (!StringFunc.Validation.isEmptyOrNull(POD.PostSupNo)) {
+                            showAddedpostage = POD.PostageFee;
+                        }
+                        //_OrderArray[i].OrderDate.substring(0, 16)
+                        //POD.PassMonth
+                        //console.log(POD.ReturnGoods);
+
+                        //T92413061962076
+                        let RefundNotifyBtn = '<button type="button" class="btn btn-sm btn-warning mb-0 Refund_item" style="display:block"' +
+                            ' data-orderno="' + $.trim(_OrderArray[i].ShoppingNo) + '"' +
+                            ' data-gallery="' + POD.Gallery + '"' +
+                            ' data-od="' + _OrderArray[i].OrderDate.substring(0, 16) + '"' +
+                            ' data-pd="' + POD.ProductCode + '"' +
+                            ' data-chkoutway="' + $.trim(_OrderArray[i].CheckoutWay) + '"' +
+                            ' data-bfn="' + POD.BankFullName + '"' +
+                            ' data-ra="' + POD.RefundAccount + '"' +
+                            ' data-ran="' + POD.RefundAccountName + '"' +
+                            ' data-ram="' + POD.RefundMemo + '" > <退貨說明></button>';
+                        //T92413081563272 是否要改狀態
+                        if (!StringFunc.Validation.isEmptyOrNull(POD.RefundAccount)) ATMRefundedCount++;
+                        _POD += PODstr
+                            .replace("###interval###", (j > 0 ? 'style="border-top: solid 1px green;margin-top: 1rem;"' : ""))
+                            .replace("###sPIC###", POD.Gallery == "MAG" ? POD.ImagePath : POD.sPic)
+                            .replace(/###SellingPrice###/g, AppendComma(parseInt(POD.SellingPrice, 10)))
+                            .replace("###ItemAMT###", AppendComma(_ItemAMT) + Discount)
+                            .replace(/###Qty###/g, POD.Qty)
+                            //.replace("###GiftAddr###", StringFunc.Validation.isEmptyOrNull(_OrderArray[i].GiftAddress) ? "" : "贈品寄送地址：" + _OrderArray[i].GiftAddress)
+                            .replace("###Gift###", AllGift)
+                            .replace(/###ShoppingNo###/g, _OrderArray[i].ShoppingNo)
+                            .replace(/###ProductName###/g, POD.ProductName + (parseInt(POD.PassMonth, 10) > 0 ? "【第" + POD.PassMonth + "期】" : ""))
+                            .replace(/###ProductCode###/g, POD.ProductCode)
+                            .replace("###Gallery###", POD.Gallery)// ShowRFbtn ? "Y" : "N")
+                            .replace("###MaxAMT###", parseInt(_OrderArray[i].TotalSum, 10))
+                            .replace("###itemprice###", parseInt(_ItemAMT, 10))
+                            .replace("###PM###", POD.PassMonth)
+                            .replace("###OD###", _OrderArray[i].OrderDate.substring(0, 16))//T92413052961714
+                            //.replace("###rfdate###", $.trim(POD.RefundDate))//T92413061962076
+                            .replace("###CKOATM###", $.trim(_OrderArray[i].CheckoutWay))
+                            .replace("###Btnclass###", BtnClass)
+                            .replace("###RefundBtn###", ShowRFbtn ? "block" : "none")
+                            .replace("###BtnDisplay###", BtnDisplay)
+                            .replace("###FF###", StringFunc.Validation.isEmptyOrNull(_OrderArray[i].ATMAcount) ? "" : "匯款帳號：" + _OrderArray[i].ATMAcount)
+                            //T92413081563272
+                            .replace("###RFATM###",
+                                ($.trim(_OrderArray[i].CheckoutWay) == "ATM" && ShowRFchkbox) ? RFATMchk.replace("###ProductCode###", $.trim(POD.ProductCode)).replace("###ShoppingNo###", $.trim(_OrderArray[i].ShoppingNo)) :
+                                    (StringFunc.Validation.isEmptyOrNull($.trim(POD.RefundDate)) ? "" : "退貨(款)中")
+                            )
+                            .replace("###PostageBtn###", POD.AddPostage == "Y" ? "block" : "none")
+                            .replace("###postagefee###", POD.PostageFee)
+                            .replace("###PostageOrder###", StringFunc.Validation.isEmptyOrNull(POD.PostSupNo) ? "" : "補郵資單號<BR>" + POD.PostSupNo)
+                            .replace("###OS###", _OrderArray[i].OStatusCode)
+                            .replace("###RefundDate###", StringFunc.Validation.isEmptyOrNull(POD.RefundDate) ? "" : RefundNotifyBtn)// $.trim(POD.RefundDate) + yavIcon)
+                            .replace("###NDs###", POD.NextEndDate);
+
+                        //.replace("###display###", POD.RefundMonth >= 1 | _OrderArray[i].RefundStatus == "Allow"? "block" : "none")
+                        //.replace("###BtName###", POD.SapFlag == 'Y' ? "退款" : "取消");
+                        if (!SubItemInSAP) SubItemInSAP = POD.SapFlag == 'Y';
+                        SubCount++;
+                    }
+                    //console.log(_OrderArray[i].ShoppingNo + '_' + DateTimeFunc.DateDiff(_OrderArray[i].OrderDate.substring(0, 16), DateTimeFunc.GetToday()))
+
+                    let yavIcon = "-退款中";//"<img src='./images/yav-16x16.png'>";
+                    let stringFEE = "";
+                    stringFEE = (parseInt(RemoveComma(_OrderArray[i].FreightFee), 10) > 0 ? "運費：" + _OrderArray[i].FreightFee : "");
+                    stringFEE += (parseInt(RemoveComma(_OrderArray[i].PostageFee), 10) > 0 ? "<BR>郵資：" + _OrderArray[i].PostageFee : "");
+                    if (showAddedpostage != "") {
+                        stringFEE += " 補 (" + showAddedpostage + ")";
+
+                        _OrderArray[i].TotalSum = parseInt(RemoveComma(_OrderArray[i].TotalSum), 10) + parseInt(showAddedpostage, 10);
+                    }
+                    //物流區
+                    //出貨單號
+                    let TAAstr = "", TAHstr = "", TAAMSG = "";
+                    if (!StringFunc.Validation.isEmptyOrNull(_OrderArray[i].DomesticLogistics_S)) {
+                        let TAA = JSON.parse(_OrderArray[i].DomesticLogistics_S);
+                        let ShowLogistics = TAA.taA035 == "5";
+                        TAAstr = (ShowLogistics ?
+                            '<div class="col-md-3 FDQU4">出貨單號</div>' +
+                            '<div class="col-md-3 FDQU4">出貨時間</div>' +
+                            '<div class="col-md-3 FDQU4">總件數</div>' +
+                            '<div class="col-md-3 FDQU4">備註</div>' +
+                            '<div class="col-md-3">' + TAA.taA002 + '</div>' +
+                            '<div class="col-md-3">' + TAA.taA067 + '</div>' +
+                            '<div class="col-md-3">' + TAA.tahcnt + '</div>' +
+                            '<div class="col-md-3">' + TAA.taA025 + '</div>' : "");
+                        //包裹
+                        let TAH = JSON.parse(_OrderArray[i].DomesticLogistics_P);
+
+                        if (ShowLogistics) {
+                            TAHstr = '<div class="col-md-4 FDQU4">貨運別</div><div class="col-md-4 FDQU4">包裹號碼</div><div class="col-md-4 FDQU4">查詢貨況</div>';
+                            for (let iii = 0; iii < TAH.length; iii++) {
+                                if (!StringFunc.Validation.isEmptyOrNull(TAH[iii].url)) {
+                                    if (TAH[iii].url.indexOf("hct.com.tw") > 0) {
+                                        let HctPwd = parseInt(DateTimeFunc.GetToday8(), 10) * parseInt(DateTimeFunc.GetToday8(), 10);
+                                        TAHstr +=
+                                            '<div class="col-md-4">' + TAH[iii].taA056 + '</div><div class="col-md-4">' + TAH[iii].taH046 + '</div>' +
+                                            '<div class="col-md-4"><a href="https://www.hct.com.tw/cagweb/HCTInvQuery.aspx?USR=0232454&TYP=KNSH&INV=' + TAA.taA002 + '&PWD=' + HctPwd + '"  target="_blank">連結</a></div>';
+                                    }
+                                    else {
+                                        TAHstr +=
+                                            '<div class="col-md-4">' + TAH[iii].taA056 + '</div><div class="col-md-4">' + TAH[iii].taH046 + '</div>' +
+                                            '<div class="col-md-4"><a href="' + TAH[iii].url + '"  target="_blank">連結</a></div>';
+                                    }
+                                }
+                            }
+                        }
+                        TAAMSG = '<div class="col-md-7"><span class="HFBJ4">寄送國內 貨件預計2-4天(外島及國外不在此限)不含假日</span></div>';
+                    }
+                    if (!StringFunc.Validation.isEmptyOrNull(_OrderArray[i].TrackCode)) {
+                        TAAMSG = '<div class="col-md-5 FDQU4">物流追蹤碼：' + _OrderArray[i].TrackCode.replace(';', '<BR>') + '<BR><a href="https://www.post.gov.tw/post/internet/SearchZone/" target="_blank">郵局查詢</a></div>' + TAAMSG;
+                    }
+                    if (ShowTAAMSG && StringFunc.Validation.isEmptyOrNull(TAAstr) && StringFunc.Validation.isEmptyOrNull(TAAMSG)) {
+                        TAAMSG = '<div class="col-md-12"><span class="HFBJ4">你的貨件還在理貨中尚無法查詢出貨進度。</span></div>';
+                    }
+                    let _TotalSum = parseInt(_OrderArray[i].TotalSum, 10);
+                    let _CommodityInfo = _OrderArray[i].CommodityInfo;
+                    if (_OrderArray[i].ShoppingNo.startsWith("TOP")) {
+                        _TotalSum = _TotalSum * parseInt(_OrderArray[i].PayedPeriod, 10);
+                        //_CommodityInfo += "(共" + _OrderArray[i].PayedPeriod + "期)";
+                    }
+                    //+ (_OrderArray[i].OStatusCode == "C" ? "已付" + _OrderArray[i].PayedPeriod + "期" : "")
+                    if (!ShowBatchRFbtn) {
+                        //btn-outline-warning 拿掉
+                        POstr = POstr.replace("btn-outline-warning ", "");
+                    }
+
+                    _PO += POstr
+                        .replace(/###RowNo###/g, i)
+                        .replace(/###RowNoShow###/g, item)
+                        .replace(/###OrderType###/g, _OrderArray[i].OrderType)
+                        .replace(/###ShoppingNo###/g, $.trim(_OrderArray[i].ShoppingNo))
+                        .replace("###OD###", _OrderArray[i].OrderDate.substring(0, 16))
+                        .replace("###CommodityInfo###", _CommodityInfo)
+                        .replace(/###TotalSum###/g, AppendComma(_TotalSum))
+                        .replace(/###OrderStatus###/g, ATMRefundedCount > 0 ? "退款中" : _OrderArray[i].OrderStatus)//T92413081563272 改狀態
+                        //+ (_OrderArray[i].OrderStatus == "取消付款" ? yavIcon : ""))
+                        .replace("###FF###", StringFunc.Validation.isEmptyOrNull(_OrderArray[i].ATMAcount) ? "" : "匯款帳號：" + _OrderArray[i].ATMAcount)
+                        .replace("###Dis###", parseInt(_OrderArray[i].TotalDiscount, 10) > 0 ? "折扣合計：" + _OrderArray[i].TotalDiscount : "")
+                        .replace("###POItem###", _POD)
+                        .replace("###PF###", stringFEE)
+                        .replace("###TAA###", TAAstr)
+                        .replace("###TAH###", TAHstr)
+                        .replace("###TAAMSG###", TAAMSG)
+                        .replace("###OS###", _OrderArray[i].OStatusCode)
+                        .replace("###ATM###", (ShowATM ? '<button class="btn btn_c32 ShowATM" data-atm ="' + _OrderArray[i].ATM + '" data-sono ="' + _OrderArray[i].ShoppingNo + '">查看匯款帳號</button>' : ""))
+                        .replace("###ReceAddress###", StringFunc.Validation.isEmptyOrNull(_OrderArray[i].ReceAddress) ? "" : "收件地址：" + _OrderArray[i].ReceAddress)
+                        .replace("###GiftAddr###", StringFunc.Validation.isEmptyOrNull(_OrderArray[i].GiftAddress) ? "" : "贈品寄送地址：" + _OrderArray[i].GiftAddress)
+                        //.replace("###display###", ShowBatchRFbtn ? "display:block" : "display:none")
+                        .replace("###display###", ShowBatchRFbtn ? "" : "background-color: gray;color: white;")
+                        .replace("###disabledbtn###", ShowBatchRFbtn ? "" : "disabled")
+                        .replace("###disabledbtnMSG###", ShowBatchRFbtn ? "" :
+                            ((_OrderArray[i].OrderStatus == "付款成功" || _OrderArray[i].OrderStatus == "分期付款")
+                                ?
+                                ("此訂單已逾時無法取消" +
+                                    (_OrderArray[i].ShoppingNo.startsWith("MAG") || _OrderArray[i].ShoppingNo.startsWith("TOP")
+                                        ? ""
+                                        : ",  請依照<a href='https://www.k9books.com.tw/K9Web/index?go=K9qa&Dis=K9QA_04' target='_blank'>退貨流程</a>辦理" +
+                                        //T92413081563272
+                                        (($.trim(_OrderArray[i].CheckoutWay) == "ATM" && RFchkboxCount > 0) ? RFATM.replace("###ShoppingNo###", $.trim(_OrderArray[i].ShoppingNo)).replace("###OS###", _OrderArray[i].OStatusCode) : ""))
+                                )
+                                : "")
+                        ).replace("###BtnDisplay###", "取消訂單");
+
+
+                    //console.log("郵資：" + _OrderArray[i].PostageFee);
+                    //.replace("###BtnDisplay###", (_OrderArray[i].OrderStatus == "定期定額" ? "解除自動續訂" : "取消訂單")
+                }
+            }
+            else {
+
+                _PO = "<span class='FDQU2'>查無 " + (_days != "999" ? _days + " 日內的訂單" : "訂單") + "</span>";
+            }
+            $("#PurchaseList").html(_PO);
+            $('#goods_keyword').val('');
+            $('.PreLoading').fadeOut('400');
+        }, function () {
+            //beforeSend
+        }, function () {
+            //complete
+        }, function () {
+            //fail
+        });
+    }, 200);
+}
+function RefundNotify(_OrderNo, _RefundItem) {
+    let apiParam = {
+        Method: 'RefundNotify',
+        SourceUUID: $.trim($('#SourceUUID').val()),
+        UICAPI: {
+            ShopOrderNo: _OrderNo,
+            Prodcode: _RefundItem,
+        },
+    };
+    WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+    }, function () {
+        //beforeSend
+    }, function () {
+        //complete
+    }, function () {
+        //fail
+        $('.PreLoading').fadeOut('400');
+    });
+}
+//取消、退貨退款處理
+function RefundProcess(_UICAPI, _triggerObj) {
+    //前台處理有
+    //月訂
+    //整張退(沒有_RefundItem)
+    //雜誌 且狀態=分期(P)
+    //T92413061962076  取消退貨原因 RefundReason:$('#ddl_RefundReason').val(),
+    _UICAPI.RefundRequest = "Backstage";
+    if (StringFunc.Validation.isEmptyOrNull(_UICAPI.Prodcode) || _UICAPI.Prodcode.startsWith("400003") || (_UICAPI.OStatusCode == "P" && _UICAPI.Gallery == "MAG"))
+        _UICAPI.RefundRequest = "Frontdesk";
+
+    let apiParam = {
+        Method: 'Refund',
+        SourceUUID: $.trim($('#SourceUUID').val()),
+        UICAPI: _UICAPI,
+        //{
+        //    ShopOrderNo: _OrderNo,
+        //    RefundRequest: WhoRefund,
+        //    RefundAMT: _RefundAMT,
+        //    Prodcode: _RefundItem,
+        //    EndDate: _ListenEnd,
+        //    OStatusCode: _ODS,
+        //    RefundReason: '',
+        //},
+    };
+    $('.PreLoading').show();
+    //_triggerObj.parent().parent().parent().parent().prev().find('.goodSearch').eq(3).html((_ODS == '分期付款' ? "取消分期付款" : "訂單取消"));
+    setTimeout(function () {
+        WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+            if (jsons.Success) {
+                //console.log(_triggerObj);
+                if (StringFunc.Validation.isEmptyOrNull(_triggerObj)) {
+                    //按退貨 退款,清掉 ATM退款
+                    $('.RF_ATM_ITEM').each(function () {
+                        if ($(this).prop("checked")) {
+                            $(this).parent().html('申請退款中');
+                        }
+                    });
+                    $('.goodSearch').each(function () {
+                        if ($(this).html().startsWith(_UICAPI.ShopOrderNo)) {
+                            $(this).next().next().next().html('退款中');
+                        }
+                    });
+                }
+                else {
+                    _triggerObj.hide();
+                    if (StringFunc.Validation.isEmptyOrNull(_UICAPI.Prodcode)) {
+                        //代表整張退
+
+                        //改文字
+                        _triggerObj.parent().parent().parent().parent().find('.goodSearch').eq(3).html((_UICAPI.OStatusCode == 'P' ? "取消分期付款" : "訂單取消"));
+
+                    }
+                    else {
+                        if (!(_UICAPI.Prodcode.startsWith("40000"))) {
+                            let OriginalText = _triggerObj.parent().parent().parent().parent().prev().find('.goodSearch').eq(3).html();
+                            let yavIcon = "";//"<img src='./images/yav-16x16.png'>";
+                            _triggerObj.parent().parent().parent().parent().prev().find('.goodSearch').eq(3).html(OriginalText + yavIcon);
+                        }
+                        else {
+                            //改文字
+                            _triggerObj.parent().parent().parent().parent().prev().find('.goodSearch').eq(3).html((_UICAPI.OStatusCode == 'P' ? "取消分期付款" : "訂單取消"));
+                        }
+                    }
+                }
+            }
+            else {
+
+            }
+            $('#CartMsgModal').modal('hide');
+            popupMessage(jsons.Message);
+            $('.PreLoading').fadeOut('400');
+        }, function () {
+            //beforeSend
+        }, function () {
+            //complete
+        }, function () {
+            //fail
+            $('.PreLoading').fadeOut('400');
+        });
+    }, 500);
+}
+//清行銷區塊數值
+function ClearMarketingArea() {
+    $('.PromoType').each(function () { $(this).removeClass('btn-primary').addClass('btn-default'); })
+    $('#tb_PromoType').val('');
+    $('.PromoActivities').remove();
+    //選或換折扣方式時 清值
+    $('#tb_ActContant,#tb_Activities,#tb_DiscountTicket').val('');
+    $('.Totalmsg,.ChkTicketMsg').remove();
+    $('#CartTotalAmt,#lbl_Promo,#lbl_active').html('');
+    $('.Cartrow').removeClass("ItemInActive");
+    $('#tb_DiscountTicket,#lbl_Promo').hide();
+    $('#tb_DiscountTicket').next().hide();
+}
+
+//雜誌館
+function MazData() {
+    let BannerStr = "";
+    let ContentStr = "";
+    WebAPI.Get("FERequest", ToUrlParam({ Method: "GetMagazineInfo" }), false, function (jsons) {
+        let dal = new cs.PostResult();
+        dal.ini(jsons);
+        if (dal.Success) {
+            let json = JSON.parse(dal.Message);
+            for (let key in json) {
+                if (json[key].MessageLocation == "Banner") {
+                    if (json[key].Title == "橫幅") {
+                        BannerStr = StringFunc.Magazine_Info(json[key].MessageLocation)
+                            .replace("###BDESC###", "#")
+                            .replace("###target###", '')
+                            //.replace("###IMG###", ' <img src="' + json[key].ImagePath + '"/>')
+                            .replace("###IMG###", '')
+                            .replace("###PICURL###", json[key].ImagePath);
+                        $('#main_visualMag').attr('style', 'background:' + json[key].BackgroundColor);
+                    }
+                }
+                else {
+                    //計算深色權重
+                    let StrongColor = "";
+                    if (!StringFunc.Validation.isEmptyOrNull(json[key].BackgroundColor)) {
+                        let TranColor = json[key].BackgroundColor.colorRgb().replace("RGB(", "").replace(")", "").split(",");
+                        let $grayLevel = TranColor[0] * 0.299 + TranColor[1] * 0.587 + TranColor[2] * 0.114;
+                        if ($grayLevel >= 192) StrongColor = "#000";
+                    }
+
+                    ContentStr += StringFunc.Magazine_Info(json[key].MessageLocation)
+                        .replace("###CLASSNO###", key)
+                        .replace("###StrongColor###", StringFunc.Validation.isEmptyOrNull(json[key].BackgroundColor) ? "" : 'style="background-color:' + json[key].BackgroundColor + ' !important;"')
+                        .replace("###StrongWordColor###", StringFunc.Validation.isEmptyOrNull(StrongColor) ? "" : 'style="color:' + StrongColor + ' !important;"')
+                        .replace("###PICURL###", json[key].ImagePath)
+                        .replace("###TITLE###", json[key].Title)
+                        .replace("###UID###", json[key].UID)
+                        .replace("###CONTENT###", json[key].Content);
+                }
+            }
+            //console.log(BannerStr);
+            $('#main_visualMag').children().find('ul').eq(0).append(BannerStr);
+            $('#main_visualMag').next().children().find('ul').append(ContentStr);
+            //QA
+            $('#QALink').attr('href', 'https://www.top945.com.tw/qa.asp').attr('target', '_blank');
+        }
+        else {
+            console.log('取得 雜誌 資料失敗: ' + dal.Message);
+        }
+    }, function () { }, function () { });
+    return true;
+}
+//雜誌館明細
+function MazDataDetail(_MagUID) {
+
+    let apiParam = {
+        Method: "MagazineInfo",
+        MagCode: _MagUID,
+        SourceUUID: $.trim($('#SourceUUID').val()),
+    };
+    $('.PreLoading').show();
+    setTimeout(function () {
+        WebAPI.Post("FERequest", apiParam, false, function (jsons) {
+            var dal = new cs.PostResult();
+            dal.ini(jsons);
+            if (dal.Success) {
+                let json = JSON.parse(dal.Message)
+
+                let _MB = JSON.parse(json.MagazineBase);
+
+                let DetailBannerStr = StringFunc.Magazine_Info("Banner")
+                    .replace("###BDESC###", "#")
+                    .replace("###target###", '')
+                    //.replace("###IMG###", ' <img src="' + _MB[0].BannerPath + '"/>')
+                    .replace("###IMG###", '')
+                    .replace("###PICURL###", _MB[0].BannerPath);
+                $('#main_visualMagDetail').children().find('ul').eq(0).append(DetailBannerStr);
+                $('#main_visualMagDetail').attr('style', 'background:' + _MB[0].Bannercolor);
+
+                $('#lbl_MagazinePic').attr('src', _MB[0].ImagePath);
+                $('#lbl_SchoolAge').html(_MB[0].SchoolAge);
+                $('#lbl_Frequency').html(_MB[0].Frequency);
+                $('#lbl_Precautions').html(_MB[0].Precautions.Fulltohalf());
+                $('#lbl_Introduction').html("<a href='" + _MB[0].Introduction + "' target='_blank'>"
+                    + (StringFunc.Validation.isEmptyOrNull(_MB[0].IntroductionText) ? _MB[0].Introduction : _MB[0].IntroductionText) + "</a>");
+                $('#lbl_Feature').html(_MB[0].Feature);
+                if (StringFunc.Validation.isEmptyOrNull(_MB[0].PostagePath) && StringFunc.Validation.isEmptyOrNull(_MB[0].PostagePath2)) {
+                    $('#lbl_PostagePath').parent().hide();
+                }
+                else {
+                    $('#lbl_PostagePath').parent().show();
+                    let BtnStr = "";
+                    if (!StringFunc.Validation.isEmptyOrNull(_MB[0].PostagePath)) {
+                        BtnStr += '<input class="btn btn-default PostageModal" data-path="' + _MB[0].PostagePath + '" type="Button" value="點擊查看[學前版海外郵資]">';
+                    }
+                    if (!StringFunc.Validation.isEmptyOrNull(_MB[0].PostagePath2)) {
+                        BtnStr += '<input class="btn btn-default PostageModal" data-path="' + _MB[0].PostagePath2 + '" type="Button" value="點擊查看[初/進階版海外郵資]">';
+                    }
+                    $('#lbl_PostagePath').html(BtnStr);
+                }
+
+                //清下拉 Table
+                $('#ddl_PPlan option,#ddl_SGift option,#ddl_OGift option,#tb_order tbody tr').remove();
+
+                if (StringFunc.Validation.isEmptyOrNull(json.ProductPlan)) {
+                    let TitleMSG = "";
+                    let ATMStr = "<p class='ATMMSG'>目前無方案</p>";
+                    let FootMSG = '<input class="btn btn_c32 CloseModal" type="button" id="Btn_CartMsgModal_Mag" value="關閉視窗" />';
+                    popupInteractiveMessage(TitleMSG, ATMStr, FootMSG);
+                }
+                else {
+                    //方案
+                    let _ProductPlan = JSON.parse(json.ProductPlan);
+                    $('#ddl_PPlan').append("<option value=''>選擇訂閱方案</option>");
+                    let FirstPlan = "";
+                    for (let i in _ProductPlan) {
+                        if (StringFunc.Validation.isEmptyOrNull(FirstPlan)) FirstPlan = $.trim(_ProductPlan[i].K9Code);
+                        let _Gift = _ProductPlan[i]._GiftOrder + "_"
+                            + _ProductPlan[i]._GiftExtra1 + "_"
+                            + _ProductPlan[i]._GiftExtra2 + "_"
+                            + _ProductPlan[i]._GiftExtra3 + "_"
+                            + _ProductPlan[i]._GiftPurchase + "_"
+                            + _ProductPlan[i]._GiftRecommend;
+                        let _EN = _ProductPlan[i]._ExtranName1 + "_" + _ProductPlan[i]._ExtranName2 + "_" + _ProductPlan[i]._ExtranName3;
+                        $('#ddl_PPlan').append("<option value='" + $.trim(_ProductPlan[i].K9Code) + "'"
+                            + "data-gift='" + _Gift + "'"
+                            + "data-en='" + _EN + "'"
+                            + "data-itemcode='" + _ProductPlan[i].K9Code + "'"
+                            + "data-price='" + _ProductPlan[i].ItemPrice + "'>" + $.trim(_ProductPlan[i].PName) + "</option>");
+                    }
+                    //訂閱禮
+                    //let _SGIFT = JSON.parse(json.SGift);
+                    if (localStorage.getItem('SGift') != null) { localStorage.removeItem('SGift'); }
+                    localStorage.setItem("SGift", json.SGift);
+
+                    //加碼1
+                    if (localStorage.getItem('ExtraGift1') != null) { localStorage.removeItem('ExtraGift1'); }
+                    localStorage.setItem("ExtraGift1", json.ExtraGift1);
+                    //加碼2
+                    if (localStorage.getItem('ExtraGift2') != null) { localStorage.removeItem('ExtraGift2'); }
+                    localStorage.setItem("ExtraGift2", json.ExtraGift2);
+                    //加碼3
+                    if (localStorage.getItem('ExtraGift3') != null) { localStorage.removeItem('ExtraGift3'); }
+                    localStorage.setItem("ExtraGift3", json.ExtraGift3);
+                    //下單
+                    if (localStorage.getItem('OrderGift') != null) { localStorage.removeItem('OrderGift'); }
+                    localStorage.setItem("OrderGift", json.OrderGift);
+                    //推薦
+                    //if (localStorage.getItem('RGift') != null) { localStorage.removeItem('RGift'); }
+                    //localStorage.setItem("RGift", json.RGift);
+
+                    $('.GiftZone').hide();
+                    //預設第一筆
+                    $('#ddl_PPlan').val(FirstPlan).trigger('change');
+
+                }
+            }
+            else {
+
+            }
+            $('.PreLoading').fadeOut();
+        }, function () { }, function () { });
+    }, 1000);
+    return true;
+}
+
+
+//*****雜誌用函數*****//
+////是否顯示平信/航平
+function ShowOrdinaryMail() {
+    let rValue = true;
+    let _MATNR07Count = 0;
+    //只有學前 不顯示
+    //數量>1 且有學前之外的商品(!=07) 顯示
+    for (let i = 0; i < Magazineinfo.length; i++) {
+        if (Magazineinfo[i]) {
+            _MATNR07Count += parseInt(Magazineinfo[i].preschool, 10);
+        }
+    }
+    if (Magazineinfo.length == _MATNR07Count) {
+        //全部都學前
+        rValue = false;
+    }
+    return rValue;
+}
+
+function MagazineDefaultInfo() {
+    WebAPI.Get("FERequest", ToUrlParam({ Method: "GetMemoplaceholder" }), false, function (jsons) {
+        let dal = new cs.PostResult();
+        dal.ini(jsons);
+        if (dal.Success) {
+            let json = JSON.parse(dal.Message);
+            $('#tb_MagMemo').attr("placeholder", json[0].para_value).removeAttr("disabled");
+        }
+        else {
+            console.log('取得 Memoplaceholder 資料失敗: ' + dal.Message);
+        }
+    }, function () { }, function () { });
+}
+//清值
+function ClearMagazineInfo() {
+    $('#MagazineZone').each(function () {
+        $(this).find('input:text').each(function () {
+            $(this).val('');
+        });
+        $(this).find('input[type=date]').each(function () {
+            $(this).val('');
+        });
+        $(this).find('.JFEHX2').each(function () {
+            $(this).html('');
+        });
+        $(this).find('.JFEHX1').each(function () {
+            $(this).html('');
+        });
+        $(this).find("select").each(function () {
+            $(this).val('');
+        });
+        $(this).find(".material-icons").each(function () {
+            $(this).removeClass('checkreject').removeClass('checkallow');
+            $(this).html('');
+        });
+    });
+    //清Button
+    $('.RadioButton').each(function () { $(this).removeClass('btn-primary').addClass('btn-default'); })
+    $('#ddl_Mailwayid option').remove();
+    $('#ddl_Mailwayid option').append('<option value="">請選擇</option>');
+    //單獨處理
+    $('#lbl_DP_Desc,#lbl_TotalPeroid').html('');
+    $('#ddl_Recommend_Gift option').remove();
+    $('#ddl_Recommend_Gift').append("<option value=''>尚無推薦禮</option>");
+
+}
+
+function asyncTinyURL(Surl) {
+    let TinyURL = "";
+    $.ajax({
+        type: "Get",
+        contentType: "application/json",
+        url: 'http://tinyurl.com/api-create.php?url=' + Surl,
+        async: true,
+        data: '',
+        //dataType: "json",
+        success: function (jsons) {
+            //callback(jsons);
+            TinyURL = jsons;
+        },
+        error: function (request, status, error) {
+            TinyURL = 'sorry，縮網址失敗了';
+        }
+    });
+    return TinyURL;
+}
+
+function AutoLogin(Param) {
+    let _MCP = {
+        開啟會員中心驗證: false,
+        會員中心驗證結果: false,
+        email: '',
+        RAINFO: {}
+    };
+    let apiParam = {
+        Method: 'Logon',
+        SourceUUID: $.trim($('#SourceUUID').val()),
+        Param: {
+            Method: "VarityAutoLogin",
+            EncryptInfo: Param,
+        },
+    };
+    WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+        _MCP.開啟會員中心驗證 = jsons.Success;
+        _MCP.會員中心驗證結果 = jsons.Success;
+        let Json = JSON.parse(jsons.Message);
+        _MCP.RAINFO = JSON.parse(Json.RAInfo);
+        GoToSomewhere = _MCP.RAINFO[0].GoSomeWhere;
+        _MCP.email = Json.Email;
+        //let MS = JSON.parse(_MCP.RAINFO[0].MarketingStaff)
+        sessionStorage.setItem("MarketingStaff", _MCP.RAINFO[0].MarketingStaff);
+    }, function () {
+        //beforeSend
+    }, function () {
+        //complete
+    }, function () {
+        //fail
+    });
+
+    if (_MCP.會員中心驗證結果) {
+        apiParam = {
+            Method: 'Logon',
+            SourceUUID: $.trim($('#SourceUUID').val()),
+            Param: {
+                Method: "LoginAuto",
+                LogID: _MCP.email,
+                MemberPwd: Param,
+            },
+            MCP: _MCP,
+        };
+        WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+            if (jsons.Success) {
+                try {
+                    sessionStorage.setItem("MemberInfo", jsons.Message);
+                    //K920240507Q01
+                    //檢查是否有跳轉某處
+                    if (!StringFunc.Validation.isEmptyOrNull(GoToSomewhere)) {
+                        switch (GoToSomewhere) {
+                            case "LoginThenGoCart"://點擊購物車觸發
+                                location.href = './index?go=Goods_Cart';
+                                break;
+                            case "LoginThenGoMemberOrder":
+                                //點擊查看訂單
+                                location.href = './index?go=PurchaseInfo';
+                                break;
+                            case "NotificationMe":
+                                //貨到通知 K920240507Q01
+                                NotifyMe = { _ItemCode: _MCP.RAINFO[0].itemcode, };
+                                NotificationMe(NotifyMe);
+                                break;
+                            case "CartGo":
+                                //直接購買 K920240507Q01
+                                PutInItem = {
+                                    itemcode: _MCP.RAINFO[0].itemcode,// $('#lbl_ItemCode').html(),
+                                    price: _MCP.RAINFO[0].price,// $('#lbl_SalePrice').html(),
+                                    qty: _MCP.RAINFO[0].qty,//$('#ItemQty').val(),
+                                    itemname: _MCP.RAINFO[0].itemname,
+                                    unit_price: _MCP.RAINFO[0].unit_price,
+                                    taxonomy: _MCP.RAINFO[0].taxonomy,
+                                    url: _MCP.RAINFO[0].url,
+                                    product_image_url: _MCP.RAINFO[0].product_image_url,
+                                }
+                                PutInCart(PutInItem, GoToSomewhere);
+                                location.href = './index?go=Goods_Cart';
+                                break;
+ 			   case "CartTurn":
+                                location.href = 'https://www.yourclass.com.tw/';
+                                break;
+                            case "CartPutIn":
+                                //加入購物車 K920240507Q01
+                                $('.havegoodDescr').each(function () {
+                                    let matnr = $(this).data('matnr');
+                                    let charg = $(this).data('charg');
+                                    if (_MCP.RAINFO[0].MATNR == matnr && _MCP.RAINFO[0].CHARG == charg) {
+                                        $(this).trigger('click');
+                                    }
+                                })
+                                PutInItem = {
+                                    itemcode: _MCP.RAINFO[0].itemcode,// $('#lbl_ItemCode').html(),
+                                    price: _MCP.RAINFO[0].price,// $('#lbl_SalePrice').html(),
+                                    qty: _MCP.RAINFO[0].qty,//$('#ItemQty').val(),
+                                    itemname: _MCP.RAINFO[0].itemname,
+                                    unit_price: _MCP.RAINFO[0].unit_price,
+                                    taxonomy: _MCP.RAINFO[0].taxonomy,
+                                    url: _MCP.RAINFO[0].url,
+                                    product_image_url: _MCP.RAINFO[0].product_image_url,
+                                }
+                                PutInCart(PutInItem, GoToSomewhere);
+                                break;
+                            case "QuicklyCartPutIn":
+                                //快速加入購物車 K920240507Q01
+                                PutInItem = {
+                                    itemcode: _MCP.RAINFO[0].itemcode,
+                                    price: _MCP.RAINFO[0].price,
+                                    Gift: _MCP.RAINFO[0].Gift,
+                                    qty: _MCP.RAINFO[0].qty,
+                                    itemname: _MCP.RAINFO[0].itemname,
+                                    unit_price: _MCP.RAINFO[0].unit_price,
+                                    taxonomy: _MCP.RAINFO[0].taxonomy,
+                                    url: _MCP.RAINFO[0].url,
+                                    product_image_url: _MCP.RAINFO[0].product_image_url,
+                                }
+                                PutInCart(PutInItem, GoToSomewhere);
+                                break;
+                            case "MemberIntegrateInfo":
+                                MemberBaseData(_MCP.email);
+                                $('#MemberData').show();
+                                $('#MemberIntegrateInfo,MemberData').show();
+                                break;
+                            case "PurchaseInfo":
+                                OrderHistory(_MCP.email, '7');
+                                $('#MemberIntegrateInfo,#PurchaseInfo').show();
+                                break;
+                        }
+                    }
+                }
+                catch (e) {
+                    alert('發生例外:' + e);
+                    //$('#btnLogin').val('登入');
+                }
+            }
+        }, function () {
+            //beforeSend
+        }, function () {
+            //complete
+        }, function () {
+            //fail
+        });
+    }
+}
+
+function SetAutoLogin(dvcode, RAction = {}) {
+    let apiParam = {
+        Method: 'Logon',
+        DVCode: dvcode,
+        SourceUUID: $.trim($('#SourceUUID').val()),
+        Param: {
+            Method: "SetAutoLogin",
+        },
+        RA: RAction,
+    };
+    WebAPI.Post("FERequest", apiParam, false, function (jsons) {
+        if (jsons.Success) {
+            //let param = { email: '', VicodeA: dvCode, VicodeB: UUID };
+            let _returnurl = WebDomain + 'K9Web/index?param=' + jsons.Message;
+            let postBody = { syscode: '2', returnurl: _returnurl };
+            callApi('MC_LOGIN', postBody);
+        }
+    }, function () { }, function () {
+        //complete
+    }, function () {
+        //fail
+    });
+}
+//T92413081563272
+function GetBankCode(obj = '') {
+    if (StringFunc.Validation.isEmptyOrNull(obj)) {
+
+        if (StringFunc.Validation.isEmptyOrNull(Bankstock)) {
+            WebAPI.Get("FERequest", ToUrlParam({ Method: "GetBankCodeCC" }), false, function (jsons) {
+                let dal = new cs.PostResult();
+                dal.ini(jsons);
+                if (dal.Success) {
+                    Bankstock = JSON.parse(dal.Message);
+                    $("#tb_ReBank").autocomplete({
+                        source: Bankstock,
+                        autoFocus: true,
+                        appendTo: $('#CartMsgModal .modal-body'),
+                        mustMatch: true,
+                        select: function (event, ui) {
+                            // 當選中項目時設置文本框的值
+                            $(this).val(ui.item.value);
+
+                            // 手動觸發 change 事件
+                            $(this).trigger("change");
+
+                            return false; // 阻止默認動作，避免自動填充文本框
+                        }
+                    });
+
+                }
+                else {
+                    console.log('取得 銀行代碼 資料失敗: ' + dal.Message);
+                }
+            }, function () { }, function () { });
+        }
+        else {
+            $("#tb_ReBank").autocomplete({
+                source: Bankstock,
+                autoFocus: true,
+                appendTo: $('#CartMsgModal .modal-body'),
+                mustMatch: true,
+                select: function (event, ui) {
+                    // 當選中項目時設置文本框的值
+                    $(this).val(ui.item.value);
+
+                    // 手動觸發 change 事件
+                    $(this).trigger("change");
+
+                    return false; // 阻止默認動作，避免自動填充文本框
+                }
+            });
+        }
+    }
+    else {
+        //分支機構
+        let apiParam = {
+            Method: 'GetBankCodeCCB',
+            CallType: obj,
+        };
+        WebAPI.Post("FERequest", apiParam, true, function (jsons) {
+            if (jsons.Success) {
+                Branchstock = JSON.parse(jsons.Message);
+                $("#tb_ReBranch").autocomplete({
+                    source: Branchstock,
+                    autoFocus: true,
+                    appendTo: $('#CartMsgModal .modal-body'),
+                    mustMatch: true,
+                    autoFill: true,
+                });
+                $('#tb_ReBranch,#tb_ReAccount,#tb_ReAccountName,#tb_RefundMemo').fadeIn().val('');
+
+            }
+        }, function () {
+            //beforeSend
+        }, function () {
+            //complete
+        });
+    }
+}

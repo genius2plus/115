@@ -1,0 +1,282 @@
+(function() {
+var l = Object.defineProperty, f = (t, e, n) => e in t ? l(t, e, { enumerable: !0, configurable: !0, writable: !0, value: n }) : t[e] = n, v = (t, e, n) => (f(t, typeof e != "symbol" ? e + "" : e, n), n);
+class w {
+  constructor(e) {
+    v(this, "appName"), this.appName = e;
+  }
+  addListener(e, n) {
+    window.CYBERBIZ.eventSDK.setEvent(e, n);
+  }
+  getSetting(e) {
+    if (!window.CYBERBIZ || !window.CYBERBIZ.initializeSDK) {
+      console.log("The installation of CYBERBIZ SDK has failed.");
+      return;
+    }
+    return window.CYBERBIZ.initializeSDK.getSetting(e);
+  }
+  getCustomerId() {
+    if (!window.CYBERBIZ || !window.CYBERBIZ.initializeSDK || !window.CYBERBIZ.initializeSDK.getCustomerId) {
+      console.log("The installation of CYBERBIZ SDK has failed.");
+      return;
+    }
+    return window.CYBERBIZ.initializeSDK.getCustomerId();
+  }
+  initialize(e) {
+    if (window.CYBERBIZ && window.CYBERBIZ.initializeSDK) {
+      window.CYBERBIZ.initializeSDK.setInitialEvents(e);
+      return;
+    }
+    console.log("The installation of CYBERBIZ SDK has failed.");
+  }
+}
+function I(t) {
+  return new w(t);
+}
+function y(t) {
+  const { currency: e, quantity: n, price: a, name: o, sku: i, variant_title: s, category: c, list_name: r } = t;
+  let m = 0;
+  return n && a && (m += a * n), {
+    value: m,
+    currency: e,
+    items: [{
+      item_id: i,
+      item_name: o,
+      item_variant: s,
+      item_type: c,
+      price: a,
+      item_list_name: r,
+      quantity: n
+    }]
+  };
+}
+function C(t) {
+  const { currency: e, quantity: n, price: a, name: o, sku: i, variant_title: s, category: c } = t;
+  let r = 0;
+  return n && a && (r += a * n), {
+    value: r,
+    currency: e,
+    items: [{
+      item_id: i,
+      item_name: o,
+      item_variant: s,
+      item_type: c,
+      price: a,
+      quantity: n
+    }]
+  };
+}
+function S(t) {
+  const { currency: e, transaction_id: n, value: a, coupon: o, shipping: i, items: s } = t, c = s.map((r) => ({
+    item_id: r.id,
+    item_name: r.name,
+    item_variant: r.variant,
+    item_brand: r.brand,
+    item_type: r.category,
+    price: r.price,
+    quantity: r.quantity
+  }));
+  return {
+    currency: e,
+    transaction_id: n,
+    value: a,
+    coupon: o,
+    shipping: i,
+    items: c
+  };
+}
+function h(t) {
+  let e = 0, n;
+  const a = t.map(({ sku: o, name: i, variant_title: s, brand: c, category: r, price: m, quantity: g, currency: u }) => (g && m && (e += g * m), u = u, {
+    item_id: o,
+    item_name: i,
+    item_variant: s,
+    item_brand: c,
+    item_type: r,
+    price: m,
+    quantity: g
+  }));
+  return {
+    value: e,
+    currency: n,
+    items: a
+  };
+}
+function B(t) {
+  return {
+    items: t.map(({ id: n, name: a, list_name: o, list_id: i, price: s, category: c }) => ({
+      item_id: n,
+      item_name: a,
+      item_list_name: o,
+      item_list_id: i,
+      item_type: c,
+      price: s
+    }))
+  };
+}
+function T(t) {
+  const { currency: e, value: n, coupon: a, shippingOption: o, items: i } = t, s = i.map((c) => {
+    const { sku: r, name: m, variant_title: g, category: u } = c;
+    return {
+      item_id: r,
+      item_name: m,
+      item_variant: g,
+      item_type: u,
+      ...c
+    };
+  });
+  return {
+    value: n,
+    coupon: a,
+    currency: e,
+    shipping_tier: o,
+    items: s
+  };
+}
+function A(t) {
+  const { currency: e, value: n, coupon: a, payment: o, items: i } = t, s = i.map((c) => {
+    const { sku: r, name: m, variant_title: g, category: u } = c;
+    return {
+      item_id: r,
+      item_name: m,
+      item_variant: g,
+      item_type: u,
+      ...c
+    };
+  });
+  return {
+    value: n,
+    coupon: a,
+    currency: e,
+    payment_type: o,
+    items: s
+  };
+}
+function L(t) {
+  const { item_list_name: e, items: n } = t, a = n.map(({ name: o, sku: i, index: s, quantity: c, price: r }) => ({
+    item_name: o,
+    item_id: i,
+    index: s,
+    quantity: c,
+    price: r
+  }));
+  return {
+    item_list_name: e,
+    items: a
+  };
+}
+function E(t) {
+  const { currency: e, quantity: n, price: a, name: o, sku: i, variant_title: s, category: c, index: r, list_name: m } = t;
+  return {
+    value: a || 0,
+    currency: e,
+    items: [{
+      item_id: i,
+      item_name: o,
+      item_variant: s,
+      item_list_name: m,
+      item_type: c,
+      index: r,
+      price: a,
+      quantity: n
+    }]
+  };
+}
+function P(t) {
+  return typeof t == "string" ? { method: t } : { method: "" };
+}
+function R(t) {
+  const { currency: e, value: n, items: a } = t, o = a.map((i) => ({
+    item_id: i.sku,
+    item_name: i.title,
+    price: i.price,
+    quantity: i.quantity
+  }));
+  return {
+    currency: e,
+    value: n,
+    items: o
+  };
+}
+const d = I("Google Analytics 4");
+d.initialize(() => {
+  var i;
+  const t = _();
+  if (!t || !(t != null && t.length)) {
+    console.log("missing gtag id");
+    return;
+  }
+  var e = document.createElement("script");
+  e.type = "text/javascript", e.async = !0, e.src = `https://www.googletagmanager.com/gtag/js?id=${t}`, document.head.appendChild(e), window.dataLayer = window.dataLayer || [];
+  const n = ((i = Y()) == null ? void 0 : i.customer_id) || "", a = !0, o = function() {
+    window.dataLayer.push(arguments);
+  };
+  o("js", /* @__PURE__ */ new Date()), t.forEach((s) => {
+    o("config", s, {
+      groups: "appStore",
+      debug_mode: !a,
+      user_id: n
+    }), console.log(`%c initialize Google analytics App successfully, trackId=${s}`, "color:#FF4500");
+  });
+});
+function _() {
+  const t = "RbJV15EqVV8ruRj75YfWvuEICFotCAOfm1H6mgxr6FA", e = d.getSetting(t), n = e == null ? void 0 : e.gtag_id;
+  if (n)
+    return n.split(/[\s,，ï¼\x8C]+/).map((o) => o.trim());
+}
+function Y() {
+  if (window.sci) {
+    const t = atob(window.sci);
+    return JSON.parse(t) || {};
+  }
+  return {};
+}
+function Z(t) {
+  const e = y(t);
+  gtag("event", "add_to_cart", { ...e, send_to: "appStore" });
+}
+function V(t) {
+  const e = C(t);
+  gtag("event", "remove_from_cart", { ...e, send_to: "appStore" });
+}
+function k(t) {
+  const e = h(t);
+  gtag("event", "begin_checkout", { ...e, send_to: "appStore" });
+}
+function p(t) {
+  const e = S(t);
+  gtag("event", "purchase", { ...e, send_to: "appStore" });
+}
+function D(t) {
+  const e = B(t);
+  gtag("event", "view_item", { ...e, send_to: "appStore" });
+}
+function b(t) {
+  const e = L(t);
+  gtag("event", "view_item_list", { ...e, send_to: "appStore" });
+}
+function K(t) {
+  const e = T(t);
+  gtag("event", "add_shipping_info", { ...e, send_to: "appStore" });
+}
+function z(t) {
+  const e = A(t);
+  gtag("event", "add_payment_info", { ...e, send_to: "appStore" });
+}
+function G(t) {
+  const e = P(t);
+  gtag("event", "sign_up", { ...e, send_to: "appStore" });
+}
+function F(t) {
+  const e = E(t);
+  gtag("event", "add_to_wishlist", { ...e, send_to: "appStore" });
+}
+function q(t) {
+  const e = R(t);
+  gtag("event", "view_cart", { ...e, send_to: "appStore" });
+}
+if (window.CYBERBIZ && window.CYBERBIZ.initializeSDK) {
+  const t = _();
+  t != null && t.length && (d.addListener("addToCart", Z), d.addListener("removeFromCart", V), d.addListener("beginCheckout", k), d.addListener("purchase", p), d.addListener("periodicPurchase", p), d.addListener("viewItem", D), d.addListener("addShippingInfo", K), d.addListener("addPaymentInfo", z), d.addListener("signUp", G), d.addListener("viewItemList", b), d.addListener("addToWishList", F), d.addListener("viewCart", q));
+}
+
+})();

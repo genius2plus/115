@@ -1,0 +1,56 @@
+﻿const validateTaxID = (taxId) => {
+    // 檢查統編長度是否為8碼
+    if (taxId.length !== 8) {
+        return false;
+    }
+    // 檢查統編是否為數字
+    if (!/^\d+$/.test(taxId)) {
+        return false;
+    }
+
+    let lastTwoDigitIsSeven = false;
+    if (taxId[6] === "7") {
+        lastTwoDigitIsSeven = true;
+    }
+    const sum = [];
+    const multipliers = [1, 2, 1, 2, 1, 2, 4, 1]; // 邏輯乘數
+    for (let i = 0; i < multipliers.length; i++) {
+        let digit = parseInt(taxId.charAt(i));
+        sum.push(digit * multipliers[i]);
+    }
+    const oneDigit = sum.filter((digit) => {
+        // 存放個位數的array
+        return digit < 10;
+    });
+    const twoDigit = sum
+        .filter((digit) => {
+            // 找出加總後是二位數的數字
+            return digit > 9;
+        })
+        .map((item) => {
+            const str = item.toString();
+            const result = parseInt(str[0]) + parseInt(str[1]);
+            // EX: item = 36
+            // result = 9 // 3 + 6
+            if (result > 9) {
+                //若拆分加總後還是大於10就在執行一次拆分加總(只有統編倒數第二位為7時才會發生)
+                return 1; // 必定會是1
+            } else {
+                return result;
+            }
+        });
+    const resultList = [...oneDigit, ...twoDigit]; // 乘積之和
+    // 計算乘積之和
+    const resultSum = resultList.reduce((total, item) => (total += item), 0);
+    // console.log(resultList);
+    // console.log(resultSum);
+    if (resultSum % 5 === 0) {
+        return true;
+    } else if (lastTwoDigitIsSeven && (resultSum - 1) % 5 === 0) {
+        // 倒數第二位為7時可以取0或1其中一個被5整除就可以
+        // 因第一次帶的是1若不通過就在帶0
+        return true;
+    } else {
+        return false;
+    }
+}

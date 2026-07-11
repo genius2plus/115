@@ -1,0 +1,1175 @@
+﻿if (!window.cs) { window.cs = {}; }
+
+cs.set = function (obj, objData) {
+    for (let key in objData) {
+        for (let p in obj) {
+            if (p == key) {
+                if (objData[key] != "none")
+                    obj[p] = objData[key];
+                break;
+            }
+        }
+    }
+};
+//Post回傳結果
+cs.PostResult = function () {
+    this.Success = ""; this.Message = "";
+};
+cs.PostResult.prototype.ini = function (objData) { cs.set(this, objData); };
+//Code 代碼表回傳
+cs.Code = function () {
+    this.Code = "";
+    this.Display = "";
+    this.Parent = "";
+};
+cs.Code.prototype.ini = function (objData) { cs.set(this, objData); };
+
+if (!window.param) {
+    window.param = {};
+    param.keyNo = ""; //資料編號
+    param.type = ""; //新增、修改
+    param.SearchKeyword = ""; //網址轉換參數(關鍵字查詢)
+    param.backUrl = ""; //返回頁面網址
+    param.pageSize = ""; //取得資料筆數
+    param.currentPage = ""; //現在頁數
+    param.currentPageSize = ""; //現在頁數資料筆數
+    param.totalSize = ""; //全部資料筆數
+    param.LoginUser = ""; //目前登入帳號
+}
+
+if (!window.WebAPI) {
+    window.WebAPI = {};
+}
+//WebAPI.AppName = window.location.href.indexOf("localhost") >= 0 ? "" : "/K9Web";
+WebAPI.AppName = "/K9Web";
+function GetUrlVars() {
+    let vars = {};
+    let _href = window.location.href.replace('amp;', '');
+    let href = decodeURI(_href);
+    try {
+        let parts = href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+            vars[key] = value;
+        });
+    }
+    catch (err) {
+        vars[go] = 'app';
+    }
+    return vars;
+}
+function ToUrlParam(data) {
+    for (var key in data) {
+        if (data[key] == undefined || data[key] == "undefined" || data[key] == "")
+            delete data[key];
+    }
+    return $.param(data, true);
+}
+WebAPI.Get = function (apiService, apiParam, isAsync, callback, beforeSend, complete) {
+    let URL;
+    URL = WebAPI.AppName + "/Handler/" + apiService + ".ashx";
+    $.ajax({
+        type: "Get",
+        contentType: "application/json",
+        url: URL,
+        async: isAsync,
+        data: apiParam,
+        dataType: "json",
+        beforeSend: function () {
+            beforeSend();
+        },
+        complete: function () {
+            complete();
+        },
+        success: function (jsons) {
+            callback(jsons);
+        },
+        error: function (request, status, error) {
+            //alert('網路取得資料失敗(Get)');
+            console.log('WebAPICall失敗!：' + 'status text: ' + request.statusText + ' / error: ' + error + ' / status: ' + status);
+            //location.href = _WebModifyURL == '' ? './index' : _WebModifyURL;
+        }
+    });
+}
+
+WebAPI.Post = function (apiService, apiObjParam, isAsync, callback, beforeSend, complete) {
+    let URL;
+    let path = (!isEmptyOrNull(apiObjParam.Funcfld) ? apiObjParam.Funcfld + "/" : "");
+    URL = WebAPI.AppName + "/Handler/" + path + apiService + ".ashx";
+    $.ajax({
+        type: "Post",
+        contentType: "application/json",
+        url: URL,
+        async: false,//isAsync,
+        data: JSON.stringify(apiObjParam),
+        dataType: "json",
+        beforeSend: function (xhr) {
+            beforeSend(xhr);
+        },
+        complete: function () {
+            complete();
+        },
+        success: function (json) {
+            callback(json);
+        },
+        error: function (request, status, error) {
+            //alert('網路傳輸資料失敗(Post)');
+            //console.log('status text: ' + request.statusText + ' / error: ' + error + ' / status: ' + status);
+            console.log(JSON.stringify(apiObjParam));
+            //console.log(URL);
+            //location.href = _WebModifyURL == '' ? './index' : _WebModifyURL;
+        }
+    });
+}
+
+/*註冊hideCol函數*/
+$.fn.hideCol = function (col) {
+    // Make sure col has value     
+    if (!col) { col = 1; }
+    $('tr td:nth-child(' + col + '), tr th:nth-child(' + col + ')', this).hide();/*該欄隱藏*/
+    return this;
+};
+/*註冊showCol函數*/
+$.fn.showCol = function (col) {
+    // Make sure col has value     
+    if (!col) { col = 1; }
+    $('tr td:nth-child(' + col + '), tr th:nth-child(' + col + ')', this).show();/*該欄顯示*/
+    return this;
+};
+
+CanvasRenderingContext2D.prototype.wrapText = function (text, x, y, maxWidth, lineHeight) {
+    if (typeof text != 'string' || typeof x != 'number' || typeof y != 'number') {
+        return;
+    }
+
+    var context = this;
+    var canvas = context.canvas;
+
+    if (typeof maxWidth == 'undefined') {
+        maxWidth = (canvas && canvas.width) || 300;
+    }
+    if (typeof lineHeight == 'undefined') {
+        lineHeight = (canvas && parseInt(window.getComputedStyle(canvas).lineHeight)) || parseInt(window.getComputedStyle(document.body).lineHeight);
+    }
+
+    // 字符分隔为数组
+    var arrText = text.split('');
+    var line = '';
+
+    for (var n = 0; n < arrText.length; n++) {
+        var testLine = line + arrText[n];
+        var metrics = context.measureText(testLine);
+        var testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+            context.fillText(line, x, y);
+            line = arrText[n];
+            y += lineHeight;
+        } else {
+            line = testLine;
+        }
+    }
+    context.fillText(line, x, y);
+};
+//字串相關函式
+var StringFunc = {
+    'Replace01': function (str) {
+        let _rValue = "";
+        
+        if (str.toUpperCase().startsWith("TRUE") || str.toUpperCase().startsWith("FALSE")) {
+            let Temp = str.split(',');
+            _rValue = Temp[1];
+        }
+        else {
+            if (str.indexOf(',') > 0) {
+                _rValue = str.replace(/,/g, "");
+            }
+            else {
+                _rValue = str;
+            }
+        }
+        return _rValue;
+    },
+    'paddingLeft': function (str, lenght) {
+        if (str.length >= lenght)
+            return str;
+        else
+            return StringFunc.paddingLeft("0" + str, lenght);
+    },
+    'paddingRight': function (str, lenght) {
+        if (str.length >= lenght)
+            return str;
+        else
+            return StringFunc.paddingRight(str + "0", lenght);
+    },
+    'ElementTemplate_PO': function (type) {
+        //            <div class="col-md-12 goodSearch">###GiftAddr###</div>\
+        let TempStr = "";
+        if (type == "D") {
+            TempStr = '\
+<div class="row" ###interval###>\
+	<div class="col-md-2">\
+		<img class="ItemPic" src="./###sPIC###">\
+	</div>\
+	<div class="col-md-6">\
+		<div class="row" style="margin-top: 1.5rem;">\
+			<div class="col-md-12 goodSearch">###ProductName###</div>\
+			<div class="col-md-12 goodSearch">NT$ ###SellingPrice### x ###Qty###</div>\
+            <div class="col-md-12 goodSearch ttGift">###Gift###</div>\
+        </div>\
+	</div>\
+	<div class="col-md-2" style="display: grid;">\
+        <div class="row" style="margin-top: 2rem;">小計：###ItemAMT###</div>###RFATM###\
+    </div >\
+	<div class="col-md-2 box-3">\
+                ###RefundDate###\
+        <button type="button" class="btn btn-sm ###Btnclass### mb-0 Refund_item" Style="display:###RefundBtn###"\
+data-orderno="###ShoppingNo###"\
+data-gallery="###Gallery###"\
+data-pm="###PM###"\
+data-mamt="###MaxAMT###"\
+data-itemprice="###itemprice###"\
+data-pd="###ProductCode###"\
+data-os="###OS###"\
+data-od="###OD###" data-chkoutway="###CKOATM###"\
+data-nd="###NDs###">###BtnDisplay###</button>\
+<button type="button" class="btn btn-sm btn-rose mb-0 AddPostage" Style="display:###PostageBtn###"\
+data-postagefee="###postagefee###"\
+data-orderno="###ShoppingNo###"\
+data-pd="###ProductCode###"\>補郵資</button>###PostageOrder###\
+	</div>\
+</div>';
+            return TempStr;
+        }
+        else if (type == "M") {
+            TempStr = '\
+<div class="card" style="padding: 1rem;" data-ot="###OrderType###">\
+	<div class="card-header CanClick" id="heading###RowNo###">\
+		<div class="row" data-toggle="collapse" data-target="#collapse###RowNo###" aria-expanded="true" aria-controls="collapse###RowNo###">\
+                <div class="col-md-1" data-text="點擊查看明細">###RowNoShow###</div>\
+			<div class="col-md-4 goodSearch">###ShoppingNo###(###OD###)</div>\
+			<div class="col-md-3 goodSearch">###CommodityInfo###</div>\
+			<div class="col-md-2 goodSearch" data-text="總金額 ###TotalSum###" >###TotalSum###</div>\
+            <div class="col-md-2 goodSearch" data-text="狀態 ###OrderStatus###">###OrderStatus###</div>\
+		</div>\
+	</div>\
+	<div id="collapse###RowNo###" class="collapse" aria-labelledby="heading###RowNo###" data-parent="#PurchaseList" style="">\
+		<div class="card-body">###POItem###\
+		</div>\
+        <div class="card-footer">\
+            <div class="row">\
+                <div class="col-md-6 goodSearch">###ReceAddress###</div>\
+                <div class="col-md-6 goodSearch">###GiftAddr###</div>\
+                <div class="col-md-3 goodSearch">###FF###</div>\
+                <div class="col-md-3 goodSearch">###PF###</div>\
+                <div class="col-md-3 goodSearch">###Dis###</div><div class="col-md-3">###ATM###</div>\
+            </div>\
+            <div class="row">###TAA###</div><div class="row">###TAH###</div><div class="row">###TAAMSG###</div>\
+		    <button type="button" class="btn btn-outline-warning mb-0 Refund_All" ###disabledbtn### Style="###display###"\
+data-orderno="###ShoppingNo###"\
+data-orderstat="###OS###">###BtnDisplay###</button>###disabledbtnMSG###\
+        </div>\
+	</div>\
+</div>';
+            //            <button type="button" class="btn btn-outline-info mb-0 CustomerSer">找客服</button>\
+            return TempStr;
+        } else {
+            return "";
+        }
+    },
+    'ElementTemplate_Device': function () {
+        let TempStr = '\
+<div class="col-sm-4 Member_Device"><span>###CustomName###</span>\
+<button type="button" class="btn btn-outline-warning mb-0 AppAction" data-method="DeviceManagement_D" data-deviceno="###DUID###" >刪</button>\
+</div>';
+        return TempStr;
+    },
+    'HomePageDisplay': function (type) {
+        let TempStr = "";
+        if (type == "Commodity") {
+            TempStr = '\
+<li>\
+<div class="pic">\
+<a class="b_link havegoodDescr" href="#" target="_top" data-toggle="modal" data-target="#goodDescrModal" data-matnr="#$#matnr#$#" data-charg="#$#charg#$#">\
+<img src="PorductImage/bImages/##jpgnum##.jpg?V=20260323">\
+</a>\
+</div>\
+<div class="txt">\
+<div class="mark CanClick FastToCart" data-taxonomy="##taxonomy##" data-itemcode="#$#Itemcode#$#" data-url="#$#Itemurl#$#"  data-unitprice="##OriPrice##" data-price="##Price##"  data-itemname="##Itemname##" data-imageurl="PorductImage/bImages/##jpgnum##.jpg" data-price="##OriPrice##" data-stock="##Inventory##">###Mask###\
+</div>\
+<p class="tt">##Shortdescription##</p>\
+<p class="price">###NewPrice###</p>\
+</div>\
+</li>';
+        }
+        if (type == "Rank10") {
+            TempStr = '\
+<li>\
+<a class="b_link havegoodDescr" href="#" target="_top" data-toggle="modal" data-target="#goodDescrModal" data-matnr="#$#matnr#$#" data-charg="#$#charg#$#">\
+<div class="pic"><img src="PorductImage/bImages/##jpgnum##.jpg?V=20260323"></div>\
+<div class="txt">\
+<p class="tt">##Shortdescription##</p>\
+<p class="price">##BookPrice##</p>\
+</div>\
+</a>\
+</li>';
+        }
+        return TempStr;
+    },
+    'ShoppingCart': function () {
+        let TempStr = '\
+<tr class="Cartrow###Inv###" id="CartNo_##RowNo##">\
+<td data-th="選擇此項" class="m_check"><input type="checkbox" class="CartEach"/></td>\
+<td data-th="商品" class="m_pudc">\
+<div class="pic"><img src="##PICURL##"></div> \
+<div class="tt">##ItemDesc##</div>##Gift##\
+</td>\
+<td data-th="單價" class="m_pices">##UnitPrice##</td>\
+<td data-th="數量" class="m_num">\
+<div class="box_num">\
+<span class="reduc CanClick QtyMinus" ###Show###>-</span>	\
+<input type="text" value="##UnitQty##" class="num ItemQty" maxlength="3" ###ReadOnly### />\
+<span class="add CanClick QtyPlus" ###Show###>+</span>	\
+</div>\
+</td>\
+<td data-th="總計" class="m_totle">NT$ <span>##UintSumAmt##</span></td>\
+<td data-th="折扣" class="m_disc"><span>##DisCount##</span></td>\
+<td data-th="操作" class="m_del">\
+<span class="Gallery">##Gallery##</span>\
+<span class="Galleryname">##Galleryname##</span>\
+<span class="InventoryNum">##InventoryNum##</span>\
+<span class="MagTitle">##MagTitle##</span>\
+<span class="MATNR">##MATNR##</span>\
+<span class="MagType">##MagType##</span>\
+<span class="PreSchool">##PreSchool##</span>\
+<span class="MagPostage">##MagPostage##</span>\
+<span class="MagPeroid">##TotalP##</span>\
+<span class="Itemcode">##Itemcode##</span>\
+<span class="ItemWeight">##ItemWeight##</span>\
+<span class="ItemPromoDis">##ItemPromoDis##</span>\
+<span class="ItemPromoNum">##ItemPromoNum##</span>\
+<span class="QtyOrg">##QtyOrg##</span>\
+<span class="Activities">##Activities##</span>\
+<span class="ItemClose">##ItemClose##</span>\
+<input type="button" class="btn-xs btn_c5 CartCancel" data-rowno="##RowNo##" value="删" /></td>\
+</tr>';
+        return TempStr;
+    },
+    'Commodity_Checkout': function () {
+        let TempStr = '\
+<tr>\
+<td data-th="訂購商品" class="m_pudc">\
+    <span class="pic"><img src="##Pic##"></span> \
+    <span class="NeedReceiveInfo" style="display:none;">##NeedReceiveInfo##</span>\
+    <span class="tt">##ItemDesc##</span>\
+</td>\
+<td data-th="單價" class="m_pices">##UnitPrice##</td>\
+<td data-th="折扣" class="m_disc">##UnitDiscount##</td>\
+<td data-th="數量" class="m_num">\
+    <div class="box_num">\
+    <span>##UnitQty##</span>	\
+    </div>\
+</td>\
+<td data-th="總價" class="m_totle">NT$ <span>##UintSumAmt##</span></td>\
+</tr>';
+        return TempStr;
+    },
+    'AppBanner': function () {
+        let TempStr = '\
+<li class="slide" style="background-size: contain;background-image: url(###PICURL###);">\
+    <div class="page-container">\
+        <a href="###BDESC###" target="###target###" tabindex="-1">###IMG###</a>\
+    </div>\
+</li>';
+        return TempStr;
+    },
+    'Magazine_Info': function (type) {
+        let TempStr = "";
+        if (type == "Banner") {
+            //;
+            TempStr = '\
+<li class="slide" style="background-size: contain;background-image: url(###PICURL###);z-index: 3; opacity: 1;"\
+    <div class="page-container">\
+        <a href="###BDESC###" target="###target###" tabindex="-1">###IMG###</a>\
+    </div>\
+</li>';
+        }
+        if (type == "Content") {
+            TempStr = '\
+<li class="mcs0###CLASSNO###" ###StrongColor###>\
+    <div class="pic" style="background-image: url(###PICURL###); z-index: 3; opacity: 1;">\
+        <img src="uploadfile/mag.png">\
+    </div>\
+    <div class="txt">\
+        <div class="tt" ###StrongWordColor###>###TITLE###\
+            <span>###CONTENT###\
+            </span>\
+        </div>\
+        <div class="block_btn">\
+            <a class="btn btn_c4" href="?go=maginfo&mcs=###UID###" target="_top">了解詳情</a>\
+        </div>\
+    </div>\
+</li>';
+        }
+        return TempStr;
+    },
+    'Subscript_TR': function () {
+        let TempStr = '\
+<tr id="SubstriptJump###JumpID###">\
+    <td class="textcenter bg">\
+        <div class="col-lg-6 col-md-7 col-sm-12 col-xs-12">\
+            <p align="left"><img src="./images/icon-1w.gif" class="img-border-left"> <span class="pink"><strong>###GN###(選項###Sort###)</strong></span></p>\
+            <p align="left">\
+                <br>###GIftDesc###\
+            </p>\
+            <p align="left">###GLink###</p>\
+        </div>\
+        <div class="col-lg-6 col-md-5 col-sm-12 col-xs-12">###JPG###</div>\
+    </td>\
+</tr>';
+        return TempStr;
+    },
+    'MagazinePeriodStr': function () {
+        let TempStr = '\
+<div class="row" id="lbl_MP_###MagCode###">\
+	<div class="col-sm-6">\
+		<span>###ItemName###</span>\
+		<span id="lbl_BEGNUM_###MagCode###"></span>\
+	</div>\
+	<div class="col-sm-3">\
+		<span>開始期數</span>\
+		<span class="JFEHX1 BeginPeriod" id="lbl_BEGNUM_###MagCode###">###SNum###</span>\
+	</div>\
+	<div class="col-sm-3">\
+		<span>結束期數</span>\
+		<span class="JFEHX1 EndPeriod" id="lbl_ENDNUM_###MagCode###">###ENum###</span>\
+	</div>\
+</div>';
+        return TempStr;
+    },
+    'MagazineFEEStr': function () {
+        let TempStr =
+'<div class="row FEEINFO" data-itemcode="###MagCode###">\
+<div class="col-sm-9"><span>###ItemName###</span></div>\
+<div class="col-sm-3"><span style="font-size: 0.9rem;color: brown;">郵資不可分期，一併隨首期雜誌費用支付</span></div>\
+<div class="col-sm-3">\
+	<span>雜誌總額</span>\
+	<span class="JFEHX1 FEE_TP" id="lbl_TP_###MagCode###">###TP### 元</span><br />\
+</div>\
+<div class="col-sm-3">\
+	<span>郵資</span>\
+	<span class="JFEHX1 FEE_FEE" id="lbl_FEE_###MagCode###">###FEE### 元</span>\
+	<span style="padding-left: 0.8rem;">(###onePeriod###元 X ###MagPeroid###期)</span>\
+</div>\
+<div class="col-sm-3">\
+	<span>月付款</span>\
+	<span class="JFEHX1 FEE_MP" id="lbl_MP_###MagCode###">###MP### 元</span><br />\
+</div>\
+<div class="col-sm-3">\
+	<span>首期費用</span>\
+	<span class="JFEHX1 FEE_DP" id="lbl_DP_###MagCode###">###DP### 元</span><span id="lbl_DP_Desc_###MagCode###" style="padding-left: 0.8rem;">###DPDesc###</span>\
+</div>\
+</div>';
+        return TempStr;
+    },
+    'GoodsPageItem': function (num) {
+        let TempStr = '\
+<li>\
+<a class="havegoodDescr" href="#" target="_top" data-toggle="modal" data-target="#goodDescrModal" data-matnr="#$#matnr#$#" data-charg="#$#charg#$#">\
+<div class="pic"><img  src="PorductImage/bImages/##jpgnum##.jpg?V=20260323"></div>\
+</a>\
+<div class="txt">\
+<div class="mark CanClick FastToCart" data-taxonomy="##taxonomy##" data-itemcode="##Itemcode##" data-url="#$#Itemurl#$#"  data-unitprice="##OriPrice##" data-price="##BookPrice##"  data-itemname="##Itemname##" data-imageurl="PorductImage/bImages/##jpgnum##.jpg"  data-stock="##Inventory##">###Mask###\
+</div>\
+<p class="tt">###Shortdescription###</p>\
+<p class="price">##BookOnsalePrice##<span>##Show##</p>\
+</div>\
+</li>';
+        return TempStr;
+    },
+    'Pagebutton': function (num) {
+        let TempStr = '\
+<span class="page-rwd">\
+	<span class="###IsPageHome### GoodPageJump" data-goto="HOME">HOME</span>\
+	<span class="###IsPageHome### GoodPageJump" data-goto="PREV">PREV</span>\
+</span>###front### ###dynamicPage### ###Behind###\
+<span class="page-rwd">\
+	<span class="###IsPageEnd### GoodPageJump" data-goto="NEXT">NEXT</span>\
+	<span class="###IsPageEnd### GoodPageJump" data-goto="END" data-maxpage="###maxpage###" >END</span>\
+</span>';
+        return TempStr;
+    },
+    Validation: {
+        'isEmptyOrNull': function (value) {
+            //是否為Null或空值
+            if (typeof (value) == "undefined" || $.trim(value) == "null" || $.trim(value) == "" || value == undefined || value == null || value == "undefined")
+                return true;
+            else
+                return false;
+        },
+        'is_mobileNoMsg': function (value) {
+            //return /09\d{2}(\d{6}|-\d{3}-\d{3})/.test(value);
+            return String_regex.MobileNumber.test(value);
+        },
+        'is_mobile': function (value) {
+            //驗證手機號
+            let error = {
+                'empty': '請輸入內容(Mobile)',
+                'format': '非有效的行動電話格式。'
+            };
+            let message = error.empty;
+            if (typeof value == 'string' && value.length && !StringFunc.Validation.isEmptyOrNull(value)) {
+                if (String_regex.MobileNumber.test(value)) {
+                    return true;
+                }
+                message = error.format;
+            }
+            popupMessage(message);
+            return false;
+        },
+        'is_emailNoMsg': function (value) {
+            return String_regex.Email.test(value);
+        },
+        'is_email': function (value) {
+            //驗證email的合法性
+            let error = {
+                'empty': '請輸入內容(Email)',
+                'format': '非有效的Email格式。'
+            };
+            let message = error.empty;
+            if (typeof value == 'string' && value.length && !StringFunc.Validation.isEmptyOrNull(value)) {
+                if (String_regex.Email.test(value)) {
+                    return true;
+                }
+                message = error.format;
+            }
+            popupMessage(message);
+            return false;
+        },
+        'is_IPV4': function (value) {
+            //驗證IP Address
+            let error = {
+                'empty': '請輸入內容(IP)',
+                'format': '非有效的IPV4格式。'
+            };
+            let message = error.empty;
+            if (typeof value == 'string' && value.length && !StringFunc.Validation.isEmptyOrNull(value)) {
+                if (String_regex.IPV4.test(value)) {
+                    return true;
+                }
+                message = error.format;
+            }
+            popupMessage(message);
+            return false;
+        },
+        'is_AllowImage': function (value) {
+            //允許上傳的圖檔格式
+            let error = {
+                'empty': '',
+                'format': '非有效的圖檔格式。'
+            };
+            let message = error.empty;
+            if (typeof value == 'string' && value.length && !StringFunc.Validation.isEmptyOrNull(value)) {
+                let regexp = new RegExp("(.jpeg|.jpg|.png|.gif)$", 'g');
+                if (regexp.test(value.toLowerCase())) {
+                    return true;
+                }
+                message = error.format;
+            }
+            popupMessage(message);
+            return false;
+        },
+        'is_excel': function (value) {
+            let error = {
+                'empty': '',
+                'format': '非有效的Excel格式。'
+            };
+            let message = error.empty;
+            if (typeof value == 'string' && value.length && !StringFunc.Validation.isEmptyOrNull(value)) {
+                let regexp = new RegExp("(.xls|.xlsx)$", 'g');
+                if (regexp.test(value.toLowerCase())) {
+                    return true;
+                }
+                message = error.format;
+            }
+            popupMessage(message);
+            return false;
+        },
+        'is_EinvoiceMobileBarcodeNoModal': function (value) {
+            return String_regex.MobileBarcode.test(value);
+        },
+        'is_EinvoiceMobileBarcode': function (value) {
+            let error = {
+                'empty': '手機載具條碼為空',
+                'format': '非有效的手機載具條碼。'
+            };
+            let message = error.empty;
+            if (typeof value == 'string' && value.length ) {
+                if (String_regex.MobileBarcode.test(value)) {
+                    return true;
+                }
+                message = error.format;
+            }
+            popupMessage(message);
+            return false;
+        },
+    }
+}
+
+//日期相關函式
+var DateTimeFunc = {
+    'GetToday': function () {
+        let Today = new Date();
+        let Nowday = Today.getFullYear() + "/" + ((Today.getMonth() + 1) < 10 ? '0' : '') + (Today.getMonth() + 1) + "/" + (Today.getDate() < 10 ? '0' : '') + Today.getDate();
+        return Nowday;
+    },
+    'GetToday8': function () {
+        let Today = new Date();
+        let Nowday = Today.getFullYear().toString() + (((Today.getMonth() + 1) < 10 ? '0' : '') + (Today.getMonth() + 1)).toString() + ((Today.getDate() < 10 ? '0' : '') + Today.getDate()).toString();
+        return Nowday;
+    },
+    'GetTodaydash': function () {
+        let Today = new Date();
+        let Nowday = Today.getFullYear() + "-" + ((Today.getMonth() + 1) < 10 ? '0' : '') + (Today.getMonth() + 1) + "-" + (Today.getDate() < 10 ? '0' : '') + Today.getDate();
+        return Nowday;
+    },
+    'GetNowTime': function () {
+        let dat = new Date();
+        let Now = dat.getHours() + ':' + (dat.getMinutes() < 10 ? '0' : '') + dat.getMinutes();
+        return Now;
+    },
+    'GetNowTimeComplete': function () {
+        let dat = new Date();
+        let Now = (dat.getHours() < 10 ? '0' : '') + dat.getHours() + ':' + (dat.getMinutes() < 10 ? '0' : '') + dat.getMinutes() + ':' + (dat.getSeconds() < 10 ? '0' : '') + dat.getSeconds();
+        return Now;
+    },
+    'GetHourMinute': function (value) {
+        let HourMinute = value.substr(0, 2) + ':' + value.substr(2, 2);
+        return HourMinute;
+    },
+    'GetAddDays': function (sdate, days, symbol = '') {
+        let dat = new Date(sdate);
+        dat.setDate(dat.getDate() + days);
+        let month = dat.getMonth() + 1;
+        let day = dat.getDate();
+        let output = dat.getFullYear() + (symbol == '' ? '/' : '-') + (month < 10 ? '0' : '') + month + (symbol == '' ? '/' : '-') + (day < 10 ? '0' : '') + day;
+        return output;
+    },
+    'GetAddMonthDash': function (sdate, months, symbol = '') {
+        let dat = new Date(sdate);
+        let month = dat.getMonth() + months + 1;
+        let Addyear = Math.floor(month / 13);
+        if (Addyear > 0) month = (month - (Addyear * 12));
+        let output = (dat.getFullYear() + Addyear) + (symbol == '' ? '/' : '-') + (month < 10 ? '0' : '') + month;
+        return output;
+    },
+    'DateDiff': function (sdate, edate) {
+        sdate = sdate.replace(/-/g, "/");
+        let startdate = new Date(sdate);
+        edate = edate.replace(/-/g, "/");
+        let enddate = new Date(edate);
+        let time = startdate.getTime() - enddate.getTime();
+        let days = parseInt(time / (1000 * 60 * 60 * 24));
+        return days;
+    },
+    'DateIsPass': function (sdate, edate) {
+        sdate = sdate.replace(/-/g, "/");
+        let startdate = new Date(sdate);
+        edate = edate.replace(/-/g, "/");
+        let enddate = new Date(edate);
+        let time = startdate.getTime() - enddate.getTime();
+        let days = time < 0 ? -1 : 1;
+        return days;
+    },
+    Validation: {
+        'TimeHM4': function (value) {
+            let error = {
+                'empty': '請輸入內容(時分)',
+                'format': '非24小時格式，無法轉換。'
+            };
+            let message = error.empty;
+            if (typeof value == 'string' && value.length && !StringFunc.Validation.isEmptyOrNull(value)) {
+                if (/^(20|21|22|23|[0-1]\d)[0-5]\d$/.test(value)) {
+                    return true;
+                }
+                message = error.format;
+            }
+            popupMessage(message);
+            return false;
+        },
+        'TimeHM5': function (value) {
+            let error = {
+                'empty': '請輸入內容(時:分)',
+                'format': '非24小時格式。'
+            };
+            let message = error.empty;
+            if (typeof value == 'string' && value.length && !StringFunc.Validation.isEmptyOrNull(value)) {
+                if (/^(20|21|22|23|[0-1]\d):[0-5]\d$/.test(value)) {
+                    return true;
+                }
+                message = error.format;
+            }
+            popupMessage(message);
+            return false;
+        },
+        'date_ymd': function (value) {
+            return /^(\d{4})-(0\d{1}|1[0-2])-(0\d{1}|[12]\d{1}|3[01])$/.test(value);
+        },
+    }
+}
+
+//清除modal資料
+function Refreshmodal(obj) {
+    $('#' + obj).each(function () {
+        $(this).find('input:text').each(function () {
+            $(this).val("");
+        });
+        $(this).find('input:password').each(function () {
+            $(this).val("");
+        });
+        $(this).find('textarea').each(function () {
+            $(this).val("");
+        });
+        $(this).find('input:checkbox:checked').each(function () {
+            $(this).prop('checked', false);
+        });
+        $(this).find("select").each(function () {
+            if ($(this).has('option:selected')) {
+                $(this).prop('selected', false);
+            }
+            $(this).val("");
+        });
+        $(this).find('.PKsLabel').html('');
+        $(this).find('.NecessaryMsg').remove();
+    });
+}
+function includeLinkStyle(url) {
+    let link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.type = "text/css";
+    link.media = "screen";
+    link.href = url;
+    document.getElementsByTagName("head")[0].appendChild(link);
+}
+
+
+
+//檢驗檔案
+function testFileExtname(value) {
+    var regexp = new RegExp("(.jpeg|.jpg|.png|.ppt|.pptx|.doc|.docx|.xls|.xlsx|.rar|.zip|.7z|.pdf|.txt)$", 'g');
+    return regexp.test(value.toLowerCase());
+}
+function FormateBase64Tostring(string) {
+    let enCodea;
+    if (window.atob) {
+        enCodea = window.atob(string);
+    } else { //for <= IE9
+        enCodea = decode64(string);
+    }
+    return enCodea;
+}
+function FormateToBase64string(string) {
+    let enCodea;
+    if (window.btoa) {
+        enCodea = window.btoa(string);
+    } else { //for <= IE9
+        enCodea = encode64(string);
+    }
+    return enCodea;
+}
+function HTMLEncode(str) {
+    //建立一個在memory中的div，寫入值，並以html()方式取出
+    return $('<div/>').text(str).html();
+}
+function HTMLDecode(str) {
+    //與Encode相反
+    return $('<div/>').html(str).text();
+}
+
+//取得代碼資料
+function GetCode(TypeName, _Selector, beforeBind, AfterBind) {
+    let apiUrl = 'FERequest';
+    let apiParam = ToUrlParam({ Method: TypeName });
+    let isAsync = false;
+    let Selectorarray = _Selector.split(',');
+
+    WebAPI.Get(apiUrl, apiParam, isAsync, function (jsons) {
+        Selectorarray.forEach(function (Selector, index) {
+            $("#" + Selector).empty();
+        });
+        var dalres = new cs.PostResult();
+        dalres.ini(jsons);
+        if (dalres.Success) {
+            var json = JSON.parse(dalres.Message);
+            //param.totalSize = dalres.RowCount;
+            var dal = new cs.Code;
+            beforeBind();
+            for (var key in json) {
+                dal.ini(json[key]);
+                Selectorarray.forEach(function (Selector, index) {
+                    $("#" + Selector).append("<option value='" + $.trim(dal.Code) + "'>" + $.trim(dal.Display) + "</option>");
+                });
+            }
+        } else {
+            console.log(TypeName + '，' + dalres.Message);
+        }
+
+    }, function () { }, function () {
+        AfterBind();
+    });
+
+
+}
+function popupMessage(message) {
+    $('.MainModalMask').fadeIn(100);
+    $('#bootstrapModal').find('div.modal-body').html('<p>' + message + '</p>').end().modal();
+    if (message.indexOf("請重新登入") >= 0) location.href = './index.aspx';
+}
+function popupHPMessage(message) {
+    $('.MainModalMask').fadeIn(100);
+    $('#HPMsgModal').find('div.modal-body').html('<p style="coler:red;">' + message + '</p>').end().modal();
+}
+function popupCarMessage(message,MemberID) {
+    $('#CartMsgModal').find('h3.modal-title').html('');
+    $('.MainModalMask').fadeIn(100);
+    if ($('#CartMsgModal').children().attr('class').indexOf('CartMsg') < 0) {
+        $('#CartMsgModal').children().addClass('CartMsg');
+    }
+    $('#CartMsgModal').find('div.modal-body').html('<p>' + message + '</p>').end().modal();
+    if (!StringFunc.Validation.isEmptyOrNull(MemberID)) {
+        setTimeout(function () {
+            $('#CartMsgModal').modal('hide');
+            GetCartInfo(MemberID);
+        }, 2000);
+    }
+}
+function popupInteractiveMessage(title, message, footer = '', BGcolor = '') {
+
+    $('.MainModalMask').fadeIn(100);
+    $('#CartMsgModal').children().removeClass('CartMsg');
+    $('#CartMsgModal').find('h3.modal-title').html(title);
+    if (!StringFunc.Validation.isEmptyOrNull(BGcolor)) {
+        $('#CartMsgModal').find('.modal-content').attr("style", "background-color: " + BGcolor + ";");
+    }
+    else {
+        $('#CartMsgModal').find('.modal-content').attr("style", "background-color: #edd182;");
+    }
+    $('#CartMsgModal').find('div.modal-body').html('<p style="color: #4c4c4c;">' + message + '</p>').end().modal();
+    if (!StringFunc.Validation.isEmptyOrNull(footer)) {
+        $('#CartMsgModal').find('div.modal-footer').html(footer);
+    }
+    else {
+        $('#CartMsgModal').find('div.modal-footer').html('');
+    }
+}
+$(function () {
+    //彈出式訊息
+    let bootstrapModal = '<div id="bootstrapModal" aria-hidden="true" aria-labelledby="modalTitle" class="modal fade modalSub" role="dialog" tabindex="-1">\
+    <div class="modal-dialog ###MsgModal###">\
+        <div class="modal-content" style="background-color: ###BC###;">\
+            <div class="modal-header">\
+                <h3 id="modalTitle" class="modal-title">提示視窗</h3>\
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>\
+            </div>\
+            <div class="modal-body"></div>\
+            <div class="modal-footer"></div>\
+        </div>\
+    </div>\
+</div>';
+    
+    //            <div class="modal-footer"><button type="button" class="btn btn-primary" data-dismiss="modal">確定</button></div>\     
+    $('body').append(bootstrapModal.replace("###BC###", "rgb(250 241 170 / 97%);").replace("###MsgModal###", ""));
+    //調整視窗文字
+    let CartMsgModal = bootstrapModal.replace("bootstrapModal", "CartMsgModal").replace(/modalTitle/g, "CartMsgTitle");
+    CartMsgModal = CartMsgModal.replace("提示視窗", "").replace("###BC###", "#edd182").replace("###MsgModal###", "CartMsg");
+    $('body').append(CartMsgModal);
+    let HPMsgModal = bootstrapModal.replace("bootstrapModal", "HPMsgModal").replace(/modalTitle/g, "HPTitle");
+    HPMsgModal = HPMsgModal.replace("提示視窗", "【重要公告】").replace("###BC###", "#edd182").replace("###MsgModal###", "HPMsg");
+    $('body').append(HPMsgModal);
+    //let MagazineModal = bootstrapModal.replace("bootstrapModal", "MagazineModal").replace("modalTitle", "MagazineMsgTitle")
+    //調整視窗文字
+    //MagazineModal = MagazineModal.replace("提示視窗", "詳細內容").replace("cornsilk", "#dfdfe1").replace("width: 70%", "width: 50%");
+    //$('body').append(MagazineModal);
+    //includeLinkStyle("css/bootstrap/bootstrap.min.css");
+    //includeLinkStyle("//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css");
+    //includeLinkStyle("css/material-kit.css");
+});
+
+//分頁處理
+function BindPagination(Selector) {
+    //清除預設資料
+    $('#' + Selector + ' li').remove();
+    var Content = "", backPage = "", TotalPage = 0, FinalPage = "";
+    var FirstPagination = "", LastPagination = "";
+    //回上頁
+    backPage = 1;
+    if (param.currentPage == 1) {
+        FirstPagination = " disabled";
+    }
+    //資料頁數
+    TotalPage = Math.ceil(param.totalSize / param.pageSize);
+    if (TotalPage > 1)
+        $('#' + Selector).show();
+    else
+        $('#' + Selector).hide();
+    //下一頁
+    FinalPage = TotalPage;
+    if (param.currentPage == TotalPage) {
+        LastPagination = " disabled";
+    }
+    //Content += "<li class='" + FirstPagination + "'><a title='第1頁' href='javascript:PaginationClick(\"" + backPage + "\")'>&laquo; First</a></li>"; //第一頁
+    Content += "<li class='page-item" + FirstPagination + "'><a class='page-link' title='上一頁' href='javascript:PaginationClick(\"" + (parseInt(param.currentPage) - 1) + "\")'>&laquo;</a></li>"; //回上頁
+    for (var NowPage = 1; NowPage <= TotalPage; NowPage++) {
+        var IsActive = (NowPage == param.currentPage ? " active" : "");
+        var Ishidden = "";
+        //左3右3 最多7個項目 
+        if (TotalPage > 6) {
+            var LowLimit = param.currentPage - 3 < 0 ? 0 : param.currentPage - 3;
+            var HighLimit = LowLimit + 6 > TotalPage ? TotalPage : LowLimit + 6;
+            if (NowPage < LowLimit || NowPage > HighLimit) {
+                Ishidden = " nondisplay";
+            }
+        }
+        Content += "<li id='li_pagination_" + NowPage + "' class='page-item" + IsActive + "" + Ishidden + "'><a class='page-link' title='第" + NowPage + "頁' href='javascript:PaginationClick(\"" + NowPage + "\")'>" + NowPage + "</a></li>";
+    }
+    //Content += "<li class='" + LastPagination + "'><a title='最末頁' href='javascript:PaginationClick(\"" + FinalPage + "\")'>&raquo; Last</a></li>"; //下一頁
+    Content += "<li class='page-item " + LastPagination + " " + (LastPagination != " disabled" ? IsActive : "") + "' ><a class='page-link' title='下一頁' href='javascript:PaginationClick(\"" + (parseInt(param.currentPage) + 1) + "\")'>&raquo;</a></li>"; //下一頁
+    $("#" + Selector).append(Content);
+    $("#" + Selector).parent().children('.tableCount').remove();
+    //if (param.totalSize > param.pageSize) {
+    //    $("#" + Selector).parent().append("<div class='tableCount'>單頁筆數: " + (param.currentPageSize - 1) + " / 總頁數: " + (param.totalSize <= param.pageSize ? '1' : (parseInt(param.totalSize / param.pageSize) + 1)) + " / 總筆數: " + param.totalSize + "</div>");
+    //}
+    $("#" + Selector).parent().append("<div class='tableCount'>單頁筆數: " + (param.currentPageSize - 1) + " / 總頁數: " + (parseInt(param.totalSize) <= parseInt(param.pageSize) ? '1' : ((param.totalSize % param.pageSize) == 0 ? parseInt(param.totalSize / param.pageSize) : (parseInt(param.totalSize / param.pageSize) + 1))) + " / 總筆數: " + param.totalSize + "</div>");
+    $("#" + Selector).parent().show();
+}
+//點擊分頁
+function PaginationClick(NowPage) {
+    var beforePage = param.currentPage;
+    param.currentPage = parseInt(NowPage);
+    //SetUrlState('PG', beforePage, param.currentPage, Business);
+    $("html,body").animate({ scrollTop: 350 }, 600);
+    BindData();
+}
+
+materialKit = {
+    misc: {
+        navbar_menu_visible: 0,
+        window_width: 0,
+        transparent: true,
+        fixedTop: false,
+        navbar_initialized: false,
+        isWindow: document.documentMode || /Edge/.test(navigator.userAgent)
+    },
+}
+
+$(document).on('click', '.navbar-toggler', function () {
+    $toggle = $(this);
+
+    if (materialKit.misc.navbar_menu_visible == 1) {
+        $('html').removeClass('nav-open');
+        materialKit.misc.navbar_menu_visible = 0;
+        $('#bodyClick').remove();
+        setTimeout(function () {
+            $toggle.removeClass('toggled');
+        }, 550);
+
+        $('html').removeClass('nav-open-absolute');
+    } else {
+        setTimeout(function () {
+            $toggle.addClass('toggled');
+        }, 580);
+
+
+        div = '<div id="bodyClick"></div>';
+        $(div).appendTo("body").click(function () {
+            $('html').removeClass('nav-open');
+
+            if ($('nav').hasClass('navbar-absolute')) {
+                $('html').removeClass('nav-open-absolute');
+            }
+            materialKit.misc.navbar_menu_visible = 0;
+            $('#bodyClick').remove();
+            setTimeout(function () {
+                $toggle.removeClass('toggled');
+            }, 550);
+        });
+
+        if ($('nav').hasClass('navbar-absolute')) {
+            $('html').addClass('nav-open-absolute');
+        }
+
+        $('html').addClass('nav-open');
+        materialKit.misc.navbar_menu_visible = 1;
+    }
+});
+
+//是否為Null或空值
+function isEmptyOrNull(obj) {
+    if (typeof (obj) == "undefined" || $.trim(obj) == "null" || $.trim(obj) == "" || obj == undefined || obj == null || obj == "undefined")
+        return true;
+    else
+        return false;
+}
+//數字處理為有千分位
+function AppendComma(n) {
+    if (!/^((-*\d+)|(0))$/.test(n)) {
+        var newValue = /^((-*\d+)|(0))$/.exec(n);
+        if (newValue != null) {
+            if (parseInt(newValue, 10)) {
+                n = newValue;
+            }
+            else {
+                n = '0';
+            }
+        }
+        else {
+            n = '0';
+        }
+    }
+    if (parseInt(n, 10) == 0) {
+        n = '0';
+    }
+    else {
+        n = parseInt(n, 10).toString();
+    }
+
+    n += '';
+    var arr = n.split('.');
+    var re = /(\d{1,3})(?=(\d{3})+$)/g;
+    return arr[0].replace(re, '$1,') + (arr.length == 2 ? '.' + arr[1] : '');
+}
+//將有千分位的數值轉為一般數字
+function RemoveComma(n) {
+    if (/[,]+/g.test(n)) {
+        return $.trim(n.replace(/[,]+/g, ''));
+    }
+    else {
+        return $.trim(n);
+    }
+}
+//調整千分位
+function AdjustComma(item, length) {
+    var originalValue = $.trim($(item).val()).length > length
+        ? $.trim($(item).val()).substr(0, length)
+        : $.trim($(item).val());
+
+    $(item).val(AppendComma(originalValue));
+}
+//動態調整輸入欄位的長度
+function TextAreaLength(item, length) {
+    if (item.value.length > length) {
+        item.value = item.value.substring(0, length);
+    }
+}
+
+function MultipleChoice(value, item) {
+    
+    if (item.startsWith(",")) item = item.replace(",", "");
+    if (item.endsWith(",")) item = item.slice(0, -1);
+    if (!StringFunc.Validation.isEmptyOrNull(item)) item += ",";
+    item = item.replace(",,", ",");
+    item = item + value;
+    return item;
+}
+
+function MultipleChoiceRemove(value, item) {
+    item = item.replace(value, "");
+    if (item.startsWith(",")) item = item.replace(",", "");
+    if (item.endsWith(",")) item = item.slice(0, -1);
+    item = item.replace(",,", ",");
+    return item;
+}
+//全轉半
+String.prototype.Fulltohalf = function () {
+    var temp = "";
+    for (var i = 0; i < this.toString().length; i++) {
+        var charCode = this.toString().charCodeAt(i);
+        //60<;62>;39';34"'
+        if (charCode > 65248) {
+            charCode -= 65248;
+        }
+        //if (charCode <= 126 && charCode >= 33) {
+        //    charCode += 65248;
+        //} else if (charCode == 32) { // 半形空白轉全形
+        //    charCode = 12288;
+        //}
+        temp = temp + String.fromCharCode(charCode);
+    }
+    return temp;
+};
+
+//十六進制轉RGB
+String.prototype.colorHex = function () {
+    var that = this;
+    //十六顏色表示顏色值的正規表達式
+    var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+    // 如果是RGB顏色
+    if (/^(rgb|RGB)/.test(that)) {
+        var aColor = that.replace(/(?:\(|\)|rgb|RGB)*/g, "").split(",");
+        var strHex = "#";
+        for (var i = 0; i < aColor.length; i++) {
+            var hex = Number(aColor[i]).toString(16);
+            if (hex.length < 2) {
+                hex = '0' + hex;
+            }
+            strHex += hex;
+        }
+        if (strHex.length !== 7) {
+            strHex = that;
+        }
+        return strHex;
+    } else if (reg.test(that)) {
+        var aNum = that.replace(/#/, "").split("");
+        if (aNum.length === 6) {
+            return that;
+        } else if (aNum.length === 3) {
+            var numHex = "#";
+            for (var i = 0; i < aNum.length; i += 1) {
+                numHex += (aNum[i] + aNum[i]);
+            }
+            return numHex;
+        }
+    }
+    return that;
+};
+
+//十六進制轉RGB
+String.prototype.colorRgb = function () {
+    var sColor = this.toLowerCase();
+    //十六進制颜色值的正規表達式
+    var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+    // 如果是16進制顏色
+    if (sColor && reg.test(sColor)) {
+        if (sColor.length === 4) {
+            var sColorNew = "#";
+            for (var i = 1; i < 4; i += 1) {
+                sColorNew += sColor.slice(i, i + 1).concat(sColor.slice(i, i + 1));
+            }
+            sColor = sColorNew;
+        }
+        //六位的顏色值
+        var sColorChange = [];
+        for (var i = 1; i < 7; i += 2) {
+            sColorChange.push(parseInt("0x" + sColor.slice(i, i + 2)));
+        }
+        return "RGB(" + sColorChange.join(",") + ")";
+    }
+    return sColor;
+};
+function FormatBase64Tostring(string) {
+    if (window.atob) {
+        enCodea = window.atob(string);
+    } else { //for <= IE9
+        enCodea = decode64(string);
+    }
+    return enCodea;
+}
+function FormatToBase64string(string) {
+    var EnCodea;
+    if (window.btoa) {
+        enCodea = window.btoa(string);
+    } else { //for <= IE9
+        enCodea = encode64(string);
+    }
+    return enCodea;
+}
+function getRandomNumber(num) {
+    return Math.floor(Math.random() * 1000000).toString().padStart(StringFunc.Validation.isEmptyOrNull(num) ? 6 : num, '0');
+}

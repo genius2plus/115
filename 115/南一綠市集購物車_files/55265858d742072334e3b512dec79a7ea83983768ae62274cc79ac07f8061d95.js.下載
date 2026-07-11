@@ -1,0 +1,286 @@
+(function() {
+var _ = Object.defineProperty, C = (t, e, n) => e in t ? _(t, e, { enumerable: !0, configurable: !0, writable: !0, value: n }) : t[e] = n, w = (t, e, n) => (C(t, typeof e != "symbol" ? e + "" : e, n), n);
+class v {
+  constructor(e) {
+    w(this, "appName"), this.appName = e;
+  }
+  addListener(e, n) {
+    window.CYBERBIZ.eventSDK.setEvent(e, n);
+  }
+  getSetting(e) {
+    if (!window.CYBERBIZ || !window.CYBERBIZ.initializeSDK) {
+      console.log("The installation of CYBERBIZ SDK has failed.");
+      return;
+    }
+    return window.CYBERBIZ.initializeSDK.getSetting(e);
+  }
+  getCustomerId() {
+    if (!window.CYBERBIZ || !window.CYBERBIZ.initializeSDK || !window.CYBERBIZ.initializeSDK.getCustomerId) {
+      console.log("The installation of CYBERBIZ SDK has failed.");
+      return;
+    }
+    return window.CYBERBIZ.initializeSDK.getCustomerId();
+  }
+  initialize(e) {
+    if (window.CYBERBIZ && window.CYBERBIZ.initializeSDK) {
+      window.CYBERBIZ.initializeSDK.setInitialEvents(e);
+      return;
+    }
+    console.log("The installation of CYBERBIZ SDK has failed.");
+  }
+}
+function y(t) {
+  return new v(t);
+}
+function m(t) {
+  const { quantity: e, price: n, name: o, variant_id: a, variant_title: i, list_name: s } = t;
+  let d = 0;
+  return e && n && (d += n * e), { gtagAddToCartItem: {
+    item_id: a,
+    item_name: o,
+    item_variant: i,
+    price: n,
+    item_list_name: s,
+    quantity: e
+  }, itemTotalValue: d };
+}
+function I(t) {
+  const e = [];
+  let n = 0;
+  const o = Array.isArray(t);
+  if (o)
+    t.forEach((a) => {
+      const { gtagAddToCartItem: i, itemTotalValue: s } = m(a);
+      e.push(i), n += s;
+    });
+  else {
+    const { gtagAddToCartItem: a, itemTotalValue: i } = m(t);
+    e.push(a), n += i;
+  }
+  return {
+    value: n,
+    currency: o ? t[0].currency : t.currency,
+    items: e,
+    ...o && { repurchase: !0 }
+    // 訂單再次購買
+  };
+}
+function h(t) {
+  const { currency: e, quantity: n, price: o, name: a, variant_id: i, variant_title: s } = t;
+  let d = 0;
+  return n && o && (d += o * n), {
+    value: d,
+    currency: e,
+    items: [{
+      item_id: i,
+      item_name: a,
+      item_variant: s,
+      price: o,
+      quantity: n
+    }]
+  };
+}
+function S(t) {
+  const { currency: e, id: n, value: o, coupon: a, shipping: i, items: s } = t, d = s.map((c) => ({
+    item_id: c.variant_id,
+    item_name: c.name,
+    item_variant: c.variant,
+    item_brand: c.brand,
+    item_category: c.category,
+    price: c.price,
+    quantity: c.quantity
+  })), u = window.navigator.userAgent.includes("LIFF");
+  return {
+    currency: e,
+    transaction_id: n,
+    value: o,
+    coupon: a,
+    shipping: i,
+    items: d,
+    ...u && { browser_type: "LIFF" }
+  };
+}
+function B(t) {
+  let e = 0, n;
+  const o = t.map(({ variant_id: a, product_title: i, variant_title: s, brand: d, category: u, price: c, quantity: g, currency: p }) => (g && c && (e += g * c), p = p, {
+    item_id: a,
+    item_name: i,
+    item_variant: s,
+    item_brand: d,
+    item_category: u,
+    price: c,
+    quantity: g
+  }));
+  return {
+    value: e,
+    currency: n,
+    items: o
+  };
+}
+function b(t) {
+  return {
+    items: t.map(({ variant_id: n, name: o, list_name: a, list_id: i, price: s }) => ({
+      item_id: n,
+      item_name: o,
+      item_list_name: a,
+      item_list_id: i,
+      price: s
+    }))
+  };
+}
+function T(t) {
+  const { currency: e, value: n, coupon: o, shippingOption: a, items: i } = t;
+  return {
+    value: n,
+    coupon: o,
+    currency: e,
+    shipping_tier: a,
+    items: i
+  };
+}
+function P(t) {
+  const { currency: e, value: n, coupon: o, payment: a, items: i } = t;
+  return {
+    value: n,
+    coupon: o,
+    currency: e,
+    payment_type: a,
+    items: i
+  };
+}
+function A(t) {
+  const e = window.liff && window.liff.isInClient();
+  return {
+    method: typeof t == "string" ? t : "",
+    ...e && { browser_type: "LIFF" }
+  };
+}
+function E(t) {
+  return { engage_type: t };
+}
+function L(t) {
+  const { coupons: e } = t;
+  return { coupons: e };
+}
+function R(t) {
+  const { code: e, result: n, coupons: o } = t;
+  return {
+    searched_code: e,
+    result: n,
+    coupons: o
+  };
+}
+function Z(t) {
+  const { coupon: e } = t;
+  return {
+    coupons: [e]
+  };
+}
+function V(t) {
+  const { result: e, error: n, coupons: o } = t;
+  return {
+    result: e,
+    error_message: n,
+    coupons: o
+  };
+}
+const r = y("CYBERBIZ Google Analytics 4");
+r.initialize(() => {
+  const t = f();
+  if (!t || !(t != null && t.length)) {
+    console.log("missing gtag id");
+    return;
+  }
+  var e = document.createElement("script");
+  e.type = "text/javascript", e.async = !0, e.src = `https://www.googletagmanager.com/gtag/js?id=${t}`, document.head.appendChild(e), window.dataLayer = window.dataLayer || [];
+  const n = function() {
+    window.dataLayer.push(arguments);
+  };
+  n("js", /* @__PURE__ */ new Date()), t.forEach((o) => {
+    const a = D();
+    n("config", o, a), console.log(`%c initialize CYBERBIZ Google Analytics App successfully, trackId=${o}`, "color:#FF4500");
+  });
+});
+function f() {
+  const t = "QUj5ZqoeIOR9Z3bZKkk0n87yykAi9e45DDh2tbQgiBA", e = r.getSetting(t), n = e == null ? void 0 : e.gtag_id;
+  if (n)
+    return n.split(/[\s,，ï¼\x8C]+/).map((a) => a.trim());
+}
+function Y() {
+  if (window.sci) {
+    const t = atob(window.sci);
+    return JSON.parse(t) || {};
+  }
+  return {};
+}
+function D() {
+  const t = Y();
+  let e = {
+    groups: "appStoreCyb",
+    custom_map: {
+      dimension1: "shop_id",
+      dimension2: "customer_id",
+      dimension3: "infinite_scroll",
+      dimension4: "dim_affiliate"
+    }
+  };
+  return Object.keys(t).length !== 0 && (e.shop_id = t.shop_id, e.shop_plan = t.shop_plan, e.customer_id = t.customer_id, e.user_id = t.customer_id, e.dim_affiliate = t.dim_affiliate), e;
+}
+function G(t) {
+  const e = I(t);
+  gtag("event", "add_to_cart", { ...e, send_to: "appStoreCyb" });
+}
+function K(t) {
+  const e = h(t);
+  gtag("event", "remove_from_cart", { ...e, send_to: "appStoreCyb" });
+}
+function k(t) {
+  const e = B(t);
+  gtag("event", "begin_checkout", { ...e, send_to: "appStoreCyb" });
+}
+function l(t) {
+  const e = S(t);
+  gtag("event", "purchase", { ...e, send_to: "appStoreCyb" });
+}
+function z(t) {
+  const e = b(t);
+  gtag("event", "view_item", { ...e, send_to: "appStoreCyb" });
+}
+function F(t) {
+  const e = T(t);
+  gtag("event", "add_shipping_info", { ...e, send_to: "appStoreCyb" });
+}
+function j(t) {
+  const e = P(t);
+  gtag("event", "add_payment_info", { ...e, send_to: "appStoreCyb" });
+}
+function O(t) {
+  const e = A(t);
+  gtag("event", "sign_up", { ...e, send_to: "appStoreCyb" });
+}
+function U(t) {
+  const e = E(t);
+  gtag("event", "product_video_view", { ...e, send_to: "appStoreCyb" });
+}
+function q(t) {
+  const e = L(t);
+  gtag("event", "view_coupons", { ...e, send_to: "appStoreCyb" });
+}
+function N(t) {
+  const e = R(t);
+  gtag("event", "search_coupon", { ...e, send_to: "appStoreCyb" });
+}
+function x(t) {
+  const e = Z(t);
+  gtag("event", "select_coupon", { ...e, send_to: "appStoreCyb" });
+}
+function Q(t) {
+  const e = V(t);
+  gtag("event", "apply_coupon", { ...e, send_to: "appStoreCyb" });
+}
+if (window.CYBERBIZ && window.CYBERBIZ.initializeSDK) {
+  const t = f();
+  t != null && t.length && (r.addListener("addToCart", G), r.addListener("removeFromCart", K), r.addListener("beginCheckout", k), r.addListener("purchase", l), r.addListener("periodicPurchase", l), r.addListener("viewItem", z), r.addListener("addShippingInfo", F), r.addListener("addPaymentInfo", j), r.addListener("signUp", O), r.addListener("productVideoView", U), r.addListener("viewCoupons", q), r.addListener("searchCoupon", N), r.addListener("selectCoupon", x), r.addListener("applyCoupons", Q));
+}
+
+})();

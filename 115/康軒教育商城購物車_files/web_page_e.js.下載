@@ -1,0 +1,90 @@
+/****************************
+WOW
+*****************************/
+wow = new WOW(
+    {
+        animateClass: 'animate__animated',
+        offset: 50,
+        mobile: true,
+        callback: function (box) {
+            //console.log("WOW: animating <" + box.tagName.toLowerCase() + ">")
+        }
+    }
+);
+wow.init();
+
+/****************************
+scrollReveal
+****************************
+window.scrollReveal = new scrollReveal(
+    {
+    }
+);
+*/
+
+/****************************
+DRAWER-ITEM
+*****************************/
+$(function ($) {
+    $.fn.drawer = function (options) {
+        var settings = $.extend({
+            slideSpeed: 500,
+            arrowIcon: "＞"
+        }, options);
+        return this.each(function () {
+            $(".drawer-header-icon", this).html(settings.arrowIcon);
+            $(".drawer-header", this).click(function (e) {
+                e.preventDefault;
+                $(this).parent().toggleClass("drawer-item-active")
+                $(this).next(".drawer-content").slideToggle(settings.slideSpeed);
+                $(".drawer-header-icon", this).toggleClass("drawer-header-icon-active");
+            });
+        });
+    };
+}(jQuery));
+$(function () {
+    $(".drawer-item").drawer({
+        slideSpeed: 200,
+        arrowIcon: ''
+    });
+});
+/****************************
+POPUP
+*****************************/
+$().ready(function () {
+    $("body").on("click", ".popup_101", function () {
+        $.mobilepopup({
+            targetblock: ".up_101",
+            width: " 90%",
+            height: " 90%"
+        });
+        return false;
+    });
+    $("body").on("click", ".popup_102", function () {
+
+        $.mobilepopup({
+            targetblock: ".up_102",
+            width: " 90%",
+            height: " 90%"
+        });
+        return false;
+    });
+});
+/****************************
+GO TOP
+*****************************/
+$(function () {
+    $("#gotop").click(function () {
+        jQuery("html,body").animate({
+            scrollTop: 0
+        }, 100);
+    });
+    $(window).scroll(function () {
+        if ($(this).scrollTop() > 100) {
+            $('#gotop').fadeIn("fast");
+        } else {
+            $('#gotop').stop().fadeOut("fast");
+        }
+    });
+});
+

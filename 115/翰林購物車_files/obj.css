@@ -1,0 +1,675 @@
+﻿html {font-size:16px;}
+body,input[type=number],textarea {
+    margin:0rem;
+    font-family:微軟正黑體,Helvetica, LiHei Pro Medium, Arial, sans-serif;
+    overflow-x:hidden;
+}
+.Mobile{
+    padding-top:2.75rem;
+}
+#Header,
+#Footer {
+	z-index:50;
+    margin:auto;
+    width:100%;
+}
+#Header>table,
+#Footer>table{
+    margin:auto;
+    width:80rem;
+}
+/*頁首-電腦版*/
+#Header table tr td,
+#Header table tr td a,
+#Header table tr td a:visited { 
+    color:Black;
+    text-decoration:none;
+}
+#Header table tr td table{/*頁首組別按鈕區*/
+    border-collapse:separate ;
+    border-spacing:0.125rem;
+    border:solid 0.125rem  #00A0E9;
+    padding:0rem;
+    background:#00A0E9; 
+} 
+#Header table tr td table tr td input[type="radio"] {/*移除原生radio標籤外觀*/
+    display: none;
+}
+#Header table tr td table tr td input[type="radio"]:checked + label {/*組別已選*/
+    /*background:linear-gradient(to right,#036EB8 95%,#0C60A9 97%,#253581 100%);*/
+    background:none;
+    background-color:#036EB8;
+} 
+#Header table tr td table tr td label {/*組別名稱*/
+    /*background:linear-gradient(to right,#00A0E9 95%,#0591D9 97%,#253581 100%);*/
+    background:url('/Images/Ico_Gap.jpg') no-repeat right; 
+    display:inline-block;
+    border:0;
+    margin:0;
+    width:11.875rem;
+    height:2.75rem;
+    line-height:2.75rem;
+    font-size:1.375rem;
+    font-weight:bold;  
+    color:white;
+    text-align:center;
+    vertical-align:middle; 
+    cursor:pointer;
+} 
+#Header table tr td table tr td input[type=text]{/*關鍵字文字框*/
+    width:17.5rem;
+    height:1.875rem;
+    border:none;
+    font-size:1.125rem;
+    border:none;  
+}
+#Header table tr td table tr td input[type=submit]{/*搜尋按鈕*/
+    background:url('/Images/BT_Search.png') no-repeat center;
+    background-size:1.875rem 1.875rem;
+    border:none;
+    color:transparent;
+    cursor:pointer;
+    width:1.875rem;
+    height:1.875rem;  
+    vertical-align:middle; 
+}
+/*頁尾*/
+#Footer{
+    background-color:#74696E;
+    width:100%;
+    z-index:50;
+    font-size:1.125rem;
+    margin-top:1.875rem 0 0 0;
+    position:relative; 
+}
+#Footer table{
+    margin:auto;
+    border:none;
+    border-collapse:collapse;
+    color:white;
+    line-height:2;
+    font-size:1.125rem;
+}
+#Footer table tr td{
+    white-space:nowrap;
+}
+#Footer table tr td a{
+   color:white;
+   text-decoration:none;
+}
+.Footer_TH{
+    border:none;
+    text-align:center;
+    font-size:1.25rem;
+    padding:0.625rem 0.625rem 0 0 ;
+    font-weight:bold;
+}
+.Footer_TD{
+    border:none;
+    text-align:left;    
+}
+ /*頁首-手機版*/
+.Mobile #Header,
+.Mobile #Footer,
+.Mobile #Header>table,
+.Mobile #Footer>table{
+    width:32.5rem; 
+}
+.Mobile #Header table input[type=button] {/*手機版頁首按鈕*/
+    width:2.5rem;
+    height:2.5rem;
+    border:none;
+    cursor:pointer;
+}
+.MainBody {
+    margin:auto;
+    width:80rem;
+}
+.MainBody>tbody,
+.MainBody>tbody>tr,
+.MainBody>tbody>tr>td {
+    padding:0rem;
+    margin:0;
+}
+.Mobile .MainBody {
+    width:32.5rem;
+}
+/*通用按鈕*/
+.BT_One {/*預設按鈕*/
+    border:none;
+    font-size:1.125rem;
+    padding:0.625rem;
+    background-color:#3370AC;
+    color:White;
+    border-radius:0.3125rem;
+    cursor:pointer;
+}
+.BT_Reload {/*重取驗證圖按鈕*/
+    background: url('/Images/Ico_Refresh.png') no-repeat center;
+    background-color:transparent;
+    border:none;
+    width:2.8125rem;
+    height:2.8125rem;
+    cursor:pointer;
+    margin:0;
+    vertical-align:middle;
+}
+.BT_Kind {/*按鈕-首頁類別*/
+    color:#3370AC;
+    background-color:white;
+    border:solid 0.0625rem #3370AC; 
+    border-radius:1.25rem;
+    padding:0.3125rem 0.625rem;
+    cursor:pointer;
+    margin-bottom:0.9375rem;
+    font-size:1.375rem;
+}
+.BT_KindActive {/*按鈕-首頁類別選取*/
+    color:white;
+    background-color:#3370AC;
+    border:solid 0.0625rem #3370AC; 
+    border-radius:1.25rem;
+    padding:0.3125rem 0.625rem;
+    cursor:pointer;
+    margin-bottom:0.9375rem;
+    font-size:1.375rem;
+}
+.BT_ArrowLeft {/*按鈕-左換頁*/
+    background:url('/Images/BT_ArrowLeft.png') no-repeat center;
+    width:1.25rem;
+    height:100%;
+    font-size:1.5rem;
+    background-color: transparent; 
+    border:none; 
+    cursor: pointer;
+}
+.BT_ArrowRight {/*按鈕-右換頁*/
+    background:url('/Images/BT_ArrowRight.png') no-repeat center;
+    background-color: transparent;
+    width:1.25rem;
+    height:100%;
+    font-size:1.5rem;
+    border:none;
+    cursor: pointer;
+}
+.BT_Eye{/*顯示隱藏密碼按鈕*/
+    background:url('/Images/Ico_eyeclose.png') no-repeat center;
+    background-size:1.875rem 1.875rem;
+    border:none;
+    color:transparent;
+    cursor:pointer;
+    width:1.875rem;
+    height:1.875rem;
+    vertical-align:middle;
+    position:relative;
+    left:-2.25rem
+}
+#BT_GoTop{
+    width:3.75rem;
+    height:3.75rem;
+    background:url('/Images/BT_Up.png') no-repeat center;
+    background-color:transparent;
+    cursor:pointer;
+    position:fixed;
+    z-index:50;
+    display:none;
+}
+/*驗證碼*/
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+/*選單*/
+#Menu_Link {
+    border:solid 0.0625rem black;
+    text-align:left;
+    display:block;
+    width:18.75rem;
+    background-color:white;
+    z-index:80;
+    position:absolute;
+    padding:0.625rem;
+    display:none;
+    transition:left 0.5s ease;
+}
+#Menu_Link hr{
+    border:solid 0.125rem #5B9BD5;
+    width:100%;
+}
+#Menu_Link a{
+    color:Black;
+    text-decoration:none;
+}
+#Menu_Link .GoPage{
+    width:100%;
+    text-align:center;
+    font-weight:bold;
+    font-size:1.25rem;
+    color:Black;
+    cursor:pointer;
+}
+#Menu_Link img{
+    border:0;
+    height:3.75rem;
+}
+#Menu_Link table {
+     width:100%;
+}
+#Menu_Link table caption {
+    font-weight:bold;
+    font-size:1.25rem;
+}
+#Menu_Link table td {
+    background-color:#BDD7EE;
+    font-weight:bold;
+    text-align:center;
+    font-size:1.25rem;
+    padding:0.625rem;
+}
+/*標題列*/
+.Title_Sort{/*標題-首頁排序*/  
+    height:1.875rem;
+    padding-left:0rem;
+    display:flex;
+    align-items:center;
+    margin-top:1.25rem;
+    margin-bottom:0.625rem; 
+}
+.Title_Regist{/*標題-加入會員*/
+    background:url('/Images/Title_Regist.png') no-repeat left;
+    color:#FB7D04;
+    font-size:1.125rem;
+    font-weight:bold;
+    width:100%;
+    margin:0;
+    padding:0.625rem 0 0.3125rem 1.5625rem;
+    display:inline-block;
+    align-items:center;
+}
+.Title_Query{
+        background:url('/Images/Title_Version.png') no-repeat left;
+        color:#FB7D04;
+        font-size:1.125rem;
+        font-weight:bold;
+        padding:0.625rem 0 0.625rem 1.5625rem;
+}
+/*物件*/
+.Span_Cart{/*購物車數量*/
+    background-color:#00A0E9;
+    border-radius:0.625rem;
+    color:white;
+    width:1.5625rem;
+    height:1.5625rem;
+    padding:0.125rem 0.3125rem;
+    text-align:center;   
+    text-decoration:none; 
+}
+#Div_Shadow{/*陰影*/
+    background-color:#666666;
+    opacity:0.5; 
+    width:100%;
+    height:100%;
+    text-align:right;
+    position:absolute;
+    top:0;
+    display:none;
+    z-index:70;
+    pointer-events: auto;
+}
+/*對話框*/
+.Form_Box    {/*區域-外框底色*/
+    margin:auto;
+    background-color:#D2EFFA;
+    border-radius:0.3125rem;
+}
+.Form_Box tr th {/*區域-標題*/
+    font-size:1.125rem;
+    color:#3370AC;
+    padding:0.625rem 0;
+    text-align:center;
+}
+.Form_Box tr td {/*區域-明細*/
+    font-size:1rem;
+    color:#3370AC;
+}
+.Form_Box tr td:nth-child(1){
+    padding:0.625rem 0 0.625rem 0.625rem;
+    text-align:right;
+}
+.Form_Box tr td:nth-child(2){
+    padding:0.625rem 0.625rem 0.625rem 0;
+    text-align:left;
+}
+.Form_Box tr td .Txt {/*文字框*/
+    color:#3370AC;
+    padding:0.3125rem;
+    border:solid 0.0625rem gray;
+    border-radius:3px;
+    width:21.875rem;
+    height:40px;
+    ime-mode:inactive;
+    font-size:1rem;
+    font-family:微軟正黑體,Helvetica, LiHei Pro Medium, Arial, sans-serif;
+}
+.Form_Box tr td img {/*驗證圖*/
+    height:2.5rem;
+    border:none;
+    margin:0;
+    vertical-align:middle;
+}
+/*首頁廣告區*/
+#Carousel {/*廣告區*/ 
+    height:23.75rem;
+    margin:auto; 
+    width:100%;
+}
+#Carousel img {
+    border:none;
+    width:100%;
+    height:23.75rem;
+    display:none;
+    cursor:pointer;
+}
+#Carousel div{/*輪播圖*/
+    position:absolute;
+}
+#Carousel input{/*輪播按鈕*/
+    border-radius:0.9375rem;
+    border:none;
+    margin-right:0.625rem;
+    padding:0.1875rem 0.625rem;
+    cursor:pointer;
+    background-color:white;
+    font-size:1.125rem;
+}
+/*手機版*/
+.Mobile #Carousel,
+.Mobile #Carousel img{
+    height:16.0625rem;
+}
+/*產品查詢選單*/
+.Menu_Product {/*區域-外框底色大小*/
+    border-collapse:collapse;
+    margin-top:0.625rem;
+    width:100%;
+}
+.Menu_Product tr th{/*區域-標題*/
+    background-color:#3370AC;
+    font-size:1.125rem;
+    color:white;
+    text-align:center;
+    width:6.25rem;
+    border-bottom:solid 0.3125rem #3370AC;
+    height:2.5rem;
+}
+.Menu_Product tr td{/*區域-明細*/
+    border-bottom:solid 0.3125rem #CCEDF9;
+}
+.Menu_Product tr td input[type="radio"] {/*移除原生radio標籤外觀*/
+    display: none;
+}
+.Menu_Product tr td input[type="radio"]:checked + label {/*已選樣式*/
+    text-decoration-line:underline;
+    text-decoration-color: #ffde81;
+    text-decoration-style:solid;
+    text-decoration-thickness:0.3125rem;
+}
+.Menu_Product tr td label {/*選項樣式*/
+    display:inline-block;
+    padding:0.3125rem 0.3125rem;
+    margin:0.3125rem;
+    color:#337ab7;
+    cursor:pointer;
+    border:none;
+    border-radius:0.1875rem;
+    font-size:1rem;
+    text-wrap:none;
+}
+.Menu_Product select,
+.Mobile .Menu_Product input,
+.Mobile .Menu_Product label {
+    display:none;
+}
+.Mobile .Menu_Product select {
+    display:block;
+    font-size:1.125rem;
+    width:80%;
+    margin-left:0.625rem;
+    border-radius:1.25rem;
+    padding:0.3125rem;
+    background-color:white;
+    border:solid 0.0625rem #696969;
+}
+/*首頁產品清單區、產品資訊(暢銷排行/新書上市/相關品項)*/
+.Area_Product {/*外框底色大小*/
+    background-color:white;
+    border-radius:1.25rem;
+    margin:auto; 
+    width:auto;
+    height:24.375rem;
+    padding:1.25rem;
+} 
+.Area_ProductList {/*明細*/
+    width:100%;
+    display:flex; 
+    justify-content:flex-start;
+    flex-wrap:nowrap; 
+    column-gap:0.625rem;
+    overflow-x:scroll;
+    overflow-y:hidden;
+}
+/*產品區塊*/
+.Original {/*區域-外框底色大小*/
+    width:12.5rem;
+    height:22.5rem;
+    overflow:hidden;
+    margin-bottom :0.875rem;
+    background-color:white;
+    padding:0;
+    border:solid 0.0625rem #cccccc;
+    flex-shrink: 0;
+}
+.Original table {
+    width:100%;
+    height:22.5rem;
+    padding:0;
+    margin:0;
+} 
+.Original table tr{
+    padding:0;
+    margin:0;
+}  
+.Original table tr:nth-child(1) td{/*區域-封面*/
+    vertical-align:middle;
+    text-align:center;
+    height:16.25rem;
+}
+.Original table tr:nth-child(2) td{/*區域-書名*/
+    vertical-align:top;
+    font-size:0.875rem;
+    font-weight:bold;
+    color:#0f0f0f;
+    padding-top:1.25rem;
+}
+.Original table tr:nth-child(3) td{/*區域-售價*/
+    height:1.875rem;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+}
+.Original table tr td Img{
+    max-width:11.25rem;
+    width:auto;
+    max-height:15.625rem;
+    height:auto;
+    border:none;
+}
+.Original table tr td del{
+    font-size:0.875rem;
+    color:#999999;
+    margin-right:1.25rem;
+}
+.Original table tr td span{
+    font-size:1rem;
+    color:#ED1C24;
+    text-wrap:none ; 
+}
+.Original table tr td input {
+    background:url('/Images/Ico_Cart.png') no-repeat bottom;
+    width:1.875rem;
+    height:1.875rem;
+    border:none;
+    cursor:pointer; 
+}
+.Original .BT_ToProduct {/*預設按鈕*/
+    width:12.5rem;
+    height:16.875rem;
+    position:relative;
+    top:-22.5rem;
+    z-index:40;
+    border:none;
+    background-color:transparent;
+    cursor:pointer;
+}
+.Select   .BT_ToProduct {
+    background:url('/Images/BT_Select.png') no-repeat center;
+    height:22.5rem;
+}
+.SellOut  .BT_ToProduct {
+    background:url('/Images/BT_SellOut.png') no-repeat center;
+    height:22.5rem;
+}
+.Select   table{/*狀態-已加入*/
+    opacity:0.5;
+    background-color:#ffee88;
+}
+.Select   table tr td input ,
+.SellOut  table tr td input {
+    display:none ;
+}
+.Select   table tr:nth-child(3) td,
+.SellOut  table tr:nth-child(3) td{
+    justify-content:flex-start; 
+}
+.SellOut  table{/*狀態-已售完*/
+    opacity:0.5;
+}
+/*會員選單樣式*/
+#Page_Menu_PN_Member{
+    width:5rem;
+    border:solid 0.0625rem #999999 ;
+    text-align:center;
+    background-color:white;
+    padding:0.625rem;
+    font-size:1.125rem;
+    line-height:2;
+    z-index:90;
+    position: absolute;
+}
+#Page_Menu_PN_Member hr{
+    border:solid 0.0625rem #999999;
+    margin:0.1875rem;
+}
+/*廣告*/
+.Area_Advertise{
+    position: absolute;
+    margin:0.625rem;
+    width: 12.5rem;
+    display: flex;
+    flex-direction:column;
+	z-index:60;
+}
+.Area_Advertise input[type=image]{
+    width:12.5rem;
+}
+.Mobile .Area_Advertise {
+    position:static;
+    width:100%;
+    display: flex;
+    align-items:flex-start;
+    flex-direction:row;
+}
+.Mobile .Area_Advertise span{
+    width:48%;
+}
+.Mobile .Area_Advertise input[type=image]{
+    width:100%;
+}
+/*加入會員條文*/
+.Rule_Level0{
+    list-style-type:none;
+    padding-left:2em;
+}
+.Rule_Level1{
+    list-style-type:cjk-ideographic;
+    suffix:'、';
+} 
+.Rule_Level2{
+    list-style-type:none;
+    margin-left:-1em;    
+}
+.Rule_Level2 li{
+    text-indent:-1em;
+}
+.Rule_Level3{
+    list-style-type:none;
+    margin-left:-2em;    
+}
+.Rule_Level3 li{
+    text-indent:-2em;
+}
+/*瀏覽紀錄*/
+#Menu_Hist{
+    display:block;
+    position:absolute;
+    z-index:50;
+    transition:left 0.5s ease;
+    background-color:white;
+}
+#Menu_Hist table {
+    background-color:white;
+    width:5.3125rem;
+    border-collapse:collapse;
+    border:solid 0.0625rem #CCCCCC;
+    position:absolute;
+}
+#Menu_Hist_Close {
+    display:none;
+}
+.Mobile #Menu_Hist{
+	z-index:80;
+    display:none;
+}
+.Mobile #Menu_Hist_Close {
+    display:block;
+}
+#GoTop{/*置頂按鈕*/
+    background:url('/Images/BT_ArrowUp.png') no-repeat center;
+    width:98%;
+    height:3.375rem;
+    cursor:pointer;
+    border:0;
+    display:block;
+}
+#GoBottom{/*置底按鈕*/
+    background:url('/Images/BT_ArrowDown.png') no-repeat center;
+    width:98%;
+    height:3.375rem;
+    cursor:pointer;
+    border-left:0;
+    border-right:0;
+    border-top:solid 0.0625rem #cccccc;
+    border-bottom:solid 0.0625rem #cccccc;
+    display:block;
+}
+.Mobile #GoTop {
+    display:none;
+}
+.Mobile #GoBottom{
+    display:none;
+}
+
