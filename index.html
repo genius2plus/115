@@ -1,11 +1,492 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=./115/採購策略報告.html" />
-    <title>重新導向中...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>115 上學期參考書採購策略與檢核報告</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.75);
+            --bg-card-alt: rgba(51, 65, 85, 0.5);
+            --border: rgba(255,255,255,0.08);
+            --text: #f1f5f9;
+            --text-dim: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-purple: #a78bfa;
+            --accent-green: #34d399;
+            --accent-amber: #fbbf24;
+            --accent-rose: #fb7185;
+            --accent-orange: #fb923c;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        /* Header */
+        header { text-align: center; margin-bottom: 3rem; animation: fadeIn 0.8s ease-out; }
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            padding: 0.4rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(8px);
+        }
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(to right, #fff, #c084fc, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle { color: var(--text-dim); font-weight: 300; font-size: 1rem; }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            animation: fadeIn 1s ease-out;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+            backdrop-filter: blur(12px);
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        .stat-num { font-size: 2rem; font-weight: 900; }
+        .stat-num.blue { color: var(--accent-blue); }
+        .stat-num.green { color: var(--accent-green); }
+        .stat-num.amber { color: var(--accent-amber); }
+        .stat-num.rose { color: var(--accent-rose); }
+        .stat-label { font-size: 0.85rem; color: var(--text-dim); margin-top: 0.3rem; }
+
+        /* Section */
+        .section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.8rem;
+            backdrop-filter: blur(14px);
+            margin-bottom: 2rem;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+            animation: slideUp 0.6s ease-out;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .section-title .icon { font-size: 1.4rem; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            padding: 0.9rem 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+            background: rgba(255,255,255,0.04);
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            text-align: left;
+            white-space: nowrap;
+        }
+        td {
+            padding: 0.8rem;
+            font-size: 0.88rem;
+            color: var(--text-dim);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            vertical-align: top;
+        }
+        tr:hover td { background: rgba(255,255,255,0.03); }
+
+        /* Publisher Badges */
+        .pub { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .pub-kang { background: rgba(56,189,248,0.15); color: #38bdf8; }
+        .pub-han { background: rgba(167,139,250,0.15); color: #a78bfa; }
+        .pub-nan { background: rgba(52,211,153,0.15); color: #34d399; }
+
+        /* Status */
+        .status { display: inline-flex; align-items: center; gap: 4px; font-size: 0.82rem; font-weight: 500; white-space: nowrap; }
+        .status-ok { color: var(--success); }
+        .status-miss { color: var(--danger); }
+        .status-warn { color: var(--warning); }
+
+        /* Progress Bar */
+        .progress-wrap { margin-top: 0.8rem; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 0.3rem; }
+        .progress-bar { height: 8px; background: rgba(255,255,255,0.08); border-radius: 8px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 8px; transition: width 1s ease-out; }
+        .fill-green { background: linear-gradient(90deg, #22c55e, #34d399); }
+        .fill-amber { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .fill-blue { background: linear-gradient(90deg, #3b82f6, #38bdf8); }
+
+        /* Alert Box */
+        .alert {
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            margin: 1rem 0;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            display: flex;
+            gap: 0.6rem;
+            align-items: flex-start;
+        }
+        .alert-warn { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: #fbbf24; }
+        .alert-danger { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; }
+        .alert-info { background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); color: #7dd3fc; }
+        .alert-success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: #86efac; }
+        .alert-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+        /* Strategy Cards */
+        .strategy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+        .strategy-card {
+            background: var(--bg-card-alt);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.2rem 1.4rem;
+            transition: transform 0.2s, border-color 0.3s;
+        }
+        .strategy-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.2); }
+        .strategy-card h4 { font-size: 1rem; margin-bottom: 0.6rem; color: var(--text); }
+        .strategy-card p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; }
+        .strategy-card .price-tag { font-size: 1.3rem; font-weight: 900; color: var(--accent-amber); margin-top: 0.5rem; }
+        .recommend { border-color: var(--accent-green) !important; }
+        .recommend::before { content: '⭐ 推薦'; display: inline-block; background: var(--accent-green); color: #000; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-bottom: 0.5rem; }
+
+        /* Cart tab */
+        .cart-header { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+        .cart-name { font-weight: 700; font-size: 1rem; }
+        .cart-meta { font-size: 0.8rem; color: var(--text-dim); }
+        .child-tag { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 0.72rem; font-weight: 600; }
+        .tag-iris { background: rgba(251,146,60,0.2); color: #fb923c; }
+        .tag-ian { background: rgba(56,189,248,0.2); color: #38bdf8; }
+        .tag-ken { background: rgba(167,139,250,0.2); color: #a78bfa; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.6rem; }
+            .section { padding: 1.2rem; }
+            th, td { padding: 0.6rem 0.5rem; font-size: 0.8rem; }
+            .stats-bar { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Print */
+        @media print {
+            body { background: #fff; color: #000; padding: 0; }
+            .section { box-shadow: none; border: 1px solid #ddd; }
+            th { background: #f0f0f0; color: #000; }
+            td { color: #333; }
+            .pub { border: 1px solid #ccc; }
+        }
+    </style>
 </head>
 <body>
-    <p>正在前往採購策略報告... 如果沒有自動跳轉，請點擊 <a href="./115/採購策略報告.html">這裡</a>。</p>
+<div class="container">
+
+    <!-- Header -->
+    <header>
+        <div class="badge">📚 115 學年度上學期</div>
+        <h1>參考書採購策略與檢核報告</h1>
+        <p class="subtitle">Ken · Ian · Iris ── 2026-07-11 產出</p>
+    </header>
+
+    <!-- Stats Overview -->
+    <div class="stats-bar">
+        <div class="stat-card">
+            <div class="stat-num blue">32</div>
+            <div class="stat-label">總需求品項</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num green">24</div>
+            <div class="stat-label">已在購物車</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num rose">9</div>
+            <div class="stat-label">尚未採購</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num amber">$5,400+</div>
+            <div class="stat-label">預估總費用</div>
+        </div>
+    </div>
+
+    <!-- ============ Ken ============ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">🧒</span> Ken ── 台北市志清國小 · 二年級</div>
+        <table>
+            <thead><tr><th>科目</th><th>學校版本</th><th>建議購買教材</th><th>狀態</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td rowspan="3">國語文</td>
+                    <td rowspan="3"><span class="pub pub-nan">南一版</span></td>
+                    <td>自修（南一）~$418</td>
+                    <td><span class="status status-ok">✅ book168 #21</span></td>
+                </tr>
+                <tr>
+                    <td>副版自修（翰林）~$414</td>
+                    <td><span class="status status-miss">❌ 未找到</span></td>
+                </tr>
+                <tr>
+                    <td>素養測驗卷（南一）~$117</td>
+                    <td><span class="status status-ok">✅ book168 #22</span></td>
+                </tr>
+                <tr>
+                    <td>數學</td>
+                    <td><span class="pub pub-han">翰林版</span></td>
+                    <td>素養測驗卷（翰林）~$117</td>
+                    <td><span class="status status-ok">✅ book168 #16</span></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="progress-wrap">
+            <div class="progress-label"><span>完成度</span><span style="color:var(--accent-amber)">75% (3/4)</span></div>
+            <div class="progress-bar"><div class="progress-fill fill-amber" style="width:75%"></div></div>
+        </div>
+    </div>
+
+    <!-- ============ Ian ============ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">🧒</span> Ian ── 桃園市潮音國小 · 二年級</div>
+        <table>
+            <thead><tr><th>科目</th><th>版本</th><th>教材</th><th>狀態</th></tr></thead>
+            <tbody>
+                <tr><td rowspan="5">國語文</td><td rowspan="5"><span class="pub pub-kang">康軒版</span></td>
+                    <td>自修（康軒）</td><td><span class="status status-ok">✅ book168 #14</span></td></tr>
+                <tr><td>評量（康軒）</td><td><span class="status status-ok">✅ book168 #12</span></td></tr>
+                <tr><td>正版測驗卷（康軒）</td><td><span class="status status-ok">✅ book168 #13</span></td></tr>
+                <tr><td>副版測驗卷（翰林）</td><td><span class="status status-miss">❌ 未找到</span></td></tr>
+                <tr><td>生字語詞簿（康軒）</td><td><span class="status status-ok">✅ 康軒商城</span></td></tr>
+
+                <tr><td rowspan="4">數學</td><td rowspan="4"><span class="pub pub-han">翰林版</span></td>
+                    <td>評量（翰林）</td><td><span class="status status-ok">✅ book168 #15</span></td></tr>
+                <tr><td>計算練習本（翰林）</td><td><span class="status status-ok">✅ book168 #18</span></td></tr>
+                <tr><td>正版測驗卷（翰林）</td><td><span class="status status-ok">✅ book168 #16</span></td></tr>
+                <tr><td>副版測驗卷（康軒）</td><td><span class="status status-ok">✅ 康軒商城</span></td></tr>
+
+                <tr><td rowspan="3">生活</td><td rowspan="3"><span class="pub pub-nan">南一版</span></td>
+                    <td>評量（南一）</td><td><span class="status status-ok">✅ book168 #19</span></td></tr>
+                <tr><td>正版測驗卷（南一）</td><td><span class="status status-ok">✅ book168 #20</span></td></tr>
+                <tr><td>副版測驗卷（康軒）</td><td><span class="status status-ok">✅ 康軒商城</span></td></tr>
+            </tbody>
+        </table>
+        <div class="progress-wrap">
+            <div class="progress-label"><span>完成度</span><span style="color:var(--success)">91.7% (11/12)</span></div>
+            <div class="progress-bar"><div class="progress-fill fill-green" style="width:91.7%"></div></div>
+        </div>
+    </div>
+
+    <!-- ============ Iris ============ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">👧</span> Iris ── 桃園市潮音國小 · 三年級</div>
+        <table>
+            <thead><tr><th>科目</th><th>版本</th><th>教材</th><th>狀態</th></tr></thead>
+            <tbody>
+                <tr><td rowspan="4">國語文</td><td rowspan="4"><span class="pub pub-kang">康軒版</span></td>
+                    <td>自修（康軒）</td><td><span class="status status-ok">✅ book168 #1</span></td></tr>
+                <tr><td>評量（康軒）</td><td><span class="status status-ok">✅ book168 #2</span></td></tr>
+                <tr><td>正版測驗卷（康軒）</td><td><span class="status status-ok">✅ book168 #3</span></td></tr>
+                <tr><td>副版測驗卷（南一）</td><td><span class="status status-miss">❌ 未找到</span></td></tr>
+
+                <tr><td rowspan="4">數學</td><td rowspan="4"><span class="pub pub-kang">康軒版</span></td>
+                    <td>評量（康軒）</td><td><span class="status status-ok">✅ book168 #4</span></td></tr>
+                <tr><td>計算練習本（康軒）</td><td><span class="status status-warn">⚠️ 有翰林版替代</span></td></tr>
+                <tr><td>正版測驗卷（康軒）</td><td><span class="status status-ok">✅ book168 #5</span></td></tr>
+                <tr><td>副版測驗卷（南一）</td><td><span class="status status-miss">❌ 未找到</span></td></tr>
+
+                <tr><td rowspan="3">社會</td><td rowspan="3"><span class="pub pub-kang">康軒版</span></td>
+                    <td>評量（康軒）</td><td><span class="status status-ok">✅ book168 #6</span></td></tr>
+                <tr><td>正版測驗卷（康軒）</td><td><span class="status status-ok">✅ book168 #7</span></td></tr>
+                <tr><td>副版測驗卷（南一）</td><td><span class="status status-miss">❌ 未找到</span></td></tr>
+
+                <tr><td rowspan="3">自然</td><td rowspan="3"><span class="pub pub-kang">康軒版</span></td>
+                    <td>評量（康軒）</td><td><span class="status status-ok">✅ book168 #8</span></td></tr>
+                <tr><td>正版測驗卷（康軒）</td><td><span class="status status-ok">✅ book168 #9</span></td></tr>
+                <tr><td>副版測驗卷（南一）</td><td><span class="status status-miss">❌ 未找到</span></td></tr>
+
+                <tr><td rowspan="2">英語文</td><td rowspan="2"><span class="pub pub-kang">康軒版</span></td>
+                    <td>正版測驗卷（康軒）</td><td><span class="status status-miss">❌ 未找到</span></td></tr>
+                <tr><td>副版測驗卷（南一）</td><td><span class="status status-miss">❌ 未找到</span></td></tr>
+            </tbody>
+        </table>
+        <div class="progress-wrap">
+            <div class="progress-label"><span>完成度</span><span style="color:var(--accent-rose)">62.5% (10/16)</span></div>
+            <div class="progress-bar"><div class="progress-fill fill-amber" style="width:62.5%"></div></div>
+        </div>
+    </div>
+
+    <!-- ============ 尚未採購 ============ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">🚨</span> 尚未加入購物車的品項</div>
+        <div class="alert alert-danger">
+            <span class="alert-icon">⚠️</span>
+            <span>以下 9 項商品尚未在任何購物車中找到，需要額外採購。預估金額 <strong>$1,180 ~ $1,510</strong>。</span>
+        </div>
+        <table>
+            <thead><tr><th>#</th><th>孩子</th><th>科目</th><th>品項</th><th>出版社</th><th>預估價</th><th>建議通路</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td><span class="child-tag tag-iris">Iris</span></td><td>國語</td><td>副版測驗卷 3上</td><td><span class="pub pub-nan">南一</span></td><td>$100-130</td><td>南一綠市集 / book168</td></tr>
+                <tr><td>2</td><td><span class="child-tag tag-iris">Iris</span></td><td>數學</td><td>副版測驗卷 3上</td><td><span class="pub pub-nan">南一</span></td><td>$100-130</td><td>南一綠市集 / book168</td></tr>
+                <tr><td>3</td><td><span class="child-tag tag-iris">Iris</span></td><td>社會</td><td>副版測驗卷 3上</td><td><span class="pub pub-nan">南一</span></td><td>$100-130</td><td>南一綠市集 / book168</td></tr>
+                <tr><td>4</td><td><span class="child-tag tag-iris">Iris</span></td><td>自然</td><td>副版測驗卷 3上</td><td><span class="pub pub-nan">南一</span></td><td>$100-130</td><td>南一綠市集 / book168</td></tr>
+                <tr><td>5</td><td><span class="child-tag tag-iris">Iris</span></td><td>英語</td><td>正版測驗卷 3上</td><td><span class="pub pub-kang">康軒</span></td><td>$100-130</td><td>康軒商城 / book168</td></tr>
+                <tr><td>6</td><td><span class="child-tag tag-iris">Iris</span></td><td>英語</td><td>副版測驗卷 3上</td><td><span class="pub pub-nan">南一</span></td><td>$100-130</td><td>南一綠市集 / book168</td></tr>
+                <tr><td>7</td><td><span class="child-tag tag-iris">Iris</span></td><td>數學</td><td>計算練習本 3上</td><td><span class="pub pub-kang">康軒</span></td><td>$80-100</td><td>康軒商城</td></tr>
+                <tr><td>8</td><td><span class="child-tag tag-ian">Ian</span></td><td>國語</td><td>副版測驗卷 2上</td><td><span class="pub pub-han">翰林</span></td><td>$100-130</td><td>翰林官網 / book168</td></tr>
+                <tr><td>9</td><td><span class="child-tag tag-ken">Ken</span></td><td>國語</td><td>副版自修 2上</td><td><span class="pub pub-han">翰林</span></td><td>$400-500</td><td>翰林官網 / book168</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============ 購物車現況 ============ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">🛒</span> 購物車現況總覽</div>
+
+        <!-- book168 -->
+        <div style="margin-bottom:1.5rem;">
+            <div class="cart-header">
+                <span class="cart-name">📦 book168.tw</span>
+                <span class="cart-meta">22 筆 23 件 · 原價 $3,937 → 9.8 折 <strong style="color:var(--accent-green)">$3,858</strong></span>
+            </div>
+            <table>
+                <thead><tr><th>#</th><th>商品名稱</th><th>數量</th><th>單價</th><th>對應</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>康軒國小國語3上-學習自修(預購)</td><td>1</td><td>$408</td><td><span class="child-tag tag-iris">Iris</span></td></tr>
+                    <tr><td>2</td><td>康軒國小國語3上-學習評量(預購)</td><td>1</td><td>$158</td><td><span class="child-tag tag-iris">Iris</span></td></tr>
+                    <tr><td>3</td><td>康軒國小國語3上-測驗卷(預購)</td><td>1</td><td>$135</td><td><span class="child-tag tag-iris">Iris</span></td></tr>
+                    <tr><td>4</td><td>康軒國小數學3上-學習評量(預購)</td><td>1</td><td>$158</td><td><span class="child-tag tag-iris">Iris</span></td></tr>
+                    <tr><td>5</td><td>康軒國小數學3上-測驗卷(預購)</td><td>1</td><td>$135</td><td><span class="child-tag tag-iris">Iris</span></td></tr>
+                    <tr><td>6</td><td>康軒國小社會3上-學習評量(預購)</td><td>1</td><td>$158</td><td><span class="child-tag tag-iris">Iris</span></td></tr>
+                    <tr><td>7</td><td>康軒國小社會3上-測驗卷(預購)</td><td>1</td><td>$135</td><td><span class="child-tag tag-iris">Iris</span></td></tr>
+                    <tr><td>8</td><td>康軒國小自然3上-學習評量(預購)</td><td>1</td><td>$158</td><td><span class="child-tag tag-iris">Iris</span></td></tr>
+                    <tr><td>9</td><td>康軒國小自然3上-測驗卷(預購)</td><td>1</td><td>$135</td><td><span class="child-tag tag-iris">Iris</span></td></tr>
+                    <tr><td>10</td><td>翰林國小三年級-數學計算小達人</td><td>1</td><td>$98</td><td><span class="child-tag tag-iris">Iris</span></td></tr>
+                    <tr><td>11</td><td>翰林國小三年級-數學素養小達人</td><td>1</td><td>$111</td><td><span class="child-tag tag-iris">Iris</span></td></tr>
+                    <tr><td>12</td><td>康軒國小國語2上-學習評量(預購)</td><td>1</td><td>$158</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
+                    <tr><td>13</td><td>康軒國小國語2上-測驗卷(預購)</td><td>1</td><td>$135</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
+                    <tr><td>14</td><td>康軒國小國語2上-學習自修(預購)</td><td>1</td><td>$408</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
+                    <tr><td>15</td><td>翰林國小2上數學-實力評量(預購)</td><td>1</td><td>$158</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
+                    <tr><td>16</td><td>翰林國小2上數學-學習卷(預購)</td><td style="color:var(--accent-amber);font-weight:700">2</td><td>$135</td><td><span class="child-tag tag-ian">Ian</span> <span class="child-tag tag-ken">Ken</span></td></tr>
+                    <tr><td>17</td><td>翰林國小二年級-數學素養小達人</td><td>1</td><td>$98</td><td><span class="child-tag tag-ian">Ian</span>/<span class="child-tag tag-ken">Ken</span></td></tr>
+                    <tr><td>18</td><td>翰林國小二年級-數學計算小達人</td><td>1</td><td>$85</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
+                    <tr><td>19</td><td>南一國小2上生活-學習成就評量</td><td>1</td><td>$158</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
+                    <tr><td>20</td><td>南一國小2上生活-百分評量卷</td><td>1</td><td>$135</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
+                    <tr><td>21</td><td>南一國小2上國語-新超群自修</td><td>1</td><td>$408</td><td><span class="child-tag tag-ken">Ken</span></td></tr>
+                    <tr><td>22</td><td>南一國小2上國語-百分評量卷</td><td>1</td><td>$135</td><td><span class="child-tag tag-ken">Ken</span></td></tr>
+                </tbody>
+            </table>
+            <div class="alert alert-info" style="margin-top:0.8rem;">
+                <span class="alert-icon">💡</span>
+                <span>book168 滿 2,000 打 9.8 折、滿 10,000 打 9.7 折、滿 1,200 免運。</span>
+            </div>
+        </div>
+
+        <!-- 翰林 -->
+        <div style="margin-bottom:1.5rem;">
+            <div class="cart-header">
+                <span class="cart-name">📦 翰林出版官網</span>
+                <span class="cart-meta">3 項 · 小計 <strong style="color:var(--accent-amber)">$397</strong></span>
+            </div>
+            <table>
+                <thead><tr><th>#</th><th>商品名稱</th><th>數量</th><th>單價</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>國小贏家-數學素養小達人(2年級)</td><td>1</td><td>$128</td></tr>
+                    <tr><td>2</td><td>國小贏家-數學計算小達人(2年級)</td><td>1</td><td>$111</td></tr>
+                    <tr><td>3</td><td>國小(適翰)-講義式評量-數學(2上)</td><td>1</td><td>$158</td></tr>
+                </tbody>
+            </table>
+            <div class="alert alert-warn" style="margin-top:0.8rem;">
+                <span class="alert-icon">⚠️</span>
+                <span>翰林官網滿 $900 免物流處理費，目前僅 $397。且此 3 項與 book168 #15/#17/#18 部分重疊，注意不要重複下單！</span>
+            </div>
+        </div>
+
+        <!-- 康軒 / 南一 -->
+        <div style="margin-bottom:1rem;">
+            <div class="cart-header">
+                <span class="cart-name">📦 康軒教育商城</span>
+                <span class="cart-meta">12 項（含生字語詞簿、副版測驗卷等）</span>
+            </div>
+            <div class="alert alert-info">
+                <span class="alert-icon">ℹ️</span>
+                <span>康軒商城購物車商品透過 JavaScript 動態載入，建議直接登入 <a href="https://www.k9books.com.tw/K9Web/index?go=Goods_Cart" style="color:var(--accent-blue)">康軒教育商城</a> 確認完整清單。</span>
+            </div>
+        </div>
+        <div>
+            <div class="cart-header">
+                <span class="cart-name">📦 南一綠市集</span>
+                <span class="cart-meta">品項待確認</span>
+            </div>
+            <div class="alert alert-info">
+                <span class="alert-icon">ℹ️</span>
+                <span>南一綠市集購物車為動態載入，建議直接登入 <a href="https://shop.nani1953.com.tw/carts/" style="color:var(--accent-blue)">南一綠市集</a> 確認。</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 採購策略 ============ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">📋</span> 採購策略建議</div>
+        <div class="strategy-grid">
+            <div class="strategy-card recommend">
+                <h4>策略 A：集中 book168</h4>
+                <p>將缺少的 9 項全部加入 book168，合併現有 22 項一起結帳。總額約 $5,200 可享 9.8 折 + 免運。</p>
+                <div class="price-tag">~$5,096 (9.8折後)</div>
+            </div>
+            <div class="strategy-card">
+                <h4>策略 B：按出版社拆單</h4>
+                <p>book168 保持現狀、翰林缺品加入翰林官網（補至 $900 免運）、南一缺品走南一綠市集、康軒缺品走康軒商城。</p>
+                <div class="price-tag">~$5,400 (分散)</div>
+            </div>
+            <div class="strategy-card">
+                <h4>策略 C：翰林補量達免運</h4>
+                <p>翰林官網加入 Ken 副版自修($414) + Ian 副版測驗卷($117)，合計 $928 &gt; $900 免運門檻。其餘南一缺品走 book168。</p>
+                <div class="price-tag">~$5,300</div>
+            </div>
+        </div>
+
+        <div class="alert alert-danger" style="margin-top:1.2rem;">
+            <span class="alert-icon">🚫</span>
+            <span><strong>重複購買警告：</strong>book168 的翰林品項（#15~#18）與翰林官網購物車有重疊。無論選擇哪種策略，結帳前請務必核對避免重複下單！</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="text-align:center; padding:2rem 0; color:var(--text-dim); font-size:0.8rem;">
+        <p>📅 報告產出時間：2026-07-11 16:09 · Powered by Antigravity</p>
+        <p style="margin-top:0.3rem;">資料來源：genius2plus.github.io · book168.tw · k9books.com.tw · books.hanlin.com.tw · shop.nani1953.com.tw</p>
+    </footer>
+
+</div>
 </body>
 </html>
