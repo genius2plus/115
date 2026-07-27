@@ -199,7 +199,7 @@
 
         /* Animations */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; } }
 
         /* Print */
         @media print {
@@ -341,7 +341,7 @@
         <div style="margin-bottom:1.5rem;">
             <div class="cart-header">
                 <span class="cart-name">📦 book168.tw</span>
-                <span class="cart-meta">現有 22 筆 23 件（含原先 Ken 的品項）</span>
+                <span class="cart-meta">扣除 Ken 品項後剩餘 20 筆 20 件 · 原價 $3,256 → 9.8 折 <strong style="color:var(--accent-green)">$3,191</strong></span>
             </div>
             <table>
                 <thead><tr><th>#</th><th>商品名稱</th><th>ISBN / 商品代碼</th><th>數量</th><th>單價</th><th>對應</th></tr></thead>
@@ -361,13 +361,13 @@
                     <tr><td>13</td><td>康軒國小國語2上-測驗卷(預購)</td><td><code style="color:var(--accent-blue)">psn:30638052</code></td><td>1</td><td>$135</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
                     <tr><td>14</td><td>康軒國小國語2上-學習自修(預購)</td><td><code style="color:var(--accent-blue)">psn:30637573</code></td><td>1</td><td>$408</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
                     <tr><td>15</td><td>翰林國小2上數學-實力評量(預購)</td><td><code style="color:var(--accent-blue)">psn:30654424</code></td><td>1</td><td>$158</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
-                    <tr><td>16</td><td>翰林國小2上數學-學習卷(預購)</td><td><code style="color:var(--accent-blue)">psn:30654426</code></td><td style="color:var(--accent-amber);font-weight:700">2</td><td>$135</td><td><span class="child-tag tag-ian">Ian</span> <span class="child-tag" style="background:rgba(255,255,255,0.1);color:var(--text-dim)">(Ken可刪除1份)</span></td></tr>
+                    <tr><td>16</td><td>翰林國小2上數學-學習卷(預購)</td><td><code style="color:var(--accent-blue)">psn:30654426</code></td><td>1</td><td>$135</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
                     <tr><td>17</td><td>翰林國小二年級-數學素養小達人</td><td><code style="color:var(--accent-blue)">psn:60417677</code></td><td>1</td><td>$98</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
                     <tr><td>18</td><td>翰林國小二年級-數學計算小達人</td><td><code style="color:var(--accent-blue)">psn:28250084</code></td><td>1</td><td>$85</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
                     <tr><td>19</td><td>南一國小2上生活-學習成就評量</td><td><code style="color:var(--accent-blue)">psn:30654311</code></td><td>1</td><td>$158</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
                     <tr><td>20</td><td>南一國小2上生活-百分評量卷</td><td><code style="color:var(--accent-blue)">psn:30654312</code></td><td>1</td><td>$135</td><td><span class="child-tag tag-ian">Ian</span></td></tr>
-                    <tr style="opacity:0.5;"><td>21</td><td><s>南一國小2上國語-新超群自修</s></td><td><code style="color:var(--accent-blue)">psn:30654296</code></td><td>1</td><td>$408</td><td><span class="child-tag" style="background:rgba(255,255,255,0.1);color:var(--text-dim)">Ken (可自購物車移除)</span></td></tr>
-                    <tr style="opacity:0.5;"><td>22</td><td><s>南一國小2上國語-百分評量卷</s></td><td><code style="color:var(--accent-blue)">psn:30654298</code></td><td>1</td><td>$135</td><td><span class="child-tag" style="background:rgba(255,255,255,0.1);color:var(--text-dim)">Ken (可自購物車移除)</span></td></tr>
+                    <tr style="opacity:0.4;"><td>21</td><td><s>南一國小2上國語-新超群自修</s></td><td><code style="color:var(--accent-blue)">psn:30654296</code></td><td><strong style="color:var(--danger)">0</strong></td><td>$408</td><td><span class="child-tag" style="background:rgba(255,255,255,0.1);color:var(--text-dim)">Ken (已刪除)</span></td></tr>
+                    <tr style="opacity:0.4;"><td>22</td><td><s>南一國小2上國語-百分評量卷</s></td><td><code style="color:var(--accent-blue)">psn:30654298</code></td><td><strong style="color:var(--danger)">0</strong></td><td>$135</td><td><span class="child-tag" style="background:rgba(255,255,255,0.1);color:var(--text-dim)">Ken (已刪除)</span></td></tr>
                 </tbody>
             </table>
             <div class="alert alert-info" style="margin-top:0.8rem;">
@@ -425,24 +425,19 @@
         <div class="strategy-grid">
             <div class="strategy-card recommend">
                 <h4>策略 A：集中 book168</h4>
-                <p>將缺少的 9 項全部加入 book168，合併現有 22 項一起結帳。總額約 $5,200 可享 9.8 折 + 免運。</p>
-                <div class="price-tag">~$5,096 (9.8折後)</div>
+                <p>將缺少的 8 項（Iris & Ian）加入 book168，併同現有項目結帳。</p>
+                <div class="price-tag">~$4,100 (9.8折後)</div>
             </div>
             <div class="strategy-card">
                 <h4>策略 B：按出版社拆單</h4>
-                <p>book168 保持現狀、翰林缺品加入翰林官網（補至 $900 免運）、南一缺品走南一綠市集、康軒缺品走康軒商城。</p>
-                <div class="price-tag">~$5,400 (分散)</div>
-            </div>
-            <div class="strategy-card">
-                <h4>策略 C：翰林補量達免運</h4>
-                <p>翰林官網加入 Ken 副版自修($414) + Ian 副版測驗卷($117)，合計 $928 &gt; $900 免運門檻。其餘南一缺品走 book168。</p>
-                <div class="price-tag">~$5,300</div>
+                <p>book168 保持現狀、翰林缺品加入翰林官網、南一缺品走南一綠市集、康軒缺品走康軒商城。</p>
+                <div class="price-tag">~$4,400 (分散)</div>
             </div>
         </div>
 
         <div class="alert alert-danger" style="margin-top:1.2rem;">
             <span class="alert-icon">🚫</span>
-            <span><strong>重複購買警告：</strong>book168 的翰林品項（#15~#18）與翰林官網購物車有重疊。無論選擇哪種策略，結帳前請務必核對避免重複下單！</span>
+            <span><strong>重複購買警告：</strong>book168 的翰林品項（#15~#18）與翰林官網購物車有重疊。結帳前請務必核對避免重複下單！</span>
         </div>
     </div>
 
