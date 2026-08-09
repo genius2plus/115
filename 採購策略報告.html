@@ -106,7 +106,7 @@
         .section-title .icon { font-size: 1.4rem; }
 
         /* Tables */
-        table { width: 100%; border-collapse: collapse; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th {
             padding: 0.9rem 0.8rem;
             font-size: 0.85rem;
@@ -244,7 +244,7 @@
     <!-- ============ Ian ============ -->
     <div class="section">
         <div class="section-title"><span class="icon">🧒</span> Ian ── 桃園市潮音國小 · 二年級 (教材檢核與到貨明細)</div>
-        <table>
+        <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;"><table style="min-width: 650px;">
             <thead><tr><th>科目</th><th>版本</th><th>教材品項 / 到貨明細</th><th>出版社</th><th>到貨與核銷狀態</th></tr></thead>
             <tbody>
                 <tr><td rowspan="4">國語文</td><td rowspan="4"><span class="pub pub-kang">康軒版</span></td>
@@ -263,7 +263,8 @@
                 <tr><td>國小生活 2上 測驗卷</td><td><span class="pub pub-nan">南一</span></td><td><span class="status status-warn">🛒 尚未到貨 (已找到 · book168 #20)</span></td></tr>
             </tbody>
         </table>
-        <div class="progress-wrap">
+        </div>
+<div class="progress-wrap">
             <div class="progress-label"><span>主教材到貨率 (實體已到貨/總需求)</span><span style="color:var(--accent-amber)">50.0% (4/8 已到貨)</span></div>
             <div class="progress-bar"><div class="progress-fill fill-amber" style="width:50%"></div></div>
         </div>
@@ -272,7 +273,7 @@
     <!-- ============ Iris ============ -->
     <div class="section">
         <div class="section-title"><span class="icon">👧</span> Iris ── 桃園市潮音國小 · 三年級 (教材檢核與到貨明細)</div>
-        <table>
+        <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;"><table style="min-width: 650px;">
             <thead><tr><th>科目</th><th>版本</th><th>教材品項 / 到貨明細</th><th>出版社</th><th>到貨與核銷狀態</th></tr></thead>
             <tbody>
                 <tr><td rowspan="3">國語文</td><td rowspan="3"><span class="pub pub-kang">康軒版</span></td>
@@ -293,6 +294,30 @@
                 <tr><td rowspan="3">自然</td><td rowspan="3"><span class="pub pub-kang">康軒版</span></td>
                     <td>國小自然 3上 學習自修<br><small style="color:var(--text-dim)">出貨標籤代碼 32021251 (出貨單#5)</small></td><td><span class="pub pub-kang">康軒</span></td><td><span class="status status-ok">📦 已到貨 (出貨單#5)</span></td></tr>
                 <tr><td>國小自然 3上 學習評量<br><small style="color:var(--text-dim)">出貨標籤代碼 32030151 (出貨單#4)</small></td><td><span class="pub pub-kang">康軒</span></td><td><span class="status status-ok">📦 已到貨 (出貨單#4)</span></td></tr>
+            </tbody>
+        </table>
+        </div>
+ </div>
+
+    <!-- ============ 尚未購買精算清單 ============ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">🛒</span> 尚未購買精算清單 (book168 建議品項)</div>
+        <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+        <table style="min-width: 820px; table-layout: fixed;">
+            <thead>
+                <tr>
+                    <th style="width: 4%;">#</th>
+                    <th style="width: 6%;">學童</th>
+                    <th style="width: 7%;">科目</th>
+                    <th style="width: 8%;">版本</th>
+                    <th style="width: 25%;">教材品項</th>
+                    <th style="width: 8%;">出版社</th>
+                    <th style="width: 8%;">原價</th>
+                    <th style="width: 16%;">最優通路價</th>
+                    <th style="width: 18%;">直達連結</th>
+                </tr>
+            </thead>
+            <tbody>
                            <tr><td>1</td><td><span class="child-tag tag-ian">Ian</span></td><td>數學</td><td><span class="pub pub-han">翰林版</span></td><td>國小數學 2上 實力評量</td><td><span class="pub pub-han">翰林</span></td><td>$210</td><td><strong>$158</strong> <small style="color:var(--text-dim)">(官網$168)</small></td><td><a href="https://www.book168.tw/" target="_blank" style="color:var(--accent-blue); text-decoration:underline; font-weight:bold;">🌐 book168 官網🔗</a></td></tr>
                 <tr><td>2</td><td><span class="child-tag tag-ian">Ian</span></td><td>數學</td><td><span class="pub pub-han">翰林版</span></td><td>國小數學 2上 測驗卷/學習卷</td><td><span class="pub pub-han">翰林</span></td><td>$180</td><td><strong>$135</strong> <small style="color:var(--text-dim)">(官網$144)</small></td><td><a href="https://www.book168.tw/" target="_blank" style="color:var(--accent-blue); text-decoration:underline; font-weight:bold;">🌐 book168 官網🔗</a></td></tr>
                 <tr><td>3</td><td><span class="child-tag tag-ian">Ian</span></td><td>數學</td><td><span class="pub pub-han">翰林版</span></td><td>國小數學 2上 計算練習本</td><td><span class="pub pub-han">翰林</span></td><td>$115</td><td><strong>$85</strong> <small style="color:var(--text-dim)">(官網$92)</small></td><td><a href="https://www.book168.tw/" target="_blank" style="color:var(--accent-blue); text-decoration:underline; font-weight:bold;">🌐 book168 官網🔗</a></td></tr>
@@ -300,7 +325,9 @@
                 <tr><td>5</td><td><span class="child-tag tag-ian">Ian</span></td><td>生活</td><td><span class="pub pub-nan">南一版</span></td><td>國小生活 2上 百分評量卷</td><td><span class="pub pub-nan">南一</span></td><td>$180</td><td><strong>$135</strong> <small style="color:var(--text-dim)">(官網$144)</small></td><td><a href="https://www.book168.tw/" target="_blank" style="color:var(--accent-blue); text-decoration:underline; font-weight:bold;">🌐 book168 官網🔗</a></td></tr>
             </tbody>
         </table>
-        <div style="text-align:right; font-size:0.9rem; margin-top:0.5rem; color:var(--accent-amber); font-weight:bold;">
+        </div>
+ </div>
+        <div style="text-align:right; font-size:0.9rem; margin-top:0.8rem; color:var(--accent-amber); font-weight:bold;">
             尚未購買 5 項書籍費用合計：$671 元
         </div>
 
